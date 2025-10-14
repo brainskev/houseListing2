@@ -2,11 +2,22 @@ import React from 'react'
 import { fetchProperties } from '@/utils/requests'
 import PropertyCard from '../PropertyCard'
 import Link from 'next/link'
-const HomeProperties = async() => {
-  const data = await fetchProperties();
-  const recentProperties = data?.properties
+
+const HomeProperties = async () => {
+  let data = null
+
+  try {
+    data = await fetchProperties()
+  } catch (error) {
+    console.error('Error fetching properties:', error)
+  }
+
+  // Safely handle missing or malformed data
+  const allProperties = Array.isArray(data?.properties) ? data.properties : []
+
+  const recentProperties = allProperties
     .sort(() => Math.random() - Math.random())
-    .slice(0, 3);
+    .slice(0, 3)
 
   return (
     <>
