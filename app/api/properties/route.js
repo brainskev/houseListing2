@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server';
 import connectDB from "@/config/db";
 import Property from "@/models/Property";
 import { getSessionUser } from "@/utils/getSessionUser";
@@ -81,7 +82,9 @@ export const POST = async (request) => {
 
     const newProperty = await Property.create(propertyData);
 
-    return new Response(JSON.stringify({ propertyId: newProperty._id }), { status: 201 });
+  return NextResponse.redirect(
+  `${process.env.NEXTAUTH_URL}/properties/${newProperty._id}`
+);
   } catch (error) {
     console.error("Error adding property:", error);
     return new Response(JSON.stringify({ message: error.message }), { status: 500 });

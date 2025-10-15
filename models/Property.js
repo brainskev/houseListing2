@@ -48,10 +48,12 @@ const PropertySchema = new Schema({
       type: String,
     },
   ],
-  rates: {
-    nightly: { type: Number },
-    weekly: { type: Number },
-    monthly: { type: Number },
+price: {
+    type: Number,
+    required: true, // main property price
+  },
+  monthlyRate: {
+    type: Number, // optional if available for monthly rent
   },
   seller_info: {
     name: {

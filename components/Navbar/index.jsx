@@ -68,7 +68,7 @@ const Navbar = () => {
                 priority={true}
               />
               <span className="hidden md:block text-white text-2xl font-bold ml-2">
-                RealEstateHub
+                Valles Real Estate
               </span>
             </Link>
             {/* Desktop Menu Hidden below md screens */}

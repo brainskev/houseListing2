@@ -8,8 +8,8 @@ import "react-toastify/dist/ReactToastify.css";
 import "photoswipe/dist/photoswipe.css";
 import { GlobalProvider } from "@/context/GlobalContext";
 export const metadata = {
-  title: "Real Estate Hub | Find Perfect Rental",
-  description: "Find your dream Rental Property",
+  title: "Valles Real Estate | TX",
+  description: "Local Realty Agency Fort Worth, TX | Find Your Dream Home with Us",
   keywords: "Rentals,Find Rentals,Find Property",
 };
 
