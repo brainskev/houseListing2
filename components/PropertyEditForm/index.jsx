@@ -27,12 +27,14 @@ const PropertyEditForm = () => {
       weekly: "",
       monthly: "",
       nightly: "",
+      price: "",
     },
     seller_info: {
       name: "",
       email: "",
       phone: "",
     },
+    
   });
   useEffect(() => {
     setMounted(true);
@@ -274,6 +276,39 @@ const PropertyEditForm = () => {
             />
           </div>
         </div>
+        <div className="mb-4 bg-blue-50 p-4">
+          <label className="block text-gray-700 font-bold mb-2">
+            Rates (Leave blank if not applicable)
+          </label>
+          <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+            <div className="flex items-center">
+              <label htmlFor="nightly_rate" className="mr-2">
+                Listing Price
+              </label>
+              <input
+                type="number"
+                id="price"
+                name="rates.price"
+                className="border rounded w-full py-2 px-3"
+                value={fields.rates.price}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="flex items-center">
+              <label htmlFor="monthly_rate" className="mr-2">
+                Monthly
+              </label>
+              <input
+                type="number"
+                id="monthly_rate"
+                name="rates.monthly"
+                className="border rounded w-full py-2 px-3"
+                value={fields.rates.monthly}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+        </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-bold mb-2">
             Amenities
@@ -465,52 +500,7 @@ const PropertyEditForm = () => {
             </div>
           </div>
         </div>
-        <div className="mb-4 bg-blue-50 p-4">
-          <label className="block text-gray-700 font-bold mb-2">
-            Rates (Leave blank if not applicable)
-          </label>
-          <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
-            <div className="flex items-center">
-              <label htmlFor="weekly_rate" className="mr-2">
-                Weekly
-              </label>
-              <input
-                type="number"
-                id="weekly_rate"
-                name="rates.weekly"
-                className="border rounded w-full py-2 px-3"
-                value={fields.rates.weekly}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex items-center">
-              <label htmlFor="monthly_rate" className="mr-2">
-                Monthly
-              </label>
-              <input
-                type="number"
-                id="monthly_rate"
-                name="rates.monthly"
-                className="border rounded w-full py-2 px-3"
-                value={fields.rates.monthly}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="flex items-center">
-              <label htmlFor="nightly_rate" className="mr-2">
-                Nightly
-              </label>
-              <input
-                type="number"
-                id="nightly_rate"
-                name="rates.nightly"
-                className="border rounded w-full py-2 px-3"
-                value={fields.rates.nightly}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-        </div>
+        
         <div className="mb-4">
           <label
             htmlFor="seller_name"
@@ -521,7 +511,7 @@ const PropertyEditForm = () => {
           <input
             type="text"
             id="seller_name"
-            name="seller_info.name."
+            name="seller_info.name"
             className="border rounded w-full py-2 px-3"
             placeholder="Name"
             value={fields.seller_info.name}

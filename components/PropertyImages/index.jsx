@@ -51,12 +51,13 @@ const PropertyImages = ({ images }) => {
                         ref={ref}
                         onClick={open}
                         src={image}
-                        alt=""
+                        alt={`Property image ${index + 1}`}
                         className="object-cover h-[400px] w-full rounded-xl"
                         width={0}
                         height={0}
-                        priority={true}
+                        priority={index === 0}
                         sizes="100vw"
+                        loading={index === 0 ? "eager" : "lazy"}
                       />
                     )}
                   </Item>

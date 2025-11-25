@@ -5,8 +5,8 @@ import {FaBed,FaBath,FaRulerCombined,FaMapMarker,FaMoneyBill} from "react-icons/
 const PropertyCard = ({property}) => {
   const getRatesDisplay = () => { 
     const {rates}=property;
-    if(rates.monthly){
-      return `${rates.monthly.toLocaleString()}/mo`
+    if(rates.price){
+      return `${rates.price.toLocaleString()}`
     }else if(rates.weekly){
     
         return `${rates.weekly.toLocaleString()}/wk`
@@ -50,7 +50,7 @@ const PropertyCard = ({property}) => {
             <span className="md:hidden lg:inline">sqft</span>
           </p>
         </div>
-        <div className="flex justify-center gap-4 text-green-900 text-sm mb-4">
+        {/* <div className="flex justify-center gap-4 text-green-900 text-sm mb-4">
           {property.rates.nightly && (
             <p>
               <FaMoneyBill className="inline mr-2" /> Nightly
@@ -66,7 +66,7 @@ const PropertyCard = ({property}) => {
               <FaMoneyBill className="inline mr-2" /> Monthly
             </p>
           )}
-        </div>
+        </div> */}
         <div className="border border-gray-100 mb-5" />
         <div className="flex flex-col lg:flex-row justify-between mb-4">
           <div className="flex align-middle gap-2 mb-4 lg:mb-0">

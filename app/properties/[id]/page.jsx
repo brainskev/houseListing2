@@ -48,7 +48,8 @@ const PropertyPage = () => {
       {loading && <Spinner loading={loading} />}
       {!loading && property && (
         <>
-          <PropertyHeaderImage image={property?.images?.[0]} />
+          {/* <PropertyHeaderImage image={property?.images?.[1]} /> */}
+          <PropertyImages images={property.images} />
           <section>
             <div className="container m-auto py-6 px-6">
               <Link
@@ -63,6 +64,7 @@ const PropertyPage = () => {
           <section className="bg-blue-50">
             <div className="container m-auto py-10 px-6">
               <div className="grid grid-cols-1 md:grid-cols-70/30 w-full gap-6">
+              {console.log("🧩 Property passed to PropertyDetails:", property)}
                 <PropertyDetails property={property} />
                 <aside className="space-y-4">
                   <BookmarkButton property={property} />
@@ -72,7 +74,7 @@ const PropertyPage = () => {
               </div>
             </div>
           </section>
-          <PropertyImages images={property.images} />
+          {/* <PropertyImages images={property.images} /> */}
         </>
       )}
     </>
