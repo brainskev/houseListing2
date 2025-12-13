@@ -13,6 +13,9 @@ const PropertyMap = ({ property }) => {
   const [loading, setLoading] = useState(true);
   const [geoCodeError, setGeoCodeError] = useState(false);
 
+  const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
+
   const [viewport, setViewport] = useState({
     latitude: 0,
     longitude: 0,
@@ -20,13 +23,22 @@ const PropertyMap = ({ property }) => {
     width: "100%",
     height: "500px",
   });
-  setDefaults({
-    key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // Your API key here.
-    language: "en", // Default language for responses.
-    region: "pk", // Default region for responses.
-  });
+
+  // Configure geocode defaults if key exists
+  if (googleApiKey) {
+    setDefaults({
+      key: googleApiKey,
+      language: "en",
+      region: "us",
+    });
+  }
   useEffect(() => {
     const fetchCoords = async () => {
+      if (!googleApiKey || !mapboxToken) {
+        setGeoCodeError(true);
+        setLoading(false);
+        return;
+      }
       try {
         const response = await fromAddress(
           `${property?.location?.street} ${property?.location?.city} ${property?.location?.state} ${property?.location?.zipcode}`
@@ -48,12 +60,16 @@ const PropertyMap = ({ property }) => {
       }
     };
     fetchCoords();
-  }, []);
+  }, [googleApiKey, mapboxToken, property]);
   if (loading) return <Spinner loading={loading} />;
 
   //Handle the case where no location data found
   if (geoCodeError) {
-    return <div className="text-xl">No Location data found</div>;
+    return (
+      <div className="text-sm text-gray-600 bg-gray-50 border border-dashed border-gray-200 p-4 rounded-lg">
+        Map unavailable. Add location details and set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY and NEXT_PUBLIC_MAPBOX_TOKEN to enable the map.
+      </div>
+    );
   }
 
   return (
@@ -66,7 +82,7 @@ const PropertyMap = ({ property }) => {
           latitude: lat,
           zoom: 15,
         }}
-        style={{ width: "100%", height: "500" }}
+        style={{ width: "100%", height: "500px" }}
         mapStyle="mapbox://styles/mapbox/streets-v9"
       >
         <Marker longitude={lng} latitude={lat} anchor="bottom">

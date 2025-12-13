@@ -1,55 +1,50 @@
-import React from "react";
-import {
-  EmailShareButton,
-  EmailIcon,
-  FacebookIcon,
-  FacebookShareButton,
-  TwitterIcon,
-  TwitterShareButton,
-  WhatsappShareButton,
-  WhatsappIcon,
-} from "react-share";
-const ShareButton = ({ property }) => {
+"use client";
+import React, { useCallback, useState } from "react";
+import { FaShareAlt } from "react-icons/fa";
+import { toast } from "react-toastify";
+
+const ShareButton = ({ property, className = "" }) => {
+  const [loading, setLoading] = useState(false);
   const shareUrl = `${process.env.NEXT_PUBLIC_DOMAIN}/properties/${property._id}`;
+
+  const handleShare = useCallback(async () => {
+    try {
+      setLoading(true);
+      if (navigator?.share) {
+        await navigator.share({
+          title: property?.name,
+          text: property?.description,
+          url: shareUrl,
+        });
+        return;
+      }
+
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success("Link copied to clipboard");
+        return;
+      }
+
+      toast.error("Sharing is not supported in this browser");
+    } catch (error) {
+      console.error("Share error", error);
+      toast.error("Unable to share right now");
+    } finally {
+      setLoading(false);
+    }
+  }, [property?.description, property?.name, shareUrl]);
+
   return (
-    <>
-      <h3 className="text-xl font-bold pt-2 text-center">
-        Share This Property
-      </h3>
-      <div className="flex justify-center py-2 gap-3">
-        <FacebookShareButton
-          url={shareUrl}
-          quote={property.name}
-          hashtag={`#${property?.type?.replace(/\s/g, "")}ForRent`}
-        >
-          <FacebookIcon size={32} round={true} />
-        </FacebookShareButton>
-
-        <TwitterShareButton
-          url={shareUrl}
-          title={property.name}
-          hashtags={[`${property?.type?.replace(/\s/g, "")}ForRent`]}
-        >
-          <TwitterIcon size={32} round={true} />
-        </TwitterShareButton>
-
-        <WhatsappShareButton
-          url={shareUrl}
-          title={property.name}
-          separator={` ${property?.type?.replace(/\s/g, "")}ForRent `}
-        >
-          <WhatsappIcon size={32} round={true} />
-        </WhatsappShareButton>
-
-        <EmailShareButton
-          url={shareUrl}
-          subject={property.name}
-          body={`checkout this property listing at ${shareUrl} `}
-        >
-          <EmailIcon size={32} round={true} />
-        </EmailShareButton>
-      </div>
-    </>
+    <button
+      type="button"
+      onClick={handleShare}
+      disabled={loading}
+      className={`flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 text-gray-700 hover:bg-gray-50 transition text-sm ${
+        loading ? "opacity-70 cursor-not-allowed" : ""
+      } ${className}`.trim()}
+    >
+      <FaShareAlt /> Share
+    </button>
   );
 };
 

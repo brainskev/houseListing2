@@ -2,89 +2,89 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {FaBed,FaBath,FaRulerCombined,FaMapMarker,FaMoneyBill} from "react-icons/fa"
+
 const PropertyCard = ({property}) => {
   const getRatesDisplay = () => { 
     const {rates}=property;
     if(rates.price){
-      return `${rates.price.toLocaleString()}`
+      return `$${rates.price.toLocaleString()}`
+    }else if(rates.monthly){
+      return `$${rates.monthly.toLocaleString()}/mo`
     }else if(rates.weekly){
-    
-        return `${rates.weekly.toLocaleString()}/wk`
-     
+      return `$${rates.weekly.toLocaleString()}/wk`
     }else if(rates.nightly){
-  
-        return `${rates.nightly.toLocaleString()}/ng`
-      
+      return `$${rates.nightly.toLocaleString()}/night`
     }
    }
+
   return (
-    <div className="rounded-xl shadow-md relative">
-      <Image
-        src={property.images[0]}
-        alt=""
-        sizes="100vw"
-        width={0}
-        height={0}
-        className="w-full h-auto rounded-t-xl"
-      />
-      <div className="p-4">
-        <div className="text-left md:text-center lg:text-left mb-6">
-          <div className="text-gray-600">{property?.type}</div>
-          <h3 className="text-xl font-bold">{property?.name}</h3>
-        </div>
-        <h3 className="absolute top-[10px] right-[10px] bg-white px-4 py-2 rounded-lg text-blue-500 font-bold text-right md:text-center lg:text-right">
-          ${getRatesDisplay()}
-        </h3>
-        <div className="flex justify-center gap-4 text-gray-500 mb-4">
-          <p>
-            <FaBed className="inline mr-2" /> {property?.beds}{" "}
-            <span className="md:hidden lg:inline">Beds</span>
-          </p>
-          <p>
-            <FaBath className="inline mr-2" /> {property?.baths}{" "}
-            <span className="md:hidden lg:inline">Baths</span>
-          </p>
-          <p>
-            <FaRulerCombined className="inline mr-2" />
-            {property?.square_feet}{" "}
-            <span className="md:hidden lg:inline">sqft</span>
-          </p>
-        </div>
-        {/* <div className="flex justify-center gap-4 text-green-900 text-sm mb-4">
-          {property.rates.nightly && (
-            <p>
-              <FaMoneyBill className="inline mr-2" /> Nightly
-            </p>
-          )}
-          {property.rates.weekly && (
-            <p>
-              <FaMoneyBill className="inline mr-2" /> Weekly
-            </p>
-          )}
-          {property.rates.monthly && (
-            <p>
-              <FaMoneyBill className="inline mr-2" /> Monthly
-            </p>
-          )}
-        </div> */}
-        <div className="border border-gray-100 mb-5" />
-        <div className="flex flex-col lg:flex-row justify-between mb-4">
-          <div className="flex align-middle gap-2 mb-4 lg:mb-0">
-            <i className="fa-solid fa-location-dot text-lg text-orange-700" />
-            <span className="text-orange-700">
-              {" "}
-              {property?.location?.city} {property?.location?.state}{" "}
+    <Link href={`/properties/${property?._id}`} className="block h-full">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full cursor-pointer transform hover:-translate-y-1">
+        {/* Image Section with Overlay Badge */}
+        <div className="relative h-48 w-full">
+          <Image
+            src={property.images[0]}
+            alt={property.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+          {property.is_featured && (
+            <span className="absolute top-2 left-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md">
+              Featured
             </span>
+          )}
+          <div className="absolute top-2 right-2 bg-blue-600 text-white px-3 py-2 rounded-lg text-lg font-bold shadow-md">
+            {getRatesDisplay()}
           </div>
-          <Link
-            href={`/properties/${property?._id}`}
-            className="h-[36px] bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-center text-sm"
-          >
-            Details
-          </Link>
+          <div className="absolute bottom-2 left-2 bg-gray-900 bg-opacity-75 text-white px-3 py-1 rounded text-sm">
+            {property?.type}
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="p-5 flex-1 flex flex-col justify-between">
+          {/* Property Name */}
+          <div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+              {property?.name}
+            </h3>
+
+            {/* Location */}
+            <div className="flex items-center text-gray-600 mb-3">
+              <FaMapMarker className="mr-2 text-orange-600 flex-shrink-0" />
+              <span className="text-sm">
+                {property?.location?.city}, {property?.location?.state}
+              </span>
+            </div>
+
+            {/* Property Stats */}
+            <div className="flex items-center justify-start space-x-4 text-blue-600 mb-3">
+              <div className="flex items-center">
+                <FaBed className="mr-1" />
+                <span className="text-sm font-medium">{property?.beds}</span>
+              </div>
+              <div className="flex items-center">
+                <FaBath className="mr-1" />
+                <span className="text-sm font-medium">{property?.baths}</span>
+              </div>
+              <div className="flex items-center">
+                <FaRulerCombined className="mr-1" />
+                <span className="text-sm font-medium">{property?.square_feet} sqft</span>
+              </div>
+            </div>
+
+            {/* Monthly Rate (if different from main price) */}
+            {property.rates.monthly && property.rates.price && (
+              <div className="text-sm text-gray-500 mb-3">
+                <FaMoneyBill className="inline mr-1" />
+                ${property.rates.monthly.toLocaleString()}/mo
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

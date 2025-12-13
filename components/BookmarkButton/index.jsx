@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import { apiDomain } from "@/utils/requests";
 
-const BookmarkButton = ({ property }) => {
+const BookmarkButton = ({ property, className = "" }) => {
   const { data: session } = useSession();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,10 +34,11 @@ const BookmarkButton = ({ property }) => {
 
   const handleClick = async () => {
     if (!userId) {
-      toast.error("Please Signin to bookmark a property");
+      toast.error("Please sign in to bookmark a property");
       return;
     }
     try {
+      setLoading(true);
       const res = await axios.post(`${apiDomain}/bookmark`, {
         propertyId: property._id,
       });
@@ -47,23 +48,25 @@ const BookmarkButton = ({ property }) => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("something went wrong");
+      toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) return <p className="text-center">Loading...</p>;
-
   return (
     <button
+      type="button"
       onClick={handleClick}
-      className={`${
+      disabled={loading}
+      className={`flex items-center gap-2 px-4 py-2 rounded-full border text-sm transition ${
         isBookmarked
-          ? "bg-red-500 hover:bg-red-600"
-          : "bg-blue-500 hover:bg-blue-600"
-      }  text-white font-bold w-full py-2 px-4 rounded-full flex items-center justify-center`}
+          ? "border-blue-200 bg-blue-50 text-blue-700"
+          : "border-gray-200 text-gray-700 hover:bg-gray-50"
+      } ${loading ? "opacity-70 cursor-not-allowed" : ""} ${className}`.trim()}
     >
-      <FaBookmark className="mr-2" />{" "}
-      {isBookmarked ? "Remove Bookmark" : "Bookmark Property"}
+      <FaBookmark className={isBookmarked ? "text-blue-600" : "text-gray-500"} />
+      {isBookmarked ? "Saved" : "Save"}
     </button>
   );
 };

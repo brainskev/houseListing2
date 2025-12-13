@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { FaPaperPlane } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 const PropertyContactForm = ({ property }) => {
   const { data: session } = useSession();
   const [name, setName] = useState("");
@@ -42,7 +43,15 @@ const PropertyContactForm = ({ property }) => {
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h3 className="text-xl font-bold mb-6">Contact Property Manager</h3>
       {!session ? (
-        <p>You must be loggedin to send a message</p>
+        <div className="space-y-3">
+          <p className="text-sm text-gray-600">You must be logged in to send a message.</p>
+          <Link
+            href={`/login?callbackUrl=/properties/${property?._id}`}
+            className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Log in to message
+          </Link>
+        </div>
       ) : isSubmitted ? (
         <p className="text-green-500  mb-4">
           Your message has been sent successfully

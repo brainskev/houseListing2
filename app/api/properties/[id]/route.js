@@ -35,9 +35,12 @@ export const DELETE = async (request, { params }) => {
 
     if (!property) return new Response('Property Not Found', { status: 404 });
 
-    // Verify ownership
+    // Verify ownership or admin role (assistants cannot delete)
+    const userRole = sessionUser.user?.role;
     if (property.owner.toString() !== userId) {
-      return new Response('Unauthorized', { status: 401 });
+      if (userRole !== 'admin') {
+        return new Response('Unauthorized - Only property owner or admin can delete', { status: 403 });
+      }
     }
 
     await property.deleteOne();
@@ -75,9 +78,9 @@ export const PUT = async (request,{params}) => {
       return new Response("Property does not exist",{status:404})
     }
 
-    //verify Ownership
-
-    if(existingProperty.owner.toString()!==userId){
+    //verify Ownership or admin role
+    const userRole = sessionUser.user?.role;
+    if(existingProperty.owner.toString()!==userId && userRole !== 'admin'){
       return new Response("Unauthorized",{status:401})
     }
     // Create propertyData object for database

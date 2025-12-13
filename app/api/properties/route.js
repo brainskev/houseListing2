@@ -32,10 +32,18 @@ export const POST = async (request) => {
     await connectDB();
 
     const sessionUser = await getSessionUser();
+    if (sessionUser instanceof Response) return sessionUser;
 
     if (!sessionUser || !sessionUser.userId) {
       return new Response(JSON.stringify({ message: "User ID is required" }), {
         status: 401,
+      });
+    }
+
+    const role = sessionUser?.user?.role || "user";
+    if (!["admin", "assistant"].includes(role)) {
+      return new Response(JSON.stringify({ message: "Only staff can add properties" }), {
+        status: 403,
       });
     }
 
@@ -68,7 +76,7 @@ export const POST = async (request) => {
         price: formData.get("rates.price"),
         weekly: formData.get("rates.weekly"),
         monthly: formData.get("rates.monthly"),
-        nightly: formData.get("rates.nightly."),
+        nightly: formData.get("rates.nightly"),
       },
       seller_info: {
         name: formData.get("seller_info.name"),
@@ -98,12 +106,12 @@ export const POST = async (request) => {
       );
 
       imageUploadPromises.push(result.secure_url);
-
-      // Wait for all images to upload
-      const uploadedImages = await Promise.all(imageUploadPromises);
-      // Add uploaded images to the propertyData object
-      propertyData.images = uploadedImages;
     }
+
+    // Wait for all images to upload
+    const uploadedImages = await Promise.all(imageUploadPromises);
+    // Add uploaded images to the propertyData object
+    propertyData.images = uploadedImages;
 
     const newProperty = new Property(propertyData);
     await newProperty.save();
@@ -112,7 +120,7 @@ export const POST = async (request) => {
       `${process.env.NEXTAUTH_URL}/properties/${newProperty._id}`
     );
   } catch (error) {
-    return new Response(JSON.stringify({message: "Failed to add property"}), { status: 500 });
+    return new Response(JSON.stringify({ message: "Failed to add property" }), { status: 500 });
   }
 };
 

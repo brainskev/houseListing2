@@ -15,7 +15,6 @@ const Hero = () => {
         </div>
         {/*Place Search Form Below */}
         <PropertySearchForm />
-
         {/*End */}
       </div>
     </section>
