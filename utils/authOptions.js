@@ -117,7 +117,7 @@ export const authOptions = {
           token.role = dbUser.role || "user";
           token.name = dbUser.name || dbUser.username;
           token.status = dbUser.status || "active";
-          
+
           // Block access if user is blocked
           if (dbUser.status === "blocked") {
             return null; // This will end the session

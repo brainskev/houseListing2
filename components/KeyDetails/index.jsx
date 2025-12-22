@@ -32,7 +32,7 @@ const KeyDetails = ({
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3 px-4 sm:px-6 py-4">
         {items.map((item) => (
           <div key={item.label} className="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-3">
-            <div className="text-blue-600 text-lg flex-shrink-0">{item.icon}</div>
+            <div className="text-brand-600 text-lg flex-shrink-0">{item.icon}</div>
             <div>
               <div className="text-xs text-gray-500">{item.label}</div>
               <div className="text-base font-semibold text-gray-900">{item.value}</div>

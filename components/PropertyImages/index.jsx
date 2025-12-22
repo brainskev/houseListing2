@@ -1,83 +1,105 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
 
 import { Gallery, Item } from "react-photoswipe-gallery";
 
 const PropertyImages = ({ images }) => {
+  const imgs = useMemo(() => (Array.isArray(images) ? images.filter(Boolean) : []), [images]);
+  const [selected, setSelected] = useState(0);
+  // Prepare desktop thumbnails (show up to 4 excluding selected)
+  const desktopThumbs = useMemo(() => {
+    return imgs
+      .map((src, i) => ({ src, i }))
+      .filter(({ i }) => i !== selected)
+      .slice(0, 4);
+  }, [imgs, selected]);
+
+  if (!imgs.length) return null;
+
   return (
     <Gallery>
-      <section className="bg-gradient-to-b from-gray-900 to-gray-800 py-8">
+      <section className="py-6">
         <div className="container mx-auto px-4">
-          {images?.length === 1 ? (
-            <Item
-              original={images[0]}
-              thumbnail={images[0]}
-              width="1000"
-              height="600"
-            >
-              {({ ref, open }) => (
-                <Image
-                  ref={ref}
-                  onClick={open}
-                  src={images[0]}
-                  alt="Property main image"
-                  className="object-cover h-[500px] w-full mx-auto rounded-xl shadow-2xl cursor-pointer hover:opacity-95 transition-opacity"
-                  width={0}
-                  height={0}
-                  priority={true}
-                  sizes="100vw"
-                />
-              )}
-            </Item>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {images?.map((image, index) => (
-                <div
-                  key={index}
-                  className={`${
-                    images?.length === 3 && index === 2
-                      ? "col-span-2"
-                      : images?.length === 1
-                      ? "col-span-2"
-                      : index === 0 && images?.length > 1
-                      ? "md:col-span-2 md:row-span-2"
-                      : "col-span-1"
-                  }`}
-                >
-                  <Item
-                    original={image}
-                    thumbnail={image}
-                    width="1000"
-                    height="600"
-                  >
-                    {({ ref, open }) => (
-                      <div className="relative group h-full">
-                        <Image
+          {/* Desktop: main + 2x2 thumbs grid. Mobile: main + horizontal thumbs */}
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_300px] gap-3 md:gap-4">
+            {/* Main image */}
+            <div className="relative">
+              <Item original={imgs[selected]} thumbnail={imgs[selected]} width="1600" height="1000">
+                {({ ref, open }) => (
+                  <Image
+                    ref={ref}
+                    onClick={open}
+                    src={imgs[selected]}
+                    alt={`Property image ${selected + 1}`}
+                    className="w-full h-[48vh] md:h-[520px] object-cover rounded-lg cursor-pointer"
+                    width={0}
+                    height={0}
+                    priority
+                    sizes="(max-width:768px) 100vw, 70vw"
+                  />
+                )}
+              </Item>
+
+              {/* Mobile thumbnails: horizontal scroller */}
+              {imgs.length > 1 && (
+                <div className="mt-3 md:hidden flex gap-2 overflow-x-auto -mx-1 px-1">
+                  {imgs.map((src, i) => (
+                    <Item key={src + i} original={src} thumbnail={src} width="1600" height="1000">
+                      {({ ref, open }) => (
+                        <button
                           ref={ref}
-                          onClick={open}
-                          src={image}
-                          alt={`Property image ${index + 1}`}
-                          className={`object-cover w-full rounded-xl shadow-xl cursor-pointer hover:opacity-95 transition-opacity ${
-                            index === 0 ? "h-full min-h-[500px]" : "h-[245px]"
+                          type="button"
+                          onClick={() => {
+                            setSelected(i);
+                            open();
+                          }}
+                          className={`relative flex-shrink-0 rounded-md overflow-hidden border ${
+                            i === selected ? "border-brand-500 ring-1 ring-brand-300" : "border-gray-200"
                           }`}
-                          width={0}
-                          height={0}
-                          priority={index === 0}
-                          sizes="100vw"
-                          loading={index === 0 ? "eager" : "lazy"}
-                        />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-xl flex items-center justify-center">
-                          <span className="text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-60 px-4 py-2 rounded-lg">
-                            Click to view fullscreen
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                  </Item>
+                        >
+                          <Image src={src} alt={`Thumb ${i + 1}`} width={120} height={80} className="object-cover w-[120px] h-[80px]" />
+                        </button>
+                      )}
+                    </Item>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
+
+            {/* Desktop thumbnails: 2x2 grid next to main */}
+            {imgs.length > 1 && (
+              <div className="hidden md:grid grid-cols-2 grid-rows-2 gap-2">
+                {desktopThumbs.map(({ src, i }, idx) => {
+                  const remaining = imgs.length - 1 - desktopThumbs.length;
+                  const showOverlay = idx === desktopThumbs.length - 1 && remaining > 0;
+                  return (
+                    <Item key={src + i} original={src} thumbnail={src} width="1600" height="1000">
+                      {({ ref, open }) => (
+                        <button
+                          ref={ref}
+                          type="button"
+                          onClick={() => {
+                            setSelected(i);
+                            open();
+                          }}
+                          className={`relative rounded-lg overflow-hidden border ${
+                            i === selected ? "border-brand-500" : "border-gray-200"
+                          }`}
+                        >
+                          <Image src={src} alt={`Thumb ${i + 1}`} width={300} height={200} className="object-cover w-full h-[120px]" />
+                          {showOverlay && (
+                            <div className="absolute inset-0 bg-black/35 text-white flex items-center justify-center text-sm font-semibold">
+                              +{remaining} more
+                            </div>
+                          )}
+                        </button>
+                      )}
+                    </Item>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </Gallery>

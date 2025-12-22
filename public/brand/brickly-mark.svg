@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Brickly logo mark">
+  <defs>
+    <style>
+      .brick { rx: 3; ry: 3; }
+    </style>
+  </defs>
+  <!-- Stylized B made from bricks: left column solid; right column top/bottom bricks -->
+  <g fill="currentColor">
+    <!-- Left column -->
+    <rect class="brick" x="6" y="6" width="20" height="14" />
+    <rect class="brick" x="6" y="25" width="20" height="14" />
+    <rect class="brick" x="6" y="44" width="20" height="14" />
+    <!-- Right column (top and bottom to make the B bowls) -->
+    <rect class="brick" x="28" y="6" width="30" height="14" />
+    <rect class="brick" x="28" y="44" width="30" height="14" />
+    <!-- Middle connector to soften the shape -->
+    <rect class="brick" x="28" y="25" width="18" height="14" />
+  </g>
+</svg>

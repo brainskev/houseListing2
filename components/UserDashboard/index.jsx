@@ -139,11 +139,11 @@ const UserDashboard = () => {
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-70/30 gap-6">
-      <div className="md:order-2">
+    <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6">
+      <div>
         <Sidebar current={tab} onChange={setTab} />
       </div>
-      <div className="md:order-1">
+      <div>
         {tab === "dashboard" && (
           <section>
             <SectionTitle>Recommended Properties</SectionTitle>
@@ -196,7 +196,7 @@ const UserDashboard = () => {
                       </div>
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                          m.read ? "bg-yellow-100 text-yellow-700" : "bg-blue-100 text-blue-700"
+                          m.read ? "bg-yellow-100 text-yellow-700" : "bg-brand-100 text-brand-700"
                         }`}
                       >
                         {m.read ? "Contacted" : "New"}
@@ -212,7 +212,7 @@ const UserDashboard = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-600">You haven't sent any enquiries yet.</p>
+              <p className="text-gray-600">You haven&apos;t sent any enquiries yet.</p>
             )}
           </section>
         )}
@@ -236,7 +236,7 @@ const UserDashboard = () => {
                       <p className="mt-1 text-sm text-gray-700">
                         {new Date(a.date).toLocaleString()}
                       </p>
-                      <span className="mt-2 inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                      <span className="mt-2 inline-block rounded-full bg-brand-100 px-3 py-1 text-xs font-semibold text-brand-700">
                         {a.status}
                       </span>
                     </li>

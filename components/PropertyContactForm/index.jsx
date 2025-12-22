@@ -41,13 +41,13 @@ const PropertyContactForm = ({ property }) => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-xl font-bold mb-6">Contact Property Manager</h3>
+      <h3 className="text-xl font-semibold tracking-tight mb-6">Contact Property Manager</h3>
       {!session ? (
         <div className="space-y-3">
           <p className="text-sm text-gray-600">You must be logged in to send a message.</p>
           <Link
             href={`/login?callbackUrl=/properties/${property?._id}`}
-            className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="inline-flex w-full items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
           >
             Log in to message
           </Link>
@@ -125,7 +125,7 @@ const PropertyContactForm = ({ property }) => {
           </div>
           <div>
             <button
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline flex items-center justify-center"
+              className="bg-brand-500 hover:bg-brand-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline flex items-center justify-center"
               type="submit"
             >
               <FaPaperPlane className="mr-2" /> Send Message

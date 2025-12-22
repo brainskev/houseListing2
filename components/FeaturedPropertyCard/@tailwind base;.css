@@ -1,0 +1,158 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fallback font variable definitions */
+:root {
+  --font-sans: "Poppins", system-ui, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+}
+
+/* === Typography Layer === */
+@layer components {
+  .h1 {
+    @apply font-serif text-5xl md:text-6xl font-bold leading-tight tracking-tight text-slate-900;
+  }
+
+  .h2 {
+    @apply font-serif text-4xl md:text-5xl font-semibold leading-snug tracking-tight text-slate-900;
+  }
+
+  .h3 {
+    @apply font-serif text-3xl font-semibold leading-snug tracking-tight text-slate-900;
+  }
+
+  .h4 {
+    @apply font-sans text-2xl font-semibold leading-snug text-slate-900;
+  }
+
+  .body-lg {
+    @apply font-sans text-lg leading-relaxed text-slate-700;
+  }
+
+  .body-base {
+    @apply font-sans text-base leading-relaxed text-slate-700;
+  }
+
+  .body-sm {
+    @apply font-sans text-sm leading-relaxed text-slate-600;
+  }
+
+  .label {
+    @apply font-sans text-xs font-medium uppercase tracking-widest text-slate-500;
+  }
+
+  .muted {
+    @apply text-slate-500 text-sm;
+  }
+
+  .card-title {
+    @apply font-semibold text-lg leading-snug text-slate-900;
+  }
+}
+
+/* === Blog Content Styles === */
+.blog-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+.blog-content a {
+  text-decoration: underline;
+}
+
+.blog-content pre,
+.blog-content code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.blog-content h1 {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.blog-content h2 {
+  font-size: 1.375rem;
+  line-height: 1.875rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+}
+
+.blog-content h3 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.blog-content h4 {
+  font-size: 1.125rem;
+  line-height: 1.625rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.blog-content h5 {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.blog-content h6 {
+  font-size: 0.875rem;
+  line-height: 1.375rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.blog-content p {
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.blog-content ul,
+.blog-content ol {
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.blog-content li {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.blog-content blockquote {
+  border-left: 4px solid #e5e7eb;
+  padding-left: 0.75rem;
+  color: #6b7280;
+  margin: 0.75rem 0;
+}
+
+@media (min-width: 640px) {
+  .blog-content h1 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+
+  .blog-content h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .blog-content h3 {
+    font-size: 1.375rem;
+    line-height: 1.875rem;
+  }
+}

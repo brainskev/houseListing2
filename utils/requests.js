@@ -35,3 +35,33 @@ async function fetchProperty(id) {
 }
 
 export { fetchProperties, fetchProperty };
+/// Blog helpers
+async function fetchBlogPosts({ page = 1, pageSize = 10, status = "published", q = "" } = {}) {
+  try {
+    if (!apiDomain) {
+      return { total: 0, posts: [] };
+    }
+    const res = await axios.get(`${apiDomain}/blog`, {
+      params: { page, pageSize, status, q },
+    });
+    return res?.data || { total: 0, posts: [] };
+  } catch (error) {
+    console.log(error);
+    return { total: 0, posts: [] };
+  }
+}
+
+async function fetchBlogPostBySlug(slug) {
+  try {
+    if (!apiDomain) {
+      return null;
+    }
+    const res = await axios.get(`${apiDomain}/blog/slug/${slug}`);
+    return res?.data || null;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+export { fetchBlogPosts, fetchBlogPostBySlug };

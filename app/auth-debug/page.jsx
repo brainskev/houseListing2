@@ -81,7 +81,7 @@ export default function AuthDebugPage() {
             <div className="flex gap-3 flex-wrap">
               <button
                 onClick={testSignup}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="px-4 py-2 bg-brand-600 text-white rounded-md hover:bg-brand-700"
               >
                 Test Signup
               </button>

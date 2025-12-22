@@ -5,18 +5,18 @@ import { usePathname } from "next/navigation";
 
 const linksConfig = {
   admin: [
-    { href: "/dashboard/admin", label: "Enquiries" },
-    { href: "/dashboard/admin/appointments", label: "Viewing Appointments" },
     { href: "/dashboard/admin/properties", label: "Properties" },
+    { href: "/dashboard/admin/enquiries", label: "Enquiries" },
+    { href: "/dashboard/admin/appointments", label: "Viewing Appointments" },
     { href: "/dashboard/admin/users", label: "User Management" },
+    { href: "/dashboard/admin/blog", label: "Blog" },
     { href: "/dashboard/admin/settings", label: "Settings" },
   ],
   assistant: [
-    { href: "/dashboard/admin", label: "Enquiries" },
-    { href: "/dashboard/admin/appointments", label: "Viewing Appointments" },
-    { href: "/dashboard/admin/properties", label: "Properties" },
-    { href: "/dashboard/admin/users", label: "Users (View Only)" },
-    { href: "/dashboard/admin/settings", label: "Settings" },
+    { href: "/dashboard/assistant", label: "Enquiries" },
+    { href: "/dashboard/assistant/appointments", label: "Viewing Appointments" },
+    { href: "/dashboard/assistant/blog", label: "Blog" },
+    { href: "/dashboard/assistant/settings", label: "Settings" },
   ],
 };
 

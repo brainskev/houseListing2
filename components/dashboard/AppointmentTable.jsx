@@ -2,7 +2,7 @@
 
 const statusColors = {
   pending: "bg-amber-100 text-amber-800",
-  confirmed: "bg-blue-100 text-blue-800",
+  confirmed: "bg-brand-100 text-brand-800",
   completed: "bg-emerald-100 text-emerald-800",
 };
 
@@ -45,7 +45,7 @@ const AppointmentTable = ({ appointments = [], onStatusChange, disableActions = 
                 {!disableActions && (
                   <td className="px-4 py-3 text-right">
                     <select
-                      className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+                      className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none"
                       value={appointment.status}
                       onChange={(e) => onStatusChange(appointment._id, e.target.value)}
                     >

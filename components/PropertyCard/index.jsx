@@ -2,6 +2,8 @@ import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import {FaBed,FaBath,FaRulerCombined,FaMapMarker,FaMoneyBill} from "react-icons/fa"
+import BookmarkButton from '@/components/BookmarkButton'
+import ShareButton from '@/components/ShareButton'
 
 const PropertyCard = ({property}) => {
   const getRatesDisplay = () => { 
@@ -18,48 +20,54 @@ const PropertyCard = ({property}) => {
    }
 
   return (
-    <Link href={`/properties/${property?._id}`} className="block h-full">
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col h-full cursor-pointer transform hover:-translate-y-1">
-        {/* Image Section with Overlay Badge */}
-        <div className="relative h-48 w-full">
+    <Link href={`/properties/${property?._id}`} className="group block h-full">
+      <div className="bg-white/80 backdrop-blur rounded-2xl border border-slate-200/70 shadow-soft overflow-hidden transition-all duration-300 flex flex-col h-full cursor-pointer hover:-translate-y-1 hover:shadow-lift hover:border-slate-300">
+        {/* Image Section */}
+        <div className="relative h-52 w-full">
           <Image
             src={property.images[0]}
             alt={property.name}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/35 via-slate-900/0 to-slate-900/0" />
+
           {property.is_featured && (
-            <span className="absolute top-2 left-2 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md">
+            <span className="absolute top-3 left-3 bg-white/90 text-slate-900 px-3 py-1 rounded-full text-xs font-semibold shadow-sm border border-white/60">
               Featured
             </span>
           )}
-          <div className="absolute top-2 right-2 bg-blue-600 text-white px-3 py-2 rounded-lg text-lg font-bold shadow-md">
+
+          <div className="absolute top-3 right-3 rounded-xl bg-slate-900/85 text-white px-3 py-2 text-sm font-semibold shadow-sm backdrop-blur border border-white/10">
             {getRatesDisplay()}
           </div>
-          <div className="absolute bottom-2 left-2 bg-gray-900 bg-opacity-75 text-white px-3 py-1 rounded text-sm">
+
+          <div className="absolute bottom-3 left-3 rounded-lg bg-white/90 text-slate-900 px-3 py-1 text-xs font-semibold border border-white/60">
             {property?.type}
+          </div>
+
+          <div className="absolute bottom-3 right-3 flex gap-2">
+            <ShareButton property={property} className="px-2 py-1 text-xs" />
+            <BookmarkButton property={property} className="px-2 py-1 text-xs" />
           </div>
         </div>
 
         {/* Content Section */}
         <div className="p-5 flex-1 flex flex-col justify-between">
-          {/* Property Name */}
           <div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+            <h3 className="card-title line-clamp-2">
               {property?.name}
             </h3>
 
-            {/* Location */}
-            <div className="flex items-center text-gray-600 mb-3">
+            <div className="flex items-center text-slate-600 mb-3">
               <FaMapMarker className="mr-2 text-orange-600 flex-shrink-0" />
               <span className="text-sm">
                 {property?.location?.city}, {property?.location?.state}
               </span>
             </div>
 
-            {/* Property Stats */}
-            <div className="flex items-center justify-start space-x-4 text-blue-600 mb-3">
+            <div className="flex items-center justify-start space-x-4 text-brand-700 mb-3">
               <div className="flex items-center">
                 <FaBed className="mr-1" />
                 <span className="text-sm font-medium">{property?.beds}</span>
@@ -74,9 +82,8 @@ const PropertyCard = ({property}) => {
               </div>
             </div>
 
-            {/* Monthly Rate (if different from main price) */}
             {property.rates.monthly && property.rates.price && (
-              <div className="text-sm text-gray-500 mb-3">
+              <div className="muted">
                 <FaMoneyBill className="inline mr-1" />
                 ${property.rates.monthly.toLocaleString()}/mo
               </div>

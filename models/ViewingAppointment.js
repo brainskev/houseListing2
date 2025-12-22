@@ -31,6 +31,10 @@ const ViewingAppointmentSchema = new Schema(
       enum: ["pending", "confirmed", "completed"],
       default: "pending",
     },
+    note: {
+      type: String,
+      trim: true,
+    },
   },
   { timestamps: { createdAt: true, updatedAt: true } }
 );

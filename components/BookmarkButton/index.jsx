@@ -61,11 +61,11 @@ const BookmarkButton = ({ property, className = "" }) => {
       disabled={loading}
       className={`flex items-center gap-2 px-4 py-2 rounded-full border text-sm transition ${
         isBookmarked
-          ? "border-blue-200 bg-blue-50 text-blue-700"
+          ? "border-brand-200 bg-brand-50 text-brand-700"
           : "border-gray-200 text-gray-700 hover:bg-gray-50"
       } ${loading ? "opacity-70 cursor-not-allowed" : ""} ${className}`.trim()}
     >
-      <FaBookmark className={isBookmarked ? "text-blue-600" : "text-gray-500"} />
+      <FaBookmark className={isBookmarked ? "text-brand-600" : "text-gray-500"} />
       {isBookmarked ? "Saved" : "Save"}
     </button>
   );

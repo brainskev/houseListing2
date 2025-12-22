@@ -24,6 +24,20 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
     setDeleteModal(null);
   };
 
+  // Ensure admins and assistants appear at the top
+  const rolePriority = { admin: 0, assistant: 1, user: 2 };
+  const sortedUsers = Array.isArray(users)
+    ? [...users].sort((a, b) => {
+        const pa = rolePriority[a.role] ?? 3;
+        const pb = rolePriority[b.role] ?? 3;
+        if (pa !== pb) return pa - pb;
+        // Secondary sort by created date (newer first) to keep ordering consistent
+        const da = new Date(a.createdAt).getTime();
+        const db = new Date(b.createdAt).getTime();
+        return db - da;
+      })
+    : [];
+
   return (
     <>
       <div className="overflow-x-auto">
@@ -51,7 +65,7 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {users.map((user) => (
+            {sortedUsers.map((user) => (
               <tr key={user._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
@@ -87,7 +101,7 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
                       onChange={(e) => handleRoleChange(user._id, e.target.value)}
                       onBlur={() => setEditingRole(null)}
                       autoFocus
-                      className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-500"
                     >
                       <option value="user">User</option>
                       <option value="assistant">Assistant</option>
@@ -97,14 +111,14 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
                     <button
                       onClick={() => isAdmin && setEditingRole(user._id)}
                       disabled={!isAdmin}
-                      className={`inline-flex items-center gap-1 text-sm font-medium text-gray-900 ${isAdmin ? 'hover:text-blue-600 cursor-pointer' : 'cursor-not-allowed'}`}
+                      className={`inline-flex items-center gap-1 text-sm font-medium text-gray-900 ${isAdmin ? 'hover:text-brand-600 cursor-pointer' : 'cursor-not-allowed'}`}
                     >
                       <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           user.role === "admin"
                             ? "bg-purple-100 text-purple-800"
                             : user.role === "assistant"
-                            ? "bg-blue-100 text-blue-800"
+                            ? "bg-brand-100 text-brand-800"
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >

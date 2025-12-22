@@ -30,7 +30,7 @@ const RecommendedPropertyCard = ({ property }) => {
           className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
-        <div className="absolute top-2 right-2 rounded bg-blue-600 px-3 py-1 text-white text-sm font-semibold">
+        <div className="absolute top-2 right-2 rounded bg-brand-600 px-3 py-1 text-white text-sm font-semibold">
           {getPrice()}
         </div>
       </div>
@@ -49,7 +49,7 @@ const RecommendedPropertyCard = ({ property }) => {
         <div className="mt-3 grid grid-cols-3 gap-2">
           <button
             onClick={() => setEnquiryOpen(true)}
-            className="rounded bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+            className="rounded bg-brand-600 px-3 py-2 text-xs font-semibold text-white hover:bg-brand-700"
           >
             Enquire
           </button>

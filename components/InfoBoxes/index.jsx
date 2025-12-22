@@ -9,10 +9,10 @@ const InfoBoxes = () => {
   const canManageListings = ["admin", "assistant"].includes(session?.user?.role);
 
   const ownerButton = canManageListings
-    ? { text: "Add Property", link: "/properties/add", backgroundColor: "bg-blue-500" }
+    ? { text: "Add Property", link: "/properties/add", backgroundColor: "bg-brand-500" }
     : session
-    ? { text: "Send Enquiry", link: "/dashboard/user/enquiry", backgroundColor: "bg-blue-500" }
-    : { text: "Add Property", link: "/properties/add", backgroundColor: "bg-blue-500" };
+    ? { text: "Send Enquiry", link: "/dashboard/user/enquiry", backgroundColor: "bg-brand-500" }
+    : { text: "Add Property", link: "/properties/add", backgroundColor: "bg-brand-500" };
 
   return (
     <section>
@@ -27,8 +27,8 @@ const InfoBoxes = () => {
           </InfoBox>
 
           <InfoBox
-            heading={canManageListings ? "For Property Owners" : "For Owners & Hosts"}
-            backgroundColor={"bg-blue-100"}
+            heading={canManageListings ? "For Property Owners" : "For Owners & Agents"}
+            backgroundColor={"bg-brand-100"}
             buttonInfo={ownerButton}
           >
             {canManageListings

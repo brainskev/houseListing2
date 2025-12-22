@@ -104,8 +104,8 @@ function ResetPasswordForm() {
     <div className="bg-gray-50 min-h-screen flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FaLock className="text-2xl text-blue-600" />
+          <div className="w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FaLock className="text-2xl text-brand-600" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Reset your password
@@ -131,7 +131,7 @@ function ResetPasswordForm() {
                   setPassword(e.target.value);
                   setErrors((prev) => ({ ...prev, password: "" }));
                 }}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition ${
                   errors.password ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="At least 6 characters"
@@ -158,7 +158,7 @@ function ResetPasswordForm() {
                   setConfirmPassword(e.target.value);
                   setErrors((prev) => ({ ...prev, confirmPassword: "" }));
                 }}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition ${
                   errors.confirmPassword ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="Re-enter your password"
@@ -174,7 +174,7 @@ function ResetPasswordForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full bg-brand-600 text-white py-3 rounded-lg font-semibold hover:bg-brand-700 transition disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading ? "Resetting..." : "Reset Password"}
             </button>

@@ -56,7 +56,7 @@ export default function UserEnquiryPage() {
             name="name"
             value={form.name}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none"
             required
           />
         </div>
@@ -66,7 +66,7 @@ export default function UserEnquiryPage() {
             name="phone"
             value={form.phone}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none"
             required
           />
         </div>
@@ -77,7 +77,7 @@ export default function UserEnquiryPage() {
                 name="propertyId"
                 value={form.propertyId}
                 onChange={handleChange}
-                className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none"
                 placeholder="Link this enquiry to a property"
               />
             </div>
@@ -98,14 +98,14 @@ export default function UserEnquiryPage() {
             value={form.message}
             onChange={handleChange}
             rows={4}
-            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none"
             required
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60"
+          className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:opacity-60"
         >
           {loading ? "Submitting..." : "Submit Enquiry"}
         </button>

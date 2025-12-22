@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
             </p>
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+              className="inline-flex items-center gap-2 text-brand-600 hover:text-brand-700 font-medium"
             >
               <FaArrowLeft /> Back to Login
             </Link>
@@ -91,7 +91,7 @@ export default function ForgotPasswordPage() {
                 name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent transition"
                 placeholder="you@example.com"
                 required
                 disabled={loading}
@@ -101,7 +101,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full bg-brand-600 text-white py-3 rounded-lg font-semibold hover:bg-brand-700 transition disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading ? "Sending..." : "Send Reset Link"}
             </button>
@@ -119,7 +119,7 @@ export default function ForgotPasswordPage() {
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Don&#39;t have an account?{" "}
-          <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
+          <Link href="/signup" className="text-brand-600 hover:text-brand-700 font-medium">
             Sign up
           </Link>
         </p>

@@ -6,11 +6,14 @@ import cloudinary from "@/config/cloudinary";
 export const GET = async (request) => {
   try {
     await connectDB();
-    const page = request.nextUrl.searchParams.get("page") || 1;
-    const pageSize = request.nextUrl.searchParams.get("pageSize") || 6;
+    const page = Number(request.nextUrl.searchParams.get("page")) || 1;
+    const pageSize = Number(request.nextUrl.searchParams.get("pageSize")) || 6;
     const skip = (page - 1) * pageSize;
     const total = await Property.countDocuments({});
-    const properties = await Property.find({}).skip(skip).limit(pageSize);
+    const properties = await Property.find({})
+      .skip(skip)
+      .limit(pageSize)
+      .populate({ path: 'owner', select: 'name email' });
     const result = {
       total,
       properties,
@@ -116,11 +119,23 @@ export const POST = async (request) => {
     const newProperty = new Property(propertyData);
     await newProperty.save();
 
-    return Response.redirect(
-      `${process.env.NEXTAUTH_URL}/properties/${newProperty._id}`
+    return new Response(
+      JSON.stringify({
+        message: "Property added successfully",
+        _id: newProperty._id,
+        property: newProperty
+      }),
+      {
+        status: 201,
+        headers: { "Content-Type": "application/json" }
+      }
     );
   } catch (error) {
-    return new Response(JSON.stringify({ message: "Failed to add property" }), { status: 500 });
+    console.error("Error adding property:", error);
+    return new Response(JSON.stringify({ message: error.message || "Failed to add property" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 };
 

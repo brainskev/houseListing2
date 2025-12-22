@@ -26,13 +26,13 @@ const PropertyDetails = ({ property }) => {
     <main className="space-y-6">
       {/* Header Section - Property Name, Type, Location */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
+        <div className="bg-gradient-to-r from-brand-600 to-brand-700 text-white p-6">
           <div className="flex items-center gap-2 mb-2">
-            <FaHome className="text-blue-200" />
-            <span className="text-blue-100 text-sm font-medium uppercase tracking-wide">{property?.type}</span>
+            <FaHome className="text-brand-200" />
+            <span className="text-brand-100 text-sm font-medium uppercase tracking-wide">{property?.type}</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold mb-3">{property?.name}</h1>
-          <div className="flex items-start gap-2 text-blue-50">
+          <h1 className="text-3xl md:text-4xl font-semibold leading-tight tracking-tight mb-3">{property?.name}</h1>
+          <div className="flex items-start gap-2 text-brand-50">
             <FaMapMarker className="text-xl mt-1 flex-shrink-0" />
             <p className="text-lg">
               {property?.location?.street && `${property.location.street}, `}
@@ -44,14 +44,14 @@ const PropertyDetails = ({ property }) => {
         {/* Price Section */}
         <div className="p-6 border-b border-gray-100">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-blue-50 rounded-lg p-5">
+            <div className="bg-brand-50 rounded-lg p-5">
               <div className="flex items-center gap-2 text-gray-600 mb-2">
                 <FaDollarSign />
                 <span className="text-sm font-medium uppercase tracking-wide">Listing Price</span>
               </div>
               {property?.rates?.price ? (
                 <div>
-                  <div className="text-4xl font-bold text-blue-600">
+                  <div className="text-4xl font-bold text-brand-600">
                     ${property.rates.price.toLocaleString()}
                   </div>
                   {property.square_feet && (
@@ -96,17 +96,17 @@ const PropertyDetails = ({ property }) => {
         <div className="p-6">
           <div className="grid grid-cols-3 gap-4 text-center">
             <div className="bg-gray-50 rounded-lg p-4">
-              <FaBed className="text-3xl text-blue-600 mx-auto mb-2" />
+              <FaBed className="text-3xl text-brand-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{property?.beds}</div>
               <div className="text-sm text-gray-600">Bedrooms</div>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
-              <FaBath className="text-3xl text-blue-600 mx-auto mb-2" />
+              <FaBath className="text-3xl text-brand-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{property?.baths}</div>
               <div className="text-sm text-gray-600">Bathrooms</div>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
-              <FaRulerCombined className="text-3xl text-blue-600 mx-auto mb-2" />
+              <FaRulerCombined className="text-3xl text-brand-600 mx-auto mb-2" />
               <div className="text-2xl font-bold text-gray-900">{property?.square_feet?.toLocaleString()}</div>
               <div className="text-sm text-gray-600">Square Feet</div>
             </div>
@@ -116,8 +116,8 @@ const PropertyDetails = ({ property }) => {
 
       {/* Description Section */}
       <div className="bg-white p-6 rounded-xl shadow-lg">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <span className="w-1 h-6 bg-blue-600 rounded"></span>
+        <h2 className="text-2xl font-semibold tracking-tight text-gray-900 mb-4 flex items-center gap-2">
+          <span className="w-1 h-6 bg-brand-600 rounded"></span>
           Property Description
         </h2>
         <p className="text-gray-700 leading-relaxed text-lg">
@@ -128,8 +128,8 @@ const PropertyDetails = ({ property }) => {
       {/* Amenities Section */}
       {property?.amenities && property.amenities.length > 0 && (
         <div className="bg-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1 h-6 bg-blue-600 rounded"></span>
+          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 mb-4 flex items-center gap-2">
+            <span className="w-1 h-6 bg-brand-600 rounded"></span>
             Amenities & Features
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -146,8 +146,8 @@ const PropertyDetails = ({ property }) => {
       {/* Seller Info Section */}
       {property?.seller_info && (property.seller_info.name || property.seller_info.email || property.seller_info.phone) && (
         <div className="bg-white p-6 rounded-xl shadow-lg">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1 h-6 bg-blue-600 rounded"></span>
+          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 mb-4 flex items-center gap-2">
+            <span className="w-1 h-6 bg-brand-600 rounded"></span>
             Seller Information
           </h2>
           <div className="bg-gray-50 p-4 rounded-lg space-y-2">
@@ -160,7 +160,7 @@ const PropertyDetails = ({ property }) => {
             {property.seller_info.email && (
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-gray-700 w-20">Email:</span>
-                <a href={`mailto:${property.seller_info.email}`} className="text-blue-600 hover:underline">
+                <a href={`mailto:${property.seller_info.email}`} className="text-brand-600 hover:underline">
                   {property.seller_info.email}
                 </a>
               </div>
@@ -168,7 +168,7 @@ const PropertyDetails = ({ property }) => {
             {property.seller_info.phone && (
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-gray-700 w-20">Phone:</span>
-                <a href={`tel:${property.seller_info.phone}`} className="text-blue-600 hover:underline">
+                <a href={`tel:${property.seller_info.phone}`} className="text-brand-600 hover:underline">
                   {property.seller_info.phone}
                 </a>
               </div>
@@ -180,7 +180,7 @@ const PropertyDetails = ({ property }) => {
       {/**Map Box code */}
       {/* <div className="bg-white p-6 rounded-xl shadow-lg">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <span className="w-1 h-6 bg-blue-600 rounded"></span>
+          <span className="w-1 h-6 bg-brand-600 rounded"></span>
           Location
         </h2>
         <PropertyMap property={property} /> 

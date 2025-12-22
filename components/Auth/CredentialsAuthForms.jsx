@@ -104,7 +104,7 @@ export const CredentialsSignupForm = () => {
             name="name"
             value={form.name}
             onChange={handleChange}
-            className={`w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+            className={`w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 transition ${
               errors.name ? "border-red-500" : "border-gray-300"
             }`}
             placeholder="John Doe"
@@ -125,7 +125,7 @@ export const CredentialsSignupForm = () => {
             name="email"
             value={form.email}
             onChange={handleChange}
-            className={`w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+            className={`w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 transition ${
               errors.email ? "border-red-500" : "border-gray-300"
             }`}
             placeholder="you@example.com"
@@ -146,7 +146,7 @@ export const CredentialsSignupForm = () => {
             name="password"
             value={form.password}
             onChange={handleChange}
-            className={`w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+            className={`w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 transition ${
               errors.password ? "border-red-500" : "border-gray-300"
             }`}
             placeholder="At least 6 characters"
@@ -160,7 +160,7 @@ export const CredentialsSignupForm = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white rounded-md py-2.5 font-semibold hover:bg-blue-700 transition disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full bg-brand-600 text-white rounded-md py-2.5 font-semibold hover:bg-brand-700 transition disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {loading ? "Creating account..." : "Sign Up"}
         </button>
@@ -183,7 +183,7 @@ export const CredentialsSignupForm = () => {
 
       <p className="text-center text-sm text-gray-600">
         Already have an account?{" "}
-        <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+        <Link href="/login" className="text-brand-600 hover:text-brand-700 font-medium">
           Log in
         </Link>
       </p>
@@ -270,7 +270,7 @@ export const CredentialsLoginForm = () => {
             name="email"
             value={form.email}
             onChange={handleChange}
-            className={`w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+            className={`w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 transition ${
               errors.email ? "border-red-500" : "border-gray-300"
             }`}
             placeholder="you@example.com"
@@ -288,7 +288,7 @@ export const CredentialsLoginForm = () => {
             </label>
             <Link
               href="/forgot-password"
-              className="text-sm text-blue-600 hover:text-blue-700"
+              className="text-sm text-brand-600 hover:text-brand-700"
             >
               Forgot password?
             </Link>
@@ -299,7 +299,7 @@ export const CredentialsLoginForm = () => {
             name="password"
             value={form.password}
             onChange={handleChange}
-            className={`w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${
+            className={`w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500 transition ${
               errors.password ? "border-red-500" : "border-gray-300"
             }`}
             placeholder="Enter your password"
@@ -313,7 +313,7 @@ export const CredentialsLoginForm = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white rounded-md py-2.5 font-semibold hover:bg-blue-700 transition disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full bg-brand-600 text-white rounded-md py-2.5 font-semibold hover:bg-brand-700 transition disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {loading ? "Signing in..." : "Sign In"}
         </button>
@@ -335,7 +335,7 @@ export const CredentialsLoginForm = () => {
 
       <p className="text-center text-sm text-gray-600">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
+        <Link href="/signup" className="text-brand-600 hover:text-brand-700 font-medium">
           Sign up
         </Link>
       </p>

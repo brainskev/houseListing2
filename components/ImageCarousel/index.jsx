@@ -1,6 +1,7 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import Image from "next/image";
+import { Gallery, Item } from "react-photoswipe-gallery";
 
 const ImageCarousel = ({ images = [] }) => {
   const safeImages = Array.isArray(images) && images.length > 0 ? images : ["/properties/placeholder.jpg"];
@@ -31,99 +32,125 @@ const ImageCarousel = ({ images = [] }) => {
     startX = null;
   };
 
+  const desktopThumbs = useMemo(() => {
+    return safeImages
+      .map((src, i) => ({ src, i }))
+      .filter(({ i }) => i !== activeIndex)
+      .slice(0, 4);
+  }, [safeImages, activeIndex]);
+
   return (
-    <section className="bg-gray-900 text-white">
-      <div className="container mx-auto px-4 py-4">
-        <div
-          className="relative w-full h-[55vh] min-h-[320px] rounded-2xl overflow-hidden bg-gray-800"
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
-        >
-          <Image
-            src={safeImages[activeIndex]}
-            alt={`Property image ${activeIndex + 1}`}
-            fill
-            priority
-            className="object-cover"
-            sizes="100vw"
-          />
+    <Gallery>
+      <section className="py-4">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_450px] gap-3 md:gap-4">
+            {/* Main image */}
+            <div
+              className="relative w-full h-[50vh] min-h-[320px] rounded-lg overflow-hidden bg-gray-100"
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
+            >
+              <Item original={safeImages[activeIndex]} thumbnail={safeImages[activeIndex]} width="1600" height="1000">
+                {({ ref, open }) => (
+                  <Image
+                    ref={ref}
+                    onClick={open}
+                    src={safeImages[activeIndex]}
+                    alt={`Property image ${activeIndex + 1}`}
+                    fill
+                    priority
+                    className="object-cover cursor-pointer"
+                    sizes="100vw"
+                  />
+                )}
+              </Item>
+              {/* Optional arrows for quick browsing on desktop */}
+              {total > 1 && (
+                <>
+                  <button
+                    aria-label="Previous image"
+                    className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 bg-black/45 hover:bg-black/60 text-white rounded-full p-2 transition"
+                    onClick={() => goTo(activeIndex - 1)}
+                  >
+                    ❮
+                  </button>
+                  <button
+                    aria-label="Next image"
+                    className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 bg-black/45 hover:bg-black/60 text-white rounded-full p-2 transition"
+                    onClick={() => goTo(activeIndex + 1)}
+                  >
+                    ❯
+                  </button>
+                </>
+              )}
+              {/* Counter badge */}
+              <div className="absolute bottom-3 right-3 bg-black/60 text-white px-2.5 py-0.5 rounded-full text-xs">
+                {activeIndex + 1} / {total}
+              </div>
+            </div>
 
-          {/* Arrows */}
-          {total > 1 && (
-            <>
-              <button
-                aria-label="Previous image"
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition"
-                onClick={() => goTo(activeIndex - 1)}
-              >
-                ❮
-              </button>
-              <button
-                aria-label="Next image"
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-3 transition"
-                onClick={() => goTo(activeIndex + 1)}
-              >
-                ❯
-              </button>
-            </>
-          )}
-
-          {/* Image counter */}
-          <div className="absolute bottom-3 right-4 bg-black/60 px-3 py-1 rounded-full text-sm">
-            {activeIndex + 1} / {total}
+            {/* Desktop: 2x2 thumbnails beside main */}
+            {total > 1 && (
+              <div className="hidden md:grid grid-cols-2 grid-rows-2 gap-2">
+                {desktopThumbs.map(({ src, i }, idx) => {
+                  const remaining = total - 1 - desktopThumbs.length;
+                  const showOverlay = idx === desktopThumbs.length - 1 && remaining > 0;
+                  return (
+                    <Item key={src + i} original={src} thumbnail={src} width="1600" height="1000">
+                      {({ ref, open }) => (
+                        <button
+                          ref={ref}
+                          type="button"
+                          onClick={() => {
+                            setActiveIndex(i);
+                            open();
+                          }}
+                          className={`relative rounded-lg overflow-hidden border ${
+                            i === activeIndex ? "border-brand-500" : "border-gray-200"
+                          }`}
+                        >
+                          <Image src={src} alt={`Thumbnail ${i + 1}`} fill sizes="300px" className="object-cover" />
+                          {showOverlay && (
+                            <div className="absolute inset-0 bg-black/35 text-white flex items-center justify-center text-sm font-semibold">
+                              +{remaining} more
+                            </div>
+                          )}
+                        </button>
+                      )}
+                    </Item>
+                  );
+                })}
+              </div>
+            )}
           </div>
+
+          {/* Mobile: horizontal thumbnails scroller beneath main */}
+          {total > 1 && (
+            <div className="mt-3 md:hidden flex gap-2 overflow-x-auto -mx-1 px-1">
+              {safeImages.map((src, i) => (
+                <Item key={src + i} original={src} thumbnail={src} width="1600" height="1000">
+                  {({ ref, open }) => (
+                    <button
+                      ref={ref}
+                      type="button"
+                      onClick={() => {
+                        setActiveIndex(i);
+                        open();
+                      }}
+                      className={`relative flex-shrink-0 rounded-md overflow-hidden border ${
+                        i === activeIndex ? "border-brand-500 ring-1 ring-brand-300" : "border-gray-200"
+                      }`}
+                    >
+                      <Image src={src} alt={`Thumb ${i + 1}`} width={120} height={80} className="object-cover w-[120px] h-[80px]" />
+                    </button>
+                  )}
+                </Item>
+              ))}
+            </div>
+          )}
         </div>
-
-        {/* Thumbnails */}
-        {total > 1 && (
-          <>
-            {/* Mobile: horizontal scroll, compact thumbs */}
-            <div className="mt-3 flex gap-3 overflow-x-auto pb-2 md:hidden">
-              {safeImages.map((img, idx) => (
-                <button
-                  key={img + idx}
-                  className={`relative h-16 w-24 flex-shrink-0 rounded-lg overflow-hidden border-2 transition ${
-                    idx === activeIndex ? "border-blue-400" : "border-transparent hover:border-white/60"
-                  }`}
-                  onClick={() => goTo(idx)}
-                  aria-label={`Go to image ${idx + 1}`}
-                >
-                  <Image
-                    src={img}
-                    alt={`Thumbnail ${idx + 1}`}
-                    fill
-                    sizes="96px"
-                    className="object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-
-            {/* Desktop: grid */}
-            <div className="mt-4 hidden md:grid grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
-              {safeImages.map((img, idx) => (
-                <button
-                  key={img + idx}
-                  className={`relative h-20 rounded-lg overflow-hidden border-2 transition ${
-                    idx === activeIndex ? "border-blue-400" : "border-transparent hover:border-white/60"
-                  }`}
-                  onClick={() => goTo(idx)}
-                  aria-label={`Go to image ${idx + 1}`}
-                >
-                  <Image
-                    src={img}
-                    alt={`Thumbnail ${idx + 1}`}
-                    fill
-                    sizes="160px"
-                    className="object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-    </section>
+      </section>
+    </Gallery>
   );
 };
 

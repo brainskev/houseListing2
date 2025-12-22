@@ -32,7 +32,7 @@ const SimilarListings = ({ currentId, city, type }) => {
     <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-900">Similar Listings</h2>
-        <span className="text-sm text-blue-600">({listings.length})</span>
+        <span className="text-sm text-brand-600">({listings.length})</span>
       </div>
       {listings.length === 0 ? (
         <p className="text-sm text-gray-600">No similar listings found.</p>

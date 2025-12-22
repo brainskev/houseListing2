@@ -1,13 +1,14 @@
 'use client'
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import logo from "@/assets/images/logo-white.png";
+import BricklyLogo from "@/components/Brand/BricklyLogo";
 import profileDefault from "@/assets/images/profile.png";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import UnreadMessageCount from "../UnReadMessageCount";
-import { FaHome, FaKey, FaUser, FaSignOutAlt, FaBookmark, FaEnvelope, FaTh } from "react-icons/fa";
+import { FaKey, FaUser, FaSignOutAlt, FaBookmark, FaEnvelope, FaTh, FaNewspaper, FaInfoCircle, FaPhone } from "react-icons/fa";
 
 const Navbar = () => {
   const { data: session } = useSession();
@@ -16,15 +17,42 @@ const Navbar = () => {
   const pathname = usePathname();
   const profileImage = session?.user?.image;
   const canManageListings = ["admin", "assistant"].includes(session?.user?.role);
+  const menuRef = useRef(null);
+  const buttonRef = useRef(null);
+  
+  // Close profile dropdown on outside click or Esc
+  useEffect(() => {
+    const onMouseDown = (e) => {
+      if (!isProfileMenuOpen) return;
+      const menuEl = menuRef.current;
+      const btnEl = buttonRef.current;
+      if (!menuEl || !btnEl) return;
+      if (!menuEl.contains(e.target) && !btnEl.contains(e.target)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    const onKeyDown = (e) => {
+      if (!isProfileMenuOpen) return;
+      if (e.key === "Escape") {
+        setIsProfileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isProfileMenuOpen]);
   
   const getDashboardPath = () => {
     if (!session?.user?.role) return "/dashboard/user";
     if (session.user.role === "admin") return "/dashboard/admin";
-    if (session.user.role === "assistant") return "/dashboard/admin";
+    if (session.user.role === "assistant") return "/dashboard/assistant";
     return "/dashboard/user";
   };
   return (
-    <nav className="bg-blue-700 border-b border-blue-500">
+    <nav className="bg-brand-700 border-b border-brand-500">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="relative flex h-20 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center md:hidden">
@@ -54,40 +82,47 @@ const Navbar = () => {
                 />
               </svg>
             </button>
+            
           </div>
           <div className="flex flex-1 items-center justify-center md:items-stretch md:justify-start">
             {/* Logo */}
             <Link className="flex flex-shrink-0 items-center" href="/">
-              <Image
-                className="h-10 w-auto"
-                src={logo}
-                alt="RealEstateHub"
-                width={0}
-                height={0}
-                priority={true}
-              />
-              <span className="hidden md:block text-white text-2xl font-bold ml-2">
-                Valles Real Estate
-              </span>
+              <BricklyLogo variant="header" theme="light" size="md" />
             </Link>
             {/* Desktop Menu Hidden below md screens */}
             <div className="hidden md:ml-8 md:block">
               <div className="flex items-center space-x-1">
                 <Link
-                  href="/"
-                  className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition ${
-                    pathname === "/" ? "bg-white/20 text-white" : "text-blue-50 hover:bg-white/10"
-                  }`}
-                >
-                  <FaHome className="text-base" /> Home
-                </Link>
-                <Link
                   href="/properties"
                   className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition ${
-                    pathname === "/properties" ? "bg-white/20 text-white" : "text-blue-50 hover:bg-white/10"
+                    pathname === "/properties" ? "bg-white/20 text-white" : "text-brand-50 hover:bg-white/10"
                   }`}
                 >
                   Browse
+                </Link>
+                <Link
+                  href="/blog"
+                  className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition ${
+                    pathname?.startsWith("/blog") ? "bg-white/20 text-white" : "text-brand-50 hover:bg-white/10"
+                  }`}
+                >
+                  <FaNewspaper className="text-base" /> Blog
+                </Link>
+                <Link
+                  href="/about"
+                  className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition ${
+                    pathname === "/about" ? "bg-white/20 text-white" : "text-brand-50 hover:bg-white/10"
+                  }`}
+                >
+                  <FaInfoCircle className="text-base" /> About Us
+                </Link>
+                <Link
+                  href="/contact"
+                  className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition ${
+                    pathname === "/contact" ? "bg-white/20 text-white" : "text-brand-50 hover:bg-white/10"
+                  }`}
+                >
+                  <FaPhone className="text-base" /> Contact
                 </Link>
               </div>
             </div>
@@ -98,13 +133,13 @@ const Navbar = () => {
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
-                  className="text-white border border-white/60 hover:bg-white hover:text-blue-700 rounded-md px-3 py-2"
+                  className="text-white border border-white/60 hover:bg-white hover:text-brand-700 rounded-md px-3 py-2"
                 >
                   Login
                 </Link>
                 <Link
                   href="/signup"
-                  className="text-blue-700 bg-white hover:bg-gray-100 rounded-md px-3 py-2 font-semibold"
+                  className="text-brand-700 bg-white hover:bg-gray-100 rounded-md px-3 py-2 font-semibold"
                 >
                   Sign Up
                 </Link>
@@ -118,7 +153,7 @@ const Navbar = () => {
               {/* Dashboard link */}
               <Link
                 href={getDashboardPath()}
-                className="hidden sm:inline-flex items-center gap-2 rounded-md bg-blue-600 hover:bg-blue-800 text-white px-3 py-2 text-sm font-medium transition"
+                className="hidden sm:inline-flex items-center gap-2 rounded-md bg-brand-600 hover:bg-brand-800 text-white px-3 py-2 text-sm font-medium transition"
               >
                 <FaTh className="text-base" /> Dashboard
               </Link>
@@ -143,6 +178,7 @@ const Navbar = () => {
                   aria-expanded="false"
                   aria-haspopup="true"
                   onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                  ref={buttonRef}
                 >
                   <Image
                     className="h-8 w-8"
@@ -157,11 +193,12 @@ const Navbar = () => {
                 {isProfileMenuOpen && (
                   <div
                     id="user-menu"
-                    className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-xl ring-1 ring-black ring-opacity-10 py-1"
+                    className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-2xl bg-white/95 backdrop-blur shadow-xl ring-1 ring-black/5 py-1 border border-slate-200/70"
                     role="menu"
                     aria-orientation="vertical"
                     aria-labelledby="user-menu-button"
                     tabIndex={-1}
+                    ref={menuRef}
                   >
                     <div className="px-4 py-3 border-b border-gray-100">
                       <p className="text-sm font-semibold text-gray-900">{session.user.name}</p>
@@ -218,53 +255,71 @@ const Navbar = () => {
       </div>
       {/* Mobile menu, show/hide based on menu state. */}
       {isMobileMenuOpen && (
-        <div id="mobile-menu" className="border-t border-blue-600 md:hidden">
+        <div id="mobile-menu" className="border-t border-brand-600 md:hidden">
           <div className="space-y-1 px-2 pb-3 pt-2">
-            <Link
-              href="/"
-              className={`flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium transition ${
-                pathname === "/" ? "bg-white/20 text-white" : "text-blue-50 hover:bg-white/10"
-              }`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <FaHome /> Home
-            </Link>
             <Link
               href="/properties"
               className={`flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium transition ${
-                pathname === "/properties" ? "bg-white/20 text-white" : "text-blue-50 hover:bg-white/10"
+                pathname === "/properties" ? "bg-white/20 text-white" : "text-brand-50 hover:bg-white/10"
               }`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Browse
+            </Link>
+            <Link
+              href="/blog"
+              className={`flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium transition ${
+                pathname?.startsWith("/blog") ? "bg-white/20 text-white" : "text-brand-50 hover:bg-white/10"
+              }`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <FaNewspaper /> Blog
+            </Link>
+            <Link
+              href="/about"
+              className={`flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium transition ${
+                pathname === "/about" ? "bg-white/20 text-white" : "text-brand-50 hover:bg-white/10"
+              }`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <FaInfoCircle /> About Us
+            </Link>
+            <Link
+              href="/contact"
+              className={`flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium transition ${
+                pathname === "/contact" ? "bg-white/20 text-white" : "text-brand-50 hover:bg-white/10"
+              }`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <FaPhone /> Contact
             </Link>
 
             {session && (
               <>
                 <Link
                   href={getDashboardPath()}
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-blue-50 hover:bg-white/10 transition"
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-brand-50 hover:bg-white/10 transition"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <FaTh /> Dashboard
                 </Link>
                 <Link
                   href="/messages"
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-blue-50 hover:bg-white/10 transition"
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-brand-50 hover:bg-white/10 transition"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <FaEnvelope /> Messages
                 </Link>
                 <Link
                   href="/profile"
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-blue-50 hover:bg-white/10 transition"
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-brand-50 hover:bg-white/10 transition"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <FaUser /> Profile
                 </Link>
                 <Link
                   href="/properties/saved"
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-blue-50 hover:bg-white/10 transition"
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-brand-50 hover:bg-white/10 transition"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <FaBookmark /> Saved
@@ -282,17 +337,17 @@ const Navbar = () => {
             )}
 
             {!session && (
-              <div className="flex flex-col gap-2 pt-2 border-t border-blue-600">
+              <div className="flex flex-col gap-2 pt-2 border-t border-brand-600">
                 <Link
                   href="/login"
-                  className="flex items-center justify-center gap-2 rounded-md px-3 py-2 text-base font-medium border border-white/60 text-white hover:bg-white hover:text-blue-700 transition"
+                  className="flex items-center justify-center gap-2 rounded-md px-3 py-2 text-base font-medium border border-white/60 text-white hover:bg-white hover:text-brand-700 transition"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <FaKey /> Login
                 </Link>
                 <Link
                   href="/signup"
-                  className="flex items-center justify-center gap-2 rounded-md px-3 py-2 text-base font-semibold text-blue-700 bg-white hover:bg-gray-100 transition"
+                  className="flex items-center justify-center gap-2 rounded-md px-3 py-2 text-base font-semibold text-brand-700 bg-white hover:bg-gray-100 transition"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Sign Up

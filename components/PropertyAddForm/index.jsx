@@ -1,8 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 const PropertyAddForm = () => {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [step, setStep] = useState(1);
   const [fields, setFields] = useState({
     type: "",
     name: "",
@@ -84,17 +90,98 @@ const PropertyAddForm = () => {
     }));
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Build FormData explicitly from state to preserve Step 1 details
+      const formData = new FormData();
+      // Core fields
+      formData.set("type", fields.type || "");
+      formData.set("name", fields.name || "");
+      formData.set("description", fields.description || "");
+      // Location
+      formData.set("location.street", fields.location.street || "");
+      formData.set("location.city", fields.location.city || "");
+      formData.set("location.state", fields.location.state || "");
+      formData.set("location.zipcode", fields.location.zipcode || "");
+      // Numbers
+      formData.set("beds", String(fields.beds || ""));
+      formData.set("baths", String(fields.baths || ""));
+      formData.set("square_feet", String(fields.square_feet || ""));
+      // Amenities
+      (fields.amenities || []).forEach((a) => formData.append("amenities", a));
+      // Rates
+      formData.set("rates.price", String(fields.rates.price || ""));
+      formData.set("rates.weekly", String(fields.rates.weekly || ""));
+      formData.set("rates.monthly", String(fields.rates.monthly || ""));
+      formData.set("rates.nightly", String(fields.rates.nightly || ""));
+      // Seller info
+      formData.set("seller_info.name", fields.seller_info.name || "");
+      formData.set("seller_info.email", fields.seller_info.email || "");
+      formData.set("seller_info.phone", fields.seller_info.phone || "");
+      // Images from state (Step 2 input populates this)
+      (fields.images || []).forEach((file) => formData.append("images", file));
+      
+      const response = await fetch("/api/properties", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to add property");
+      }
+
+      const data = await response.json();
+      toast.success("Property added successfully!");
+      
+      // Redirect to the new property page
+      if (data._id) {
+        router.push(`/properties/${data._id}`);
+      } else {
+        router.push("/properties");
+      }
+    } catch (err) {
+      console.error("Error adding property:", err);
+      setError(err.message || "Failed to add property. Please try again.");
+      toast.error(err.message || "Failed to add property");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   
   return (
     mounted && (
-      <form
-        action="/api/properties"
-        method="POST"
-        encType="multipart/form-data"
-      >
+      <form onSubmit={handleSubmit} encType="multipart/form-data">
         <h2 className="text-3xl text-center font-semibold mb-6">
           Add Property
         </h2>
+        <div className="flex items-center justify-center gap-2 mb-6 text-sm">
+          <span className={`px-3 py-1 rounded-full ${step === 1 ? 'bg-brand-600 text-white' : 'bg-gray-200 text-gray-700'}`}>Step 1: Details</span>
+          <span className={`px-3 py-1 rounded-full ${step === 2 ? 'bg-brand-600 text-white' : 'bg-gray-200 text-gray-700'}`}>Step 2: Images</span>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800 text-sm font-medium">{error}</p>
+          </div>
+        )}
+
+        {loading && (
+          <div className="mb-4 p-4 bg-brand-50 border border-brand-200 rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-brand-600"></div>
+              <p className="text-brand-800 text-sm font-medium">Uploading property and images...</p>
+            </div>
+          </div>
+        )}
+
+        {step === 1 && (
+        <>
         <div className="mb-4">
           <label htmlFor="type" className="block text-gray-700 font-bold mb-2">
             Property Type
@@ -148,7 +235,7 @@ const PropertyAddForm = () => {
             value={fields.description}
           />
         </div>
-        <div className="mb-4 bg-blue-50 p-4">
+        <div className="mb-4 bg-brand-50 p-4">
           <label className="block text-gray-700 font-bold mb-2">
             Rates (Leave blank if not applicable)
           </label>
@@ -181,7 +268,7 @@ const PropertyAddForm = () => {
             </div>
           </div>
         </div>
-        <div className="mb-4 bg-blue-50 p-4">
+        <div className="mb-4 bg-brand-50 p-4">
           <label className="block text-gray-700 font-bold mb-2">Location</label>
           <input
             type="text"
@@ -477,7 +564,7 @@ const PropertyAddForm = () => {
           <input
             type="text"
             id="seller_name"
-            name="seller_info.name."
+            name="seller_info.name"
             className="border rounded w-full py-2 px-3"
             placeholder="Name"
             value={fields.seller_info.name}
@@ -519,6 +606,21 @@ const PropertyAddForm = () => {
             onChange={handleChange}
           />
         </div>
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={() => setStep(2)}
+            className="bg-brand-500 hover:bg-brand-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
+          >
+            Next
+          </button>
+        </div>
+        </>
+        )}
+
+        {step === 2 && (
+        <>
+        <div className="mb-2 text-xs text-gray-600">The first image will be used as the cover.</div>
         <div className="mb-4">
           <label
             htmlFor="images"
@@ -536,14 +638,31 @@ const PropertyAddForm = () => {
             onChange={handleImageChange}
           />
         </div>
-        <div>
+        <div className="flex gap-3">
           <button
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
-            type="submit"
+            type="button"
+            onClick={() => setStep(1)}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
           >
-            Add Property
+            Back
+          </button>
+          <button
+            className="bg-brand-500 hover:bg-brand-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline disabled:opacity-50 disabled:cursor-not-allowed"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                Uploading...
+              </span>
+            ) : (
+              "Add Property"
+            )}
           </button>
         </div>
+        </>
+        )}
       </form>
     )
   );

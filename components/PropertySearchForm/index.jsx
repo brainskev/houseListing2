@@ -29,7 +29,7 @@ const PropertySearchForm = () => {
           placeholder="Enter Keyword or Location"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          className="w-full px-4 py-3 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring focus:ring-blue-500"
+          className="w-full px-4 py-3 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring focus:ring-brand-500"
         />
       </div>
       <div className="w-full md:w-2/5 md:pl-2">
@@ -40,7 +40,7 @@ const PropertySearchForm = () => {
           id="property-type"
           value={propertyType}
           onChange={(e) => setPropertyType(e.target.value)}
-          className="w-full px-4 py-3 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring focus:ring-blue-500"
+          className="w-full px-4 py-3 rounded-lg bg-white text-gray-800 focus:outline-none focus:ring focus:ring-brand-500"
         >
           <option value="All">All</option>
           <option value="Apartment">Apartment</option>
@@ -55,7 +55,7 @@ const PropertySearchForm = () => {
       </div>
       <button
         type="submit"
-        className="md:ml-4 mt-4 md:mt-0 w-full md:w-auto px-6 py-3 rounded-lg bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-500"
+        className="md:ml-4 mt-4 md:mt-0 w-full md:w-auto px-6 py-3 rounded-lg bg-brand-500 text-white hover:bg-brand-600 focus:outline-none focus:ring focus:ring-brand-500"
       >
         Search
       </button>

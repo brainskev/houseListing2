@@ -1,6 +1,7 @@
 "use client";
 import { fetchProperty } from "@/utils/requests";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -9,6 +10,7 @@ const PropertyEditForm = () => {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [fields, setFields] = useState({
     type: "",
     name: "",
@@ -36,22 +38,50 @@ const PropertyEditForm = () => {
     },
     
   });
+  const [step, setStep] = useState(1);
+  const [existingImages, setExistingImages] = useState(null);
+  const [dragIndex, setDragIndex] = useState(null);
   useEffect(() => {
     setMounted(true);
     const fetchPropertyData = async () => {
       try {
         const propertyData = await fetchProperty(id);
         //Check PropertyData for null if it is put empty string
-        if (propertyData && propertyData.rates) {
-          const defaultRates = { ...propertyData.rates };
-          for (const rate in defaultRates) {
-            if (defaultRates[rate] === null) {
-              defaultRates[rate] = "";
+        let merged = null;
+        if (propertyData) {
+          // Normalize rates object: replace null/undefined with empty string
+          const incomingRates = propertyData.rates || {};
+          const normalizedRates = { ...incomingRates };
+          for (const key of ["price", "monthly", "weekly", "nightly"]) {
+            if (normalizedRates[key] === null || normalizedRates[key] === undefined) {
+              normalizedRates[key] = "";
             }
           }
-          propertyData.rates = defaultRates;
+
+          merged = {
+            ...fields,
+            ...propertyData,
+            location: {
+              ...fields.location,
+              ...(propertyData.location || {}),
+            },
+            rates: {
+              ...fields.rates,
+              ...normalizedRates,
+            },
+            seller_info: {
+              ...fields.seller_info,
+              ...(propertyData.seller_info || {}),
+            },
+            amenities: Array.isArray(propertyData.amenities)
+              ? propertyData.amenities
+              : fields.amenities,
+          };
         }
-        setFields(propertyData);
+        if (merged) {
+          setFields(merged);
+          setExistingImages(Array.isArray(propertyData.images) ? propertyData.images : []);
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -59,7 +89,8 @@ const PropertyEditForm = () => {
       }
     };
     fetchPropertyData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name.includes(".")) {
@@ -100,11 +131,85 @@ const PropertyEditForm = () => {
     }));
   };
 
+  const removeExistingImage = (index) => {
+    setExistingImages((imgs) => imgs.filter((_, i) => i !== index));
+  };
+
+  const moveExistingImageUp = (index) => {
+    if (index === 0) return;
+    setExistingImages((imgs) => {
+      const copy = [...imgs];
+      const temp = copy[index - 1];
+      copy[index - 1] = copy[index];
+      copy[index] = temp;
+      return copy;
+    });
+  };
+
+  const moveExistingImageDown = (index) => {
+    setExistingImages((imgs) => {
+      if (index >= imgs.length - 1) return imgs;
+      const copy = [...imgs];
+      const temp = copy[index + 1];
+      copy[index + 1] = copy[index];
+      copy[index] = temp;
+      return copy;
+    });
+  };
+
+  const handleDragStart = (index) => {
+    setDragIndex(index);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (index) => {
+    setExistingImages((imgs) => {
+      if (dragIndex === null || dragIndex === index) return imgs;
+      const copy = [...imgs];
+      const [moved] = copy.splice(dragIndex, 1);
+      copy.splice(index, 0, moved);
+      return copy;
+    });
+    setDragIndex(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      setSaving(true);
+      // Build FormData from current step's DOM, then ensure Step 1 fields are included from state
       const formData = new FormData(e.target);
+      // Append core fields from Step 1 in case they're not mounted in DOM
+      formData.set("type", fields.type || "");
+      formData.set("name", fields.name || "");
+      formData.set("description", fields.description || "");
+      formData.set("location.street", fields.location.street || "");
+      formData.set("location.city", fields.location.city || "");
+      formData.set("location.state", fields.location.state || "");
+      formData.set("location.zipcode", fields.location.zipcode || "");
+      formData.set("beds", String(fields.beds || ""));
+      formData.set("baths", String(fields.baths || ""));
+      formData.set("square_feet", String(fields.square_feet || ""));
+      // Amenities: clear any existing and append current array
+      formData.delete("amenities");
+      (fields.amenities || []).forEach((a) => formData.append("amenities", a));
+      // Rates
+      formData.set("rates.price", String(fields.rates.price || ""));
+      formData.set("rates.monthly", String(fields.rates.monthly || ""));
+      formData.set("rates.weekly", String(fields.rates.weekly || ""));
+      formData.set("rates.nightly", String(fields.rates.nightly || ""));
+      // Seller info
+      formData.set("seller_info.name", fields.seller_info.name || "");
+      formData.set("seller_info.email", fields.seller_info.email || "");
+      formData.set("seller_info.phone", fields.seller_info.phone || "");
+      // Preserve ordered existing images
+      for (const url of (existingImages || [])) {
+        formData.append("existing_images", url);
+      }
 
       const response = await axios.put(`/api/properties/${id}`, formData);
 
@@ -120,15 +225,31 @@ const PropertyEditForm = () => {
     } catch (error) {
       console.error(error);
       toast.error("Something went wrong");
+    } finally {
+      setSaving(false);
     }
   };
   return (
     mounted &&
     !loading && (
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-4">
         <h2 className="text-3xl text-center font-semibold mb-6">
           Edit Property
         </h2>
+        {saving && (
+          <div className="mb-4 p-4 bg-brand-50 border border-brand-200 rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-brand-600"></div>
+              <p className="text-brand-800 text-sm font-medium">Updating property and images...</p>
+            </div>
+          </div>
+        )}
+        <div className="flex items-center justify-center gap-2 mb-6 text-sm">
+          <span className={`px-3 py-1 rounded-full ${step === 1 ? 'bg-brand-600 text-white' : 'bg-gray-200 text-gray-700'}`}>Step 1: Details</span>
+          <span className={`px-3 py-1 rounded-full ${step === 2 ? 'bg-brand-600 text-white' : 'bg-gray-200 text-gray-700'}`}>Step 2: Images</span>
+        </div>
+        {step === 1 && (
+        <>
         <div className="mb-4">
           <label htmlFor="type" className="block text-gray-700 font-bold mb-2">
             Property Type
@@ -182,7 +303,7 @@ const PropertyEditForm = () => {
             value={fields.description}
           />
         </div>
-        <div className="mb-4 bg-blue-50 p-4">
+        <div className="mb-4 bg-brand-50 p-4">
           <label className="block text-gray-700 font-bold mb-2">Location</label>
           <input
             type="text"
@@ -276,7 +397,7 @@ const PropertyEditForm = () => {
             />
           </div>
         </div>
-        <div className="mb-4 bg-blue-50 p-4">
+        <div className="mb-4 bg-brand-50 p-4">
           <label className="block text-gray-700 font-bold mb-2">
             Rates (Leave blank if not applicable)
           </label>
@@ -554,14 +675,89 @@ const PropertyEditForm = () => {
           />
         </div>
 
-        <div>
+        <div className="mt-6">
           <button
-            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
-            type="submit"
+            type="button"
+            onClick={() => setStep(2)}
+            className="bg-brand-500 hover:bg-brand-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
           >
-            Edit Property
+            Next
           </button>
         </div>
+        </>
+        )}
+
+        {step === 2 && (
+        <>
+        <div className="mb-4">
+          <label
+            htmlFor="images"
+            className="block text-gray-700 font-bold mb-2"
+          >
+            Images (Select up to 4 images)
+          </label>
+          {/* Existing Images Gallery with remove/reorder */}
+          {existingImages === null && (
+            <div className="mb-4 flex items-center justify-center py-10 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-400"></div>
+                Loading images...
+              </div>
+            </div>
+          )}
+          {existingImages && existingImages.length > 0 && (
+            <div className="mb-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {existingImages.map((img, idx) => (
+                <div
+                  key={img + idx}
+                  className={`relative border rounded-md p-2 flex flex-col items-center gap-2 ${dragIndex === idx ? 'opacity-60' : ''} ${idx === 0 ? 'ring-2 ring-brand-500' : ''}`}
+                  draggable
+                  onDragStart={() => handleDragStart(idx)}
+                  onDragOver={handleDragOver}
+                  onDrop={() => handleDrop(idx)}
+                >
+                  <Image src={img} alt={`Image ${idx + 1}`} width={300} height={112} className="w-full h-28 object-cover rounded" />
+                  {idx === 0 && (
+                    <span className="absolute top-2 left-2 inline-block px-2 py-1 text-[10px] font-semibold rounded bg-brand-600 text-white">
+                      Primary
+                    </span>
+                  )}
+                  <div className="flex gap-2">
+                    <button type="button" className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200" onClick={() => removeExistingImage(idx)}>Remove</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {existingImages && existingImages.length === 0 && (
+            <div className="mb-4 text-sm text-gray-600">No images yet. Use the picker below to add images.</div>
+          )}
+          <input
+            type="file"
+            id="images"
+            name="images"
+            className="border rounded w-full py-2 px-3"
+            accept="image/*"
+            multiple
+          />
+        </div>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
+          >
+            Back
+          </button>
+          <button
+            className="bg-brand-500 hover:bg-brand-600 text-white font-bold py-2 px-4 rounded-full w-full focus:outline-none focus:shadow-outline"
+            type="submit"
+          >
+            Update Property
+          </button>
+        </div>
+        </>
+        )}
       </form>
     )
   );

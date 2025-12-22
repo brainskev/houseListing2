@@ -1,14 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect, useTransition } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function UserAppointmentPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const presetPropertyId = searchParams.get("propertyId") || "";
   const presetPropertyName = searchParams.get("propertyName") || "";
   const [form, setForm] = useState({ name: "", phone: "", propertyId: presetPropertyId, date: "" });
   const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
@@ -24,6 +27,7 @@ export default function UserAppointmentPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading || isPending) return; // prevent duplicate submissions
     setLoading(true);
     setSuccess("");
     setError("");
@@ -35,10 +39,14 @@ export default function UserAppointmentPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.message || "Something went wrong");
-      setSuccess("Appointment request sent");
-      setForm({ name: "", phone: "", propertyId: "", date: "" });
+      toast.success("Viewing booked successfully.");
+      startTransition(() => {
+        router.push("/dashboard/user/appointments");
+      });
     } catch (err) {
-      setError(err.message);
+      const msg = err?.message || "Failed to book appointment";
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -56,7 +64,7 @@ export default function UserAppointmentPage() {
             name="name"
             value={form.name}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none"
             required
           />
         </div>
@@ -66,7 +74,7 @@ export default function UserAppointmentPage() {
             name="phone"
             value={form.phone}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none"
             required
           />
         </div>
@@ -84,18 +92,17 @@ export default function UserAppointmentPage() {
             name="date"
             value={form.date}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none"
             required
           />
         </div>
         <button
           type="submit"
-          disabled={loading}
-          className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60"
+          disabled={loading || isPending}
+          className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:opacity-60"
         >
-          {loading ? "Submitting..." : "Submit Appointment"}
+          {loading || isPending ? "Booking..." : "Book Viewing"}
         </button>
-        {success && <p className="text-sm text-emerald-600">{success}</p>}
         {error && <p className="text-sm text-red-600">{error}</p>}
       </form>
     </div>

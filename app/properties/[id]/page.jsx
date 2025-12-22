@@ -58,7 +58,7 @@ const PropertyPage = () => {
           <div className="container mx-auto px-4 py-6">
             <Link
               href="/properties"
-              className="text-blue-600 hover:text-blue-700 flex items-center mb-4 text-sm font-medium"
+              className="text-brand-600 hover:text-brand-700 flex items-center mb-4 text-sm font-medium"
             >
               <FaArrowLeft className="mr-2" /> Back to Properties
             </Link>
@@ -121,7 +121,7 @@ const PropertyPage = () => {
                               property?.name || ""
                             )}`
                       }
-                      className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
                     >
                       Book a Viewing
                     </Link>
@@ -135,7 +135,7 @@ const PropertyPage = () => {
                               property?.name || ""
                             )}`
                       }
-                      className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm hover:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
                     >
                       Make an Enquiry
                     </Link>
