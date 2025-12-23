@@ -29,15 +29,42 @@ const Sidebar = ({ current, onChange }) => {
 
   const handleNavigate = (key) => {
     setOpen(false);
-    if (["messages"].includes(key)) {
-      router.push("/messages");
+    // If a consumer manages the tabs, delegate
+    if (onChange) {
+      if (["messages"].includes(key)) {
+        router.push("/messages");
+        return;
+      }
+      if (["profile"].includes(key)) {
+        router.push("/profile");
+        return;
+      }
+      onChange(key);
       return;
     }
-    if (["profile"].includes(key)) {
-      router.push("/profile");
-      return;
+    // Otherwise, navigate to the corresponding pages
+    switch (key) {
+      case "dashboard":
+        router.push("/dashboard/user");
+        break;
+      case "bookmarks":
+        router.push("/properties/saved");
+        break;
+      case "enquiries":
+        router.push("/dashboard/user/enquiry");
+        break;
+      case "appointments":
+        router.push("/dashboard/user/appointments");
+        break;
+      case "messages":
+        router.push("/messages");
+        break;
+      case "profile":
+        router.push("/profile");
+        break;
+      default:
+        router.push("/dashboard/user");
     }
-    onChange?.(key);
   };
 
   return (

@@ -17,11 +17,7 @@ const Page = async () => {
     redirect("/dashboard/admin");
   }
 
-  return (
-    <div className="container mx-auto px-4 py-6">
-      <UserDashboard />
-    </div>
-  );
+  return <UserDashboard hideSidebar />;
 };
 
 export default Page;

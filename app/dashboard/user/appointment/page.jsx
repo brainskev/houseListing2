@@ -1,15 +1,18 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { useSession } from "next-auth/react";
 
 export default function UserAppointmentPage() {
+  const { data: session } = useSession();
+  const lastUserIdRef = useRef(null);
   const searchParams = useSearchParams();
   const router = useRouter();
   const presetPropertyId = searchParams.get("propertyId") || "";
   const presetPropertyName = searchParams.get("propertyName") || "";
-  const [form, setForm] = useState({ name: "", phone: "", propertyId: presetPropertyId, date: "" });
+  const [form, setForm] = useState({ name: "", phone: "", propertyId: presetPropertyId, date: "", hp: "" });
   const [loading, setLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState("");
@@ -20,6 +23,28 @@ export default function UserAppointmentPage() {
       setForm((prev) => ({ ...prev, propertyId: presetPropertyId }));
     }
   }, [presetPropertyId]);
+
+  useEffect(() => {
+    const sessionName = session?.user?.name;
+    if (sessionName && !form.name) {
+      setForm((prev) => ({ ...prev, name: sessionName }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.name]);
+
+  useEffect(() => {
+    const currentId = session?.user?.id || null;
+    if (lastUserIdRef.current && lastUserIdRef.current !== currentId) {
+      // User switched; reset sensitive form fields
+      setForm((prev) => ({
+        name: session?.user?.name || "",
+        phone: "",
+        propertyId: prev.propertyId,
+        date: "",
+      }));
+    }
+    lastUserIdRef.current = currentId;
+  }, [session?.user?.id, session?.user?.name]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -38,6 +63,9 @@ export default function UserAppointmentPage() {
         body: JSON.stringify(form),
       });
       const data = await res.json();
+      if (res.status === 429) {
+        throw new Error("Too many booking attempts. Please wait a minute and try again.");
+      }
       if (!res.ok) throw new Error(data?.message || "Something went wrong");
       toast.success("Viewing booked successfully.");
       startTransition(() => {
@@ -53,11 +81,28 @@ export default function UserAppointmentPage() {
   };
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-10">
+    <div className="mx-auto max-w-xl">
       <h1 className="text-2xl font-semibold text-slate-900">Book a Viewing Appointment</h1>
       <p className="text-sm text-slate-600 mt-2">Please provide your name and phone number.</p>
 
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4 rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+      {!presetPropertyId && (
+        <div className="mt-6 rounded-md border border-amber-100 bg-amber-50 p-4 text-sm text-amber-800">
+          Please start a booking from a property page.
+        </div>
+      )}
+
+      {presetPropertyId && (
+      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        {/* Honeypot field: invisible and non-interactive */}
+        <input
+          type="text"
+          value={form.hp}
+          onChange={(e) => setForm({ ...form, hp: e.target.value })}
+          aria-hidden="true"
+          tabIndex={-1}
+          autoComplete="off"
+          style={{ position: "absolute", left: "-10000px", height: 0, width: 0, opacity: 0 }}
+        />
         <div>
           <label className="block text-sm font-medium text-slate-700">Name</label>
           <input
@@ -105,6 +150,7 @@ export default function UserAppointmentPage() {
         </button>
         {error && <p className="text-sm text-red-600">{error}</p>}
       </form>
+      )}
     </div>
   );
 }

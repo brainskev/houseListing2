@@ -1,6 +1,5 @@
 "use client";
 
-import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import AppointmentTable from "@/components/dashboard/AppointmentTable";
 import useAppointments from "@/hooks/useAppointments";
 
@@ -8,12 +7,15 @@ export default function UserAppointmentsPage() {
   const { appointments, loading, error } = useAppointments();
 
   return (
-    <DashboardLayout role="user" title="My Viewing Appointments">
-      {loading && <p className="text-sm text-slate-500">Loading appointments...</p>}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+    <div>
+      <h1 className="text-2xl font-semibold text-slate-900">My Viewing Appointments</h1>
+      {loading && <p className="mt-2 text-sm text-slate-500">Loading appointments...</p>}
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
       {!loading && (
-        <AppointmentTable appointments={appointments} disableActions />
+        <div className="mt-4">
+          <AppointmentTable appointments={appointments} disableActions />
+        </div>
       )}
-    </DashboardLayout>
+    </div>
   );
 }

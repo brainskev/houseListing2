@@ -27,7 +27,9 @@ export async function middleware(req) {
 
   if (!token) {
     const signInUrl = new URL("/api/auth/signin", req.url);
-    signInUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
+    // Preserve full path + query so users return exactly to where they were
+    const fullUrl = req.nextUrl.href;
+    signInUrl.searchParams.set("callbackUrl", fullUrl);
     return NextResponse.redirect(signInUrl);
   }
 

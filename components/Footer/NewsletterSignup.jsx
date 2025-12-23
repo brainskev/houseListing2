@@ -4,6 +4,7 @@ import { useState } from "react";
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState("");
+  const [hp, setHp] = useState(""); // honeypot
   const [status, setStatus] = useState(null); // 'success' | 'error' | null
   const [loading, setLoading] = useState(false);
 
@@ -16,14 +17,19 @@ export default function NewsletterSignup() {
       const res = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, hp }),
       });
       if (res.ok) {
         setStatus("success");
         setEmail("");
+        setHp("");
       } else {
-        const text = await res.text();
-        setStatus(text || "error");
+        if (res.status === 429) {
+          setStatus("Too many attempts. Please wait a minute and try again.");
+        } else {
+          const text = await res.text();
+          setStatus(text || "error");
+        }
       }
     } catch (err) {
       setStatus("error");
@@ -34,6 +40,16 @@ export default function NewsletterSignup() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-2">
+      {/* Honeypot field: invisible and non-interactive */}
+      <input
+        type="text"
+        value={hp}
+        onChange={(e) => setHp(e.target.value)}
+        aria-hidden="true"
+        tabIndex={-1}
+        autoComplete="off"
+        style={{ position: "absolute", left: "-10000px", height: 0, width: 0, opacity: 0 }}
+      />
       <div className="flex gap-2">
         <input
           type="email"

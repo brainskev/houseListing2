@@ -2,27 +2,36 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { FiHome, FiMail, FiCalendar, FiUsers, FiFileText, FiSettings, FiMessageSquare } from "react-icons/fi";
+import useEnquiries from "@/hooks/useEnquiries";
+import useAppointments from "@/hooks/useAppointments";
 
 const linksConfig = {
   admin: [
-    { href: "/dashboard/admin/properties", label: "Properties" },
-    { href: "/dashboard/admin/enquiries", label: "Enquiries" },
-    { href: "/dashboard/admin/appointments", label: "Viewing Appointments" },
-    { href: "/dashboard/admin/users", label: "User Management" },
-    { href: "/dashboard/admin/blog", label: "Blog" },
-    { href: "/dashboard/admin/settings", label: "Settings" },
+    { href: "/dashboard/admin/properties", label: "Properties", Icon: FiHome },
+    { href: "/dashboard/admin/enquiries", label: "Enquiries", Icon: FiMail, showCount: true },
+    { href: "/dashboard/admin/appointments", label: "Viewing Appointments", Icon: FiCalendar, showCount: true },
+    { href: "/dashboard/admin/messages", label: "Messages", Icon: FiMessageSquare },
+    { href: "/dashboard/admin/users", label: "User Management", Icon: FiUsers },
+    { href: "/dashboard/admin/blog", label: "Blog", Icon: FiFileText },
+    { href: "/dashboard/admin/settings", label: "Settings", Icon: FiSettings },
   ],
   assistant: [
-    { href: "/dashboard/assistant", label: "Enquiries" },
-    { href: "/dashboard/assistant/appointments", label: "Viewing Appointments" },
-    { href: "/dashboard/assistant/blog", label: "Blog" },
-    { href: "/dashboard/assistant/settings", label: "Settings" },
+    { href: "/dashboard/assistant", label: "Enquiries", Icon: FiMail, showCount: true },
+    { href: "/dashboard/assistant/appointments", label: "Viewing Appointments", Icon: FiCalendar, showCount: true },
+    { href: "/dashboard/assistant/blog", label: "Blog", Icon: FiFileText },
+    { href: "/dashboard/assistant/settings", label: "Settings", Icon: FiSettings },
   ],
 };
 
 const DashboardLayout = ({ role = "admin", title, children }) => {
   const pathname = usePathname();
   const links = linksConfig[role] || [];
+  const { enquiries = [] } = useEnquiries();
+  const { appointments = [] } = useAppointments();
+
+  const newEnquiriesCount = enquiries.filter((e) => e.status === "new").length;
+  const pendingAppointmentsCount = appointments.filter((a) => a.status === "pending").length;
 
   const cx = (...classes) => classes.filter(Boolean).join(" ");
 
@@ -38,6 +47,14 @@ const DashboardLayout = ({ role = "admin", title, children }) => {
             <nav className="flex flex-col p-3">
               {links.map((link) => {
                 const active = pathname === link.href;
+                const Icon = link.Icon;
+                const count = link.showCount
+                  ? link.label.includes("Enquiries")
+                    ? newEnquiriesCount
+                    : link.label.includes("Appointments")
+                    ? pendingAppointmentsCount
+                    : 0
+                  : 0;
                 return (
                   <Link
                     key={link.href}
@@ -47,7 +64,17 @@ const DashboardLayout = ({ role = "admin", title, children }) => {
                       active && "bg-slate-100 text-slate-900"
                     )}
                   >
-                    {link.label}
+                    <span className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-2">
+                        {Icon && <Icon className="text-slate-500" size={18} />}
+                        <span>{link.label}</span>
+                      </span>
+                      {count > 0 && (
+                        <span className="inline-flex items-center rounded-full bg-brand-100 px-2 py-0.5 text-xs font-semibold text-brand-700">
+                          {count}
+                        </span>
+                      )}
+                    </span>
                   </Link>
                 );
               })}

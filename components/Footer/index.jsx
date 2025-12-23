@@ -48,8 +48,7 @@ export default function Footer() {
             <ul className="mt-3 space-y-2 text-sm text-slate-700">
               <li><Link href="/properties/add">List a Property</Link></li>
               <li><Link href="/properties/saved">Saved Properties</Link></li>
-              <li><Link href="/dashboard/user">User Dashboard</Link></li>
-              <li><Link href="/dashboard/assistant">Assistant Dashboard</Link></li>
+              <li><Link href="/dashboard/user">Dashboard</Link></li>
             </ul>
           </div>
 
@@ -58,7 +57,7 @@ export default function Footer() {
             <ul className="mt-3 space-y-2 text-sm text-slate-700">
               <li><Link href="/legal/privacy">Privacy Policy</Link></li>
               <li><Link href="/legal/terms">Terms of Service</Link></li>
-              <li><Link href="/sitemap">Sitemap</Link></li>
+            
             </ul>
 
             <div className="mt-6">

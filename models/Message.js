@@ -15,7 +15,7 @@ const MessageSchema = new Schema(
     property: {
       type: Schema.Types.ObjectId,
       ref: "Property",
-      required: true,
+      // optional: replies from enquiries may not be tied to a property
     },
     name: {
       type: String,

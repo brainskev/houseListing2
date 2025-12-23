@@ -4,12 +4,14 @@ import axios from "axios";
 import Sidebar from "@/components/Sidebar";
 import PropertyCard from "@/components/PropertyCard";
 import Spinner from "@/components/Spinner";
+import StatusBadge from "@/components/ui/StatusBadge";
+import MessageCard from "@/components/messages/MessageCard";
 
 const SectionTitle = ({ children }) => (
   <h2 className="mb-4 text-xl font-semibold text-gray-900">{children}</h2>
 );
 
-const UserDashboard = () => {
+const UserDashboard = ({ hideSidebar = false }) => {
   const [tab, setTab] = useState("dashboard");
   const [loading, setLoading] = useState(false);
   const [recommended, setRecommended] = useState([]);
@@ -138,11 +140,19 @@ const UserDashboard = () => {
     [appointments]
   );
 
+  const Wrapper = ({ children }) => (
+    hideSidebar ? <>{children}</> : (
+      <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6">{children}</div>
+    )
+  );
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6">
-      <div>
-        <Sidebar current={tab} onChange={setTab} />
-      </div>
+    <Wrapper>
+      {!hideSidebar && (
+        <div>
+          <Sidebar current={tab} onChange={setTab} />
+        </div>
+      )}
       <div>
         {tab === "dashboard" && (
           <section>
@@ -184,31 +194,12 @@ const UserDashboard = () => {
             ) : enquiries.length ? (
               <div className="space-y-3">
                 {enquiries.map((m) => (
-                  <div key={m._id} className="rounded-lg border bg-white p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {m.property?.name}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {m.property?.location?.city}, {m.property?.location?.state}
-                        </p>
-                      </div>
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                          m.read ? "bg-yellow-100 text-yellow-700" : "bg-brand-100 text-brand-700"
-                        }`}
-                      >
-                        {m.read ? "Contacted" : "New"}
-                      </span>
-                    </div>
-                    {m.body && (
-                      <p className="mt-2 text-sm text-gray-700 line-clamp-3">{m.body}</p>
-                    )}
-                    <p className="mt-2 text-xs text-gray-500">
-                      Sent on {new Date(m.createdAt).toLocaleString()}
-                    </p>
-                  </div>
+                  <MessageCard
+                    key={m._id}
+                    m={m}
+                    context="sent"
+                    onUpdated={loadEnquiries}
+                  />
                 ))}
               </div>
             ) : (
@@ -226,19 +217,13 @@ const UserDashboard = () => {
               ) : upcoming.length ? (
                 <ul className="space-y-3">
                   {upcoming.map((a) => (
-                    <li key={a._id} className="rounded-lg border bg-white p-4">
-                      <p className="font-semibold text-gray-900">
-                        {a.propertyId?.name}
-                      </p>
+                    <li key={a._id} className="rounded-3xl border border-slate-200/70 bg-white/70 p-4 shadow-soft backdrop-blur-sm">
+                      <p className="font-semibold text-gray-900">{a.propertyId?.name}</p>
                       <p className="text-sm text-gray-600">
                         {a.propertyId?.location?.city}, {a.propertyId?.location?.state}
                       </p>
-                      <p className="mt-1 text-sm text-gray-700">
-                        {new Date(a.date).toLocaleString()}
-                      </p>
-                      <span className="mt-2 inline-block rounded-full bg-brand-100 px-3 py-1 text-xs font-semibold text-brand-700">
-                        {a.status}
-                      </span>
+                      <p className="mt-1 text-sm text-gray-700">{new Date(a.date).toLocaleString()}</p>
+                      <StatusBadge className="mt-2" status={a.status} />
                     </li>
                   ))}
                 </ul>
@@ -253,19 +238,13 @@ const UserDashboard = () => {
               ) : past.length ? (
                 <ul className="space-y-3">
                   {past.map((a) => (
-                    <li key={a._id} className="rounded-lg border bg-white p-4">
-                      <p className="font-semibold text-gray-900">
-                        {a.propertyId?.name}
-                      </p>
+                    <li key={a._id} className="rounded-3xl border border-slate-200/70 bg-white/70 p-4 shadow-soft backdrop-blur-sm">
+                      <p className="font-semibold text-gray-900">{a.propertyId?.name}</p>
                       <p className="text-sm text-gray-600">
                         {a.propertyId?.location?.city}, {a.propertyId?.location?.state}
                       </p>
-                      <p className="mt-1 text-sm text-gray-700">
-                        {new Date(a.date).toLocaleString()}
-                      </p>
-                      <span className="mt-2 inline-block rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
-                        {a.status}
-                      </span>
+                      <p className="mt-1 text-sm text-gray-700">{new Date(a.date).toLocaleString()}</p>
+                      <StatusBadge className="mt-2" status={a.status || "Completed"} />
                     </li>
                   ))}
                 </ul>
@@ -276,7 +255,7 @@ const UserDashboard = () => {
           </section>
         )}
       </div>
-    </div>
+    </Wrapper>
   );
 };
 

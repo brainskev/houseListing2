@@ -1,14 +1,34 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaCalendarPlus, FaTimes } from "react-icons/fa";
+import { useSession } from "next-auth/react";
 
 const BookingModal = ({ open, onClose, property }) => {
+  const { data: session } = useSession();
+  const lastUserIdRef = useRef(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [date, setDate] = useState("");
+  const [hp, setHp] = useState(""); // honeypot anti-spam
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const sessionName = session?.user?.name;
+    if (sessionName && !name) setName(sessionName);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.name]);
+
+  useEffect(() => {
+    const currentId = session?.user?.id || null;
+    if (lastUserIdRef.current && lastUserIdRef.current !== currentId) {
+      setName(session?.user?.name || "");
+      setPhone("");
+      setDate("");
+    }
+    lastUserIdRef.current = currentId;
+  }, [session?.user?.id, session?.user?.name]);
 
   if (!open || !property) return null;
 
@@ -21,6 +41,7 @@ const BookingModal = ({ open, onClose, property }) => {
         phone,
         propertyId: property._id,
         date,
+        hp,
       };
       const res = await axios.post("/api/appointments", payload);
       if (res.status >= 200 && res.status < 300) {
@@ -30,7 +51,11 @@ const BookingModal = ({ open, onClose, property }) => {
         toast.error(res?.data?.message || "Failed to request appointment");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to request appointment");
+      if (err?.response?.status === 429) {
+        toast.error("Too many booking attempts. Please wait a minute and try again.");
+      } else {
+        toast.error(err?.response?.data?.message || "Failed to request appointment");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -46,6 +71,16 @@ const BookingModal = ({ open, onClose, property }) => {
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          {/* Honeypot field: invisible and non-interactive */}
+          <input
+            type="text"
+            value={hp}
+            onChange={(e) => setHp(e.target.value)}
+            aria-hidden="true"
+            tabIndex={-1}
+            autoComplete="off"
+            style={{ position: "absolute", left: "-10000px", height: 0, width: 0, opacity: 0 }}
+          />
           <div>
             <label className="block text-sm font-medium text-gray-700">Name</label>
             <input

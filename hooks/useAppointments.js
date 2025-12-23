@@ -4,12 +4,15 @@ const useAppointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortBy, setSortBy] = useState("date"); // date | user | property
+  const [order, setOrder] = useState("desc"); // asc | desc
 
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/appointments", { cache: "no-store" });
+      const params = new URLSearchParams({ sortBy, order });
+      const res = await fetch(`/api/appointments?${params.toString()}`, { cache: "no-store" });
       if (!res.ok) {
         throw new Error((await res.json())?.message || "Failed to load appointments");
       }
@@ -20,7 +23,7 @@ const useAppointments = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [sortBy, order]);
 
   useEffect(() => {
     fetchAppointments();
@@ -45,7 +48,17 @@ const useAppointments = () => {
     }
   }, []);
 
-  return { appointments, loading, error, refresh: fetchAppointments, updateStatus };
+  return {
+    appointments,
+    loading,
+    error,
+    refresh: fetchAppointments,
+    updateStatus,
+    sortBy,
+    order,
+    setSortBy,
+    setOrder,
+  };
 };
 
 export default useAppointments;

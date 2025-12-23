@@ -2,12 +2,14 @@
 import { useState } from "react";
 import { signIn, getSession } from "next-auth/react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "react-toastify";
 
 export const CredentialsSignupForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -71,7 +73,12 @@ export const CredentialsSignupForm = () => {
         }
         
         if (result?.ok) {
-          toast.success("Welcome! Redirecting to dashboard...");
+          toast.success("Welcome! Redirecting...");
+          if (callbackUrl) {
+            router.push(callbackUrl);
+            router.refresh();
+            return;
+          }
           const session = await getSession();
           const role = session?.user?.role;
           const target = role === "admin" ? "/dashboard/admin" : role === "assistant" ? "/dashboard/assistant" : "/dashboard/user";
@@ -88,7 +95,7 @@ export const CredentialsSignupForm = () => {
   };
 
   const handleGoogleSignup = async () => {
-    await signIn("google", { callbackUrl: "/dashboard" });
+    await signIn("google", { callbackUrl: callbackUrl || "/dashboard" });
   };
 
   return (
@@ -193,6 +200,8 @@ export const CredentialsSignupForm = () => {
 
 export const CredentialsLoginForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -241,6 +250,11 @@ export const CredentialsLoginForm = () => {
 
         if (result?.ok) {
           toast.success("Welcome back!");
+          if (callbackUrl) {
+            router.push(callbackUrl);
+            router.refresh();
+            return;
+          }
           const session = await getSession();
           const role = session?.user?.role;
           const target = role === "admin" ? "/dashboard/admin" : role === "assistant" ? "/dashboard/assistant" : "/dashboard/user";
@@ -254,7 +268,7 @@ export const CredentialsLoginForm = () => {
   };
 
   const handleGoogleLogin = async () => {
-    await signIn("google", { callbackUrl: "/dashboard" });
+    await signIn("google", { callbackUrl: callbackUrl || "/dashboard" });
   };
 
   return (

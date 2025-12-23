@@ -1,17 +1,40 @@
 "use client";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaPaperPlane } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 const PropertyContactForm = ({ property }) => {
   const { data: session } = useSession();
+  const lastUserIdRef = useRef(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
+  const [hp, setHp] = useState(""); // honeypot field
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  useEffect(() => {
+    const sessionName = session?.user?.name;
+    const sessionEmail = session?.user?.email;
+    if (sessionName && !name) setName(sessionName);
+    if (sessionEmail && !email) setEmail(sessionEmail);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.name, session?.user?.email]);
+
+  useEffect(() => {
+    const currentId = session?.user?.id || null;
+    if (lastUserIdRef.current && lastUserIdRef.current !== currentId) {
+      // Reset contact form fields on user change
+      setName(session?.user?.name || "");
+      setEmail(session?.user?.email || "");
+      setPhone("");
+      setMessage("");
+      setIsSubmitted(false);
+    }
+    lastUserIdRef.current = currentId;
+  }, [session?.user?.id, session?.user?.name, session?.user?.email]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,6 +45,7 @@ const PropertyContactForm = ({ property }) => {
       message,
       recipient: property.owner,
       property: property._id,
+      hp,
     };
     try {
       const response = await axios.post("/api/messages", data);
@@ -41,7 +65,7 @@ const PropertyContactForm = ({ property }) => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-xl font-semibold tracking-tight mb-6">Contact Property Manager</h3>
+      {/* <h3 className="text-xl font-semibold tracking-tight mb-6">Contact Property Manager</h3> */}
       {!session ? (
         <div className="space-y-3">
           <p className="text-sm text-gray-600">You must be logged in to send a message.</p>
@@ -58,6 +82,16 @@ const PropertyContactForm = ({ property }) => {
         </p>
       ) : (
         <form onSubmit={handleSubmit}>
+          {/* Honeypot field: invisible and non-interactive */}
+          <input
+            type="text"
+            value={hp}
+            onChange={(e) => setHp(e.target.value)}
+            aria-hidden="true"
+            tabIndex={-1}
+            autoComplete="off"
+            style={{ position: "absolute", left: "-10000px", height: 0, width: 0, opacity: 0 }}
+          />
           <div className="mb-4">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
