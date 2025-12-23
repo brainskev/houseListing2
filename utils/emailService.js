@@ -8,9 +8,25 @@
  * 4. Verify your domain in Resend dashboard (or use onboarding@resend.dev for testing)
  */
 
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazily import Resend to avoid build-time failures when the package
+// isn't installed or the API key isn't configured in certain envs.
+let resendClient = null;
+async function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    return null;
+  }
+  if (resendClient) return resendClient;
+  try {
+    const mod = await import('resend');
+    const { Resend } = mod;
+    resendClient = new Resend(apiKey);
+    return resendClient;
+  } catch (e) {
+    console.warn('Resend package not available, email disabled:', e?.message || e);
+    return null;
+  }
+}
 
 /**
  * Send password reset email
@@ -20,7 +36,15 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  */
 export async function sendPasswordResetEmail(to, resetUrl) {
   try {
-    const { data, error } = await resend.emails.send({
+    const client = await getResendClient();
+    if (!client) {
+      // Graceful fallback when email is not configured
+      console.warn('Email service not configured. Logging reset URL as fallback.');
+      console.log('Fallback - Password reset link:', resetUrl);
+      return { success: false, reason: 'email-disabled' };
+    }
+
+    const { data, error } = await client.emails.send({
       from: process.env.EMAIL_FROM || 'PropertyPulse <noreply@yourdomain.com>',
       to: [to],
       subject: 'Reset Your Password - PropertyPulse',
@@ -48,7 +72,13 @@ export async function sendPasswordResetEmail(to, resetUrl) {
  */
 export async function sendWelcomeEmail(to, name) {
   try {
-    const { data, error } = await resend.emails.send({
+    const client = await getResendClient();
+    if (!client) {
+      console.warn('Email service not configured. Skipping welcome email.');
+      return { success: false, reason: 'email-disabled' };
+    }
+
+    const { data, error } = await client.emails.send({
       from: process.env.EMAIL_FROM || 'PropertyPulse <noreply@yourdomain.com>',
       to: [to],
       subject: 'Welcome to PropertyPulse! 🏡',
