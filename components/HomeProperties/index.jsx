@@ -15,9 +15,13 @@ const HomeProperties = async () => {
   // Safely handle missing or malformed data
   const allProperties = Array.isArray(data?.properties) ? data.properties : []
 
-  const recentProperties = allProperties
-    .sort(() => Math.random() - Math.random())
-    .slice(0, 3)
+  const recentProperties = [...allProperties]
+    .sort((a, b) => {
+      const aDate = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bDate = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bDate - aDate; // newest first
+    })
+    .slice(0, 6)
 
   return (
     <>
@@ -32,14 +36,14 @@ const HomeProperties = async () => {
             </p>
           </div>
 
-          {data?.properties?.length === 0 ? (
+          {recentProperties.length === 0 ? (
             <p className="text-center text-base md:text-lg font-semibold text-slate-700">
               No Recent Properties
             </p>
           ) : (
             <div className="rounded-3xl border border-slate-200/70 bg-white/70 backdrop-blur-sm p-4 md:p-6 shadow-soft">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {data?.properties?.map((property) => (
+                {recentProperties.map((property) => (
                   <PropertyCard key={property?._id} property={property} />
                 ))}
               </div>
