@@ -26,11 +26,11 @@ export async function middleware(req) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
-    const signInUrl = new URL("/api/auth/signin", req.url);
+    const loginUrl = new URL("/login", req.url);
     // Preserve full path + query so users return exactly to where they were
     const fullUrl = req.nextUrl.href;
-    signInUrl.searchParams.set("callbackUrl", fullUrl);
-    return NextResponse.redirect(signInUrl);
+    loginUrl.searchParams.set("callbackUrl", fullUrl);
+    return NextResponse.redirect(loginUrl);
   }
 
   if (isAdminDashboard && !["admin", "assistant"].includes(token.role)) {

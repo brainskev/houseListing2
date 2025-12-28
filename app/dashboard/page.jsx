@@ -7,7 +7,7 @@ export default async function DashboardPage() {
   const sessionUser = await getSessionUser();
 
   if (sessionUser instanceof Response || !sessionUser?.user) {
-    redirect("/api/auth/signin?callbackUrl=/dashboard");
+    redirect("/login?callbackUrl=/dashboard");
   }
 
   const role = sessionUser.user.role;
