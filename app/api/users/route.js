@@ -1,28 +1,22 @@
-import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
-import { getSessionUser } from "@/utils/getSessionUser";
-import User from "@/models/User";
+import Property from "@/models/Property";
 
-export const dynamic = "force-dynamic";
-
-export async function GET() {
+///Get /api/properties/featured
+export const GET = async () => {
   try {
     await connectDB();
-    const sessionUser = await getSessionUser();
-    if (sessionUser instanceof Response) return sessionUser;
 
-    // Only admin and assistant can view all users
-    if (!["admin", "assistant"].includes(sessionUser?.user?.role)) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 403 });
-    }
+    const properties = await Property.find({
+      is_featured: true,
+    })
+      .sort({ createdAt: -1 })
+      .limit(6);
 
-    const users = await User.find({})
-      .select("name email username role status createdAt image")
-      .sort({ createdAt: -1 });
-
-    return NextResponse.json({ users }, { status: 200 });
+    return new Response(JSON.stringify(properties), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
-    console.error("Get users error:", error);
-    return NextResponse.json({ message: "Failed to fetch users" }, { status: 500 });
+    return new Response("Something went wrong", { status: 500 });
   }
-}
+};
