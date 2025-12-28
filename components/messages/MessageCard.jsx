@@ -111,7 +111,7 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
         />
       )}
       {open && m._type === 'enquiry' && !property?._id && (
-        <p className="mt-2 text-xs text-slate-500">This enquiry isn't linked to a property. Replies will appear when staff responds.</p>
+        <p className="mt-2 text-xs text-slate-500">This enquiry isn&#39;t linked to a property. Replies will appear when staff responds.</p>
       )}
     </div>
   );
