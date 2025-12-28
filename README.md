@@ -15,36 +15,53 @@ Real Estate Hub is a full-stack real estate platform built with Next.js and Tail
 ## Features
 
 ### Authentication
+
 - **Next Auth Google**: Users can sign in using their Google accounts, ensuring secure and easy authentication.
 
 ### Property Management
+
 - **Add Property**: Authenticated users can add new properties through a comprehensive form.
 - **View Property**: Detailed property pages display all relevant information including images, descriptions, location, and amenities.
 - **Edit and Delete Property**: Users can edit or delete properties they have posted.
 - **Bookmark Properties**: Users can bookmark properties to view later.
 
 ### Image Management
+
 - **Cloudinary**: Used to store property images securely.
 - **Photoswap Gallery**: Users can view property images in gallery mode for a better experience.
 
 ### Messaging and Notifications
+
 - **Messaging**: Users can send messages to property owners directly from the property details page.
 - **Notifications**: Property owners receive notifications for new messages and can mark them as read or new.
 
 ### User Profiles
+
 - **My Profile**: Users can view all properties they have posted on their profile page.
 - **Saved Properties**: A dedicated page for users to view all bookmarked properties.
 
 ### Property Search and Display
+
 - **Search Functionality**: Users can search for properties on the home page.
 - **Featured and Recent Properties**: The home page showcases featured and recently added properties.
 
 ### Geolocation
+
 - **React Geo Code and Mapbox**: Display property locations on a map for easy reference.
 
 ### User Interface
+
 - **React Icons**: Used for various icons across the site.
 - **React Spinner**: Shows loading spinners during data fetches and form submissions.
+
+### Blog System
+
+- **Admin & Assistant Authoring**: Admins can create, edit, publish/unpublish, and delete posts. Assistants can create and edit their own posts with image uploads but cannot publish or delete.
+- **Public Blog**: Normal users can view published posts at `/blog` with a clean, modern layout suitable for real estate content.
+- **Model**: `models/BlogPost.js` with unique `slug`, sanitized rich HTML `content`, `featuredImage` and `gallery` (Cloudinary), `author` reference, `status` (`draft`/`published`), timestamps and `publishedAt`.
+- **API**: `GET /api/blog`, `POST /api/blog` (multipart for images), `GET /api/blog/:slug`, `PUT /api/blog/:id`, `PUT /api/blog/:id/publish` (admin only), `DELETE /api/blog/:id` (admin only).
+- **Dashboard**: Admin at `/dashboard/admin/blog`; Assistant at `/dashboard/assistant/blog` with role-based actions.
+- **SEO**: Per-post metadata, canonical URLs, Open Graph/Twitter cards, and JSON-LD Article schema on post pages.
 
 ## Technologies Used
 
@@ -63,6 +80,7 @@ Real Estate Hub is a full-stack real estate platform built with Next.js and Tail
 ## Setup and Installation
 
 ### Prerequisites
+
 - Node.js (v14.x or later)
 - MongoDB
 - Cloudinary account
@@ -70,19 +88,23 @@ Real Estate Hub is a full-stack real estate platform built with Next.js and Tail
 - Google Cloud Platform account for authentication
 
 ### Installation
+
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/your-username/real-estate-hub.git
    cd real-estate-hub
    ```
 
 2. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 3. **Setup environment variables:**
    Create a `.env.local` file in the root directory and add the following variables:
+
    ```env
       NEXT_PUBLIC_DOMAIN=http://localhost:3000
       NEXT_PUBLIC_API_DOMAIN=http://localhost:3000/api
@@ -116,20 +138,25 @@ Real Estate Hub is a full-stack real estate platform built with Next.js and Tail
 ## Usage
 
 ### Adding a Property
+
 - Navigate to the add property page after signing in.
 - Fill out the form with property details and submit.
 
 ### Viewing Property Details
+
 - Click on any property to view its detailed page.
 
 ### Messaging Property Owners
+
 - Use the form on the property details page to send a message to the owner.
 
 ### Managing Properties
+
 - Go to your profile to edit or delete properties you've posted.
 - Bookmark properties for later viewing and manage them from the saved properties page.
 
 ### Notifications
+
 - View and manage notifications for messages on your properties.
 
 ## Contributing

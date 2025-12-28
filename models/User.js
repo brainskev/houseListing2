@@ -6,12 +6,37 @@ const UserSchema = new Schema(
       unique: [true, "Email already exists"],
       required: [true, "Email is required"],
     },
+    name: {
+      type: String,
+    },
     username: {
       type: String,
       required: [true, "username is required"],
     },
+    hashedPassword: {
+      type: String,
+      select: false,
+    },
+    role: {
+      type: String,
+      enum: ["admin", "assistant", "user"],
+      default: "user",
+    },
+    status: {
+      type: String,
+      enum: ["active", "blocked"],
+      default: "active",
+    },
     image: {
       type: String,
+    },
+    resetToken: {
+      type: String,
+      select: false,
+    },
+    resetTokenExpiry: {
+      type: Date,
+      select: false,
     },
     bookmarks: [
       {

@@ -2,15 +2,19 @@ import connectDB from "@/config/db";
 import Property from "@/models/Property";
 import { getSessionUser } from "@/utils/getSessionUser";
 import cloudinary from "@/config/cloudinary";
+export const dynamic = "force-dynamic";
 ///Get /api/properties
 export const GET = async (request) => {
   try {
     await connectDB();
-    const page = request.nextUrl.searchParams.get("page") || 1;
-    const pageSize = request.nextUrl.searchParams.get("pageSize") || 6;
+    const page = Number(request.nextUrl.searchParams.get("page")) || 1;
+    const pageSize = Number(request.nextUrl.searchParams.get("pageSize")) || 6;
     const skip = (page - 1) * pageSize;
     const total = await Property.countDocuments({});
-    const properties = await Property.find({}).skip(skip).limit(pageSize);
+    const properties = await Property.find({})
+      .skip(skip)
+      .limit(pageSize)
+      .populate({ path: 'owner', select: 'name email' });
     const result = {
       total,
       properties,
@@ -32,10 +36,18 @@ export const POST = async (request) => {
     await connectDB();
 
     const sessionUser = await getSessionUser();
+    if (sessionUser instanceof Response) return sessionUser;
 
     if (!sessionUser || !sessionUser.userId) {
       return new Response(JSON.stringify({ message: "User ID is required" }), {
         status: 401,
+      });
+    }
+
+    const role = sessionUser?.user?.role || "user";
+    if (!["admin", "assistant"].includes(role)) {
+      return new Response(JSON.stringify({ message: "Only staff can add properties" }), {
+        status: 403,
       });
     }
 
@@ -65,9 +77,10 @@ export const POST = async (request) => {
       square_feet: formData.get("square_feet"),
       amenities,
       rates: {
+        price: formData.get("rates.price"),
         weekly: formData.get("rates.weekly"),
         monthly: formData.get("rates.monthly"),
-        nightly: formData.get("rates.nightly."),
+        nightly: formData.get("rates.nightly"),
       },
       seller_info: {
         name: formData.get("seller_info.name"),
@@ -97,21 +110,33 @@ export const POST = async (request) => {
       );
 
       imageUploadPromises.push(result.secure_url);
-
-      // Wait for all images to upload
-      const uploadedImages = await Promise.all(imageUploadPromises);
-      // Add uploaded images to the propertyData object
-      propertyData.images = uploadedImages;
     }
+
+    // Wait for all images to upload
+    const uploadedImages = await Promise.all(imageUploadPromises);
+    // Add uploaded images to the propertyData object
+    propertyData.images = uploadedImages;
 
     const newProperty = new Property(propertyData);
     await newProperty.save();
 
-    return Response.redirect(
-      `${process.env.NEXTAUTH_URL}/properties/${newProperty._id}`
+    return new Response(
+      JSON.stringify({
+        message: "Property added successfully",
+        _id: newProperty._id,
+        property: newProperty
+      }),
+      {
+        status: 201,
+        headers: { "Content-Type": "application/json" }
+      }
     );
   } catch (error) {
-    return new Response(JSON.stringify({message: "Failed to add property"}), { status: 500 });
+    console.error("Error adding property:", error);
+    return new Response(JSON.stringify({ message: error.message || "Failed to add property" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 };
 

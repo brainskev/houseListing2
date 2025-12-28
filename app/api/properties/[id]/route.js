@@ -1,6 +1,7 @@
 import connectDB from "@/config/db";
 import Property from "@/models/Property";
 import { getSessionUser } from "@/utils/getSessionUser";
+export const dynamic = "force-dynamic";
 ///Get /api/properties/:id
 export const GET = async (request, { params }) => {
   try {
@@ -35,9 +36,12 @@ export const DELETE = async (request, { params }) => {
 
     if (!property) return new Response('Property Not Found', { status: 404 });
 
-    // Verify ownership
+    // Verify ownership or admin role (assistants cannot delete)
+    const userRole = sessionUser.user?.role;
     if (property.owner.toString() !== userId) {
-      return new Response('Unauthorized', { status: 401 });
+      if (userRole !== 'admin') {
+        return new Response('Unauthorized - Only property owner or admin can delete', { status: 403 });
+      }
     }
 
     await property.deleteOne();
@@ -55,7 +59,7 @@ export const DELETE = async (request, { params }) => {
 };
 
 //PUT /api/properties/:id
-export const PUT = async (request,{params}) => {
+export const PUT = async (request, { params }) => {
   try {
     await connectDB();
 
@@ -64,21 +68,23 @@ export const PUT = async (request,{params}) => {
     if (!sessionUser || !sessionUser.userId) {
       return new Response('User ID is required', { status: 401 });
     }
-    const {id}=params
+    const { id } = params
     const { userId } = sessionUser;
     const formData = await request.formData();
     // Access all values from amenities 
     const amenities = formData.getAll('amenities');
+    const existingImages = formData.getAll('existing_images');
+    const images = formData.getAll('images').filter((image) => image && image.name !== "");
     // Get Property to Update
-    const existingProperty=await Property.findById(id)
-    if(!existingProperty){
-      return new Response("Property does not exist",{status:404})
+    const existingProperty = await Property.findById(id)
+    if (!existingProperty) {
+      return new Response("Property does not exist", { status: 404 })
     }
 
-    //verify Ownership
-
-    if(existingProperty.owner.toString()!==userId){
-      return new Response("Unauthorized",{status:401})
+    //verify Ownership or admin role
+    const userRole = sessionUser.user?.role;
+    if (existingProperty.owner.toString() !== userId && userRole !== 'admin') {
+      return new Response("Unauthorized", { status: 401 })
     }
     // Create propertyData object for database
     const propertyData = {
@@ -96,9 +102,11 @@ export const PUT = async (request,{params}) => {
       square_feet: formData.get('square_feet'),
       amenities,
       rates: {
+        // Ensure price persists and keys are correct
+        price: formData.get('rates.price'),
         weekly: formData.get('rates.weekly'),
         monthly: formData.get('rates.monthly'),
-        nightly: formData.get('rates.nightly.'),
+        nightly: formData.get('rates.nightly'),
       },
       seller_info: {
         name: formData.get('seller_info.name'),
@@ -108,8 +116,23 @@ export const PUT = async (request,{params}) => {
       owner: userId,
     };
 
+    // Handle image uploads (merge existing + new)
+    const uploadedImages = [];
+    for (const image of images) {
+      const imageBuffer = await image.arrayBuffer();
+      const imageArray = Array.from(new Uint8Array(imageBuffer));
+      const imageData = Buffer.from(imageArray);
+      const imageBase64 = imageData.toString('base64');
+      const result = await (await import('@/config/cloudinary')).default.uploader.upload(
+        `data:image/png;base64,${imageBase64}`,
+        { folder: 'propertypulse' }
+      );
+      uploadedImages.push(result.secure_url);
+    }
+    propertyData.images = [...existingImages, ...uploadedImages];
+
     //find and update property in database
-    const updatedProperty=await Property.findByIdAndUpdate(id,propertyData);
+    const updatedProperty = await Property.findByIdAndUpdate(id, propertyData, { new: true });
 
     return new Response(JSON.stringify(updatedProperty), {
       status: 200,

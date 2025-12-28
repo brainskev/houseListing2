@@ -3,6 +3,16 @@ import Message from "@/models/Message";
 import { getSessionUser } from "@/utils/getSessionUser";
 
 export const dynamic = "force-dynamic";
+// --- Sanitization helpers ---
+function sanitizeText(value, maxLen) {
+  const s = (typeof value === "string" ? value : "").trim();
+  return s.replace(/[\r\n\t]+/g, " ").replace(/[<>]/g, "").slice(0, maxLen);
+}
+
+function validateEmail(email) {
+  const s = (typeof email === "string" ? email : "").trim();
+  return /.+@.+\..+/.test(s) && s.length <= 254;
+}
 //GET /api/messages
 export const GET=async ()=>{
 try {
@@ -40,7 +50,7 @@ return new Response(JSON.stringify(messages),{status:200})
 export const POST = async (request) => {
   try {
     await connectDB();
-    const { name, email, phone, message, recipient, property } =
+    const { name, email, phone, message, recipient, property, hp } =
       await request.json();
 
     const sessionUser = await getSessionUser();
@@ -61,14 +71,32 @@ export const POST = async (request) => {
       );
     }
 
+    // Reject bots that fill the hidden honeypot field
+    if (hp && String(hp).trim().length > 0) {
+      return new Response(JSON.stringify({ message: "Invalid submission" }), { status: 400 });
+    }
+
+    // Validate inputs
+    const safeName = sanitizeText(name, 100);
+    const safePhone = sanitizeText(phone, 32);
+    const safeBody = sanitizeText(message, 2000);
+    const safeEmail = (email || "").trim();
+
+    if (!safeBody || !recipient) {
+      return new Response(JSON.stringify({ message: "Message body and recipient are required" }), { status: 400 });
+    }
+    if (safeEmail && !validateEmail(safeEmail)) {
+      return new Response(JSON.stringify({ message: "Invalid email" }), { status: 400 });
+    }
+
     const newMessage = new Message({
       sender: user.id,
       recipient,
       property,
-      name,
-      email,
-      phone,
-      body: message,
+      name: safeName,
+      email: safeEmail,
+      phone: safePhone,
+      body: safeBody,
     });
 
     await newMessage.save();
