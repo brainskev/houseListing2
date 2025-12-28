@@ -9,7 +9,7 @@ const Page = async () => {
   const sessionUser = await getSessionUser();
   // getSessionUser can return a Response or null on failure
   if (sessionUser instanceof Response || !sessionUser?.user) {
-    redirect("/api/auth/signin?callbackUrl=/dashboard/user");
+    redirect("/login?callbackUrl=/dashboard/user");
   }
 
   const role = sessionUser.user.role;
