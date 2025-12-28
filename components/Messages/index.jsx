@@ -125,7 +125,7 @@ const Messages = () => {
               onBack={() => setThreadSeed(null)}
             />
           ) : (
-            <div className="mt-4 space-y-4">
+            <div className="mt-4 max-h-[65vh] overflow-y-auto space-y-4 pr-1">
               {list?.length === 0 ? (
                 <p className="text-sm text-slate-500">No messages</p>
               ) : (
