@@ -5,6 +5,8 @@ import Enquiry from "@/models/Enquiry";
 // Ensure Property model is registered for populate
 import "@/models/Property";
 
+export const dynamic = "force-dynamic";
+
 // --- Simple per-IP rate limiter (3 requests per 60s window) ---
 // Note: In-memory storage resets between deployments and may not persist across serverless instances.
 // This is intended as a lightweight anti-spam measure without external dependencies.

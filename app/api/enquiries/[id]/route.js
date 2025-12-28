@@ -3,6 +3,8 @@ import connectDB from "@/config/db";
 import { getSessionUser } from "@/utils/getSessionUser";
 import Enquiry from "@/models/Enquiry";
 
+export const dynamic = "force-dynamic";
+
 const allowedStatuses = ["new", "contacted", "closed"];
 
 export async function PATCH(_request, { params }) {

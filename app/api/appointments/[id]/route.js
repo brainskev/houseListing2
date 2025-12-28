@@ -3,6 +3,8 @@ import connectDB from "@/config/db";
 import { getSessionUser } from "@/utils/getSessionUser";
 import ViewingAppointment from "@/models/ViewingAppointment";
 
+export const dynamic = "force-dynamic";
+
 const allowedStatuses = ["pending", "confirmed", "completed"];
 
 export async function PATCH(request, { params }) {

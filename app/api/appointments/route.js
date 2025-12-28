@@ -3,6 +3,8 @@ import connectDB from "@/config/db";
 import { getSessionUser } from "@/utils/getSessionUser";
 import ViewingAppointment from "@/models/ViewingAppointment";
 
+export const dynamic = "force-dynamic";
+
 const allowedStatuses = ["pending", "confirmed", "completed"];
 
 // --- Simple per-IP rate limiter (3 requests per 60s window) ---
