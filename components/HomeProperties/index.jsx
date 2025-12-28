@@ -17,7 +17,7 @@ const HomeProperties = async () => {
 
   const recentProperties = allProperties
     .sort(() => Math.random() - Math.random())
-    .slice(0, 6)
+    .slice(0, 3)
 
   return (
     <>
@@ -32,14 +32,14 @@ const HomeProperties = async () => {
             </p>
           </div>
 
-          {allProperties.length === 0 ? (
+          {data?.properties?.length === 0 ? (
             <p className="text-center text-base md:text-lg font-semibold text-slate-700">
               No Recent Properties
             </p>
           ) : (
             <div className="rounded-3xl border border-slate-200/70 bg-white/70 backdrop-blur-sm p-4 md:p-6 shadow-soft">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {recentProperties.map((property) => (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {data?.properties?.map((property) => (
                   <PropertyCard key={property?._id} property={property} />
                 ))}
               </div>
