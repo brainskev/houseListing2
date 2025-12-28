@@ -1,5 +1,11 @@
 import axios from "axios";
-export const apiDomain = process.env.NEXT_PUBLIC_API_DOMAIN || null;
+// Prefer explicit API domain, but fall back to NEXT_PUBLIC_DOMAIN + /api
+const computedApiDomain =
+  process.env.NEXT_PUBLIC_API_DOMAIN ||
+  (process.env.NEXT_PUBLIC_DOMAIN
+    ? `${process.env.NEXT_PUBLIC_DOMAIN.replace(/\/$/, "")}/api`
+    : null);
+export const apiDomain = computedApiDomain;
 
 ///Function to get all properties
 async function fetchProperties({ showFeatured = false } = {}) {
