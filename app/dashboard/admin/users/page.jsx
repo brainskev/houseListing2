@@ -1,39 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { useSession } from "next-auth/react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import UserManagementTable from "@/components/dashboard/UserManagementTable";
 import { toast } from "react-toastify";
+import useCacheFetch from "@/hooks/useCacheFetch";
 
 export default function AdminUsersPage() {
   const { data: session } = useSession();
   const userRole = session?.user?.role;
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/users", { cache: "no-store" });
-      if (!res.ok) {
-        throw new Error((await res.json())?.message || "Failed to load users");
-      }
-      const data = await res.json();
-      setUsers(data.users || []);
-    } catch (err) {
-      setError(err.message);
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+  const { data, loading, error, refresh } = useCacheFetch("/api/users", { cache: "no-store" }, 3000);
+  const users = data?.users || [];
 
   const handleUpdate = async (userId, updateData) => {
     try {
@@ -45,9 +23,8 @@ export default function AdminUsersPage() {
       if (!res.ok) {
         throw new Error((await res.json())?.message || "Failed to update user");
       }
-      const { user } = await res.json();
-      setUsers((prev) => prev.map((u) => (u._id === userId ? user : u)));
       toast.success("User updated successfully");
+      refresh();
     } catch (err) {
       toast.error(err.message);
     }
@@ -61,8 +38,8 @@ export default function AdminUsersPage() {
       if (!res.ok) {
         throw new Error((await res.json())?.message || "Failed to delete user");
       }
-      setUsers((prev) => prev.filter((u) => u._id !== userId));
       toast.success("User deleted successfully");
+      refresh();
     } catch (err) {
       toast.error(err.message);
     }

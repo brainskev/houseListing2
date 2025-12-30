@@ -1,20 +1,22 @@
 "use client";
 
-import axios from "axios";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Spinner from "../Spinner";
 import MessageCard from "@/components/messages/MessageCard";
 import ConversationView from "@/components/messages/ConversationView";
 import { useGlobalContext } from "@/context/GlobalContext";
+import useMessages from "@/hooks/useMessages";
+import useSentMessages from "@/hooks/useSentMessages";
+import useEnquiries from "@/hooks/useEnquiries";
 
 const tabs = ["Inbox", "Sent"];
 
 const Messages = () => {
-  const [inbox, setInbox] = useState([]);
-  const [sent, setSent] = useState([]);
-  const [enquiries, setEnquiries] = useState([]);
+  const { messages: inbox, loading: inboxLoading, refresh: refreshInbox } = useMessages();
+  const { messages: sent, loading: sentLoading, refresh: refreshSent } = useSentMessages();
+  const { enquiries, loading: enquiriesLoading, refresh: refreshEnquiries } = useEnquiries();
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("Inbox");
   const [threadSeed, setThreadSeed] = useState(null);
@@ -24,32 +26,16 @@ const Messages = () => {
   const pathname = usePathname();
   const isInDashboard = pathname?.startsWith("/dashboard");
 
-  const fetchAll = async () => {
-    try {
-      setLoading(true);
-      const calls = [axios.get("/api/messages"), axios.get("/api/messages/sent"), axios.get("/api/enquiries")];
-      const results = await Promise.all(calls);
-      const [inboxRes, sentRes, enquiriesRes] = results;
-      if (inboxRes.status >= 200 && inboxRes.status < 300) setInbox(inboxRes.data || []);
-      if (sentRes.status >= 200 && sentRes.status < 300) setSent(sentRes.data || []);
-      if (enquiriesRes && enquiriesRes.status >= 200 && enquiriesRes.status < 300) {
-        setEnquiries(enquiriesRes.data?.enquiries || []);
-      } else {
-        setEnquiries([]);
-      }
-    } catch (error) {
-      console.log("error fetching messages", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Compose loading state for all
   useEffect(() => {
-    fetchAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user?.role]);
+    setLoading(inboxLoading || sentLoading || enquiriesLoading);
+  }, [inboxLoading, sentLoading, enquiriesLoading]);
 
-  const onUpdated = () => fetchAll();
+  const onUpdated = () => {
+    refreshInbox();
+    refreshSent();
+    refreshEnquiries();
+  };
 
   const mappedEnquiries = useMemo(() => {
     if (!enquiries?.length || !session?.user?.id) return [];

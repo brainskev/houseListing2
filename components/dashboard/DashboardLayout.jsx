@@ -107,6 +107,14 @@ const DashboardLayout = ({ role = "admin", title, children }) => {
               </Link>
             </div>
           </aside>
+          {/* Overlay for mobile to close drawer on outside click */}
+          {dashboardSidebarOpen && (
+            <div
+              className="fixed inset-0 z-20 bg-black/10 md:hidden"
+              onClick={() => setDashboardSidebarOpen(false)}
+              aria-hidden="true"
+            />
+          )}
 
           <section className="space-y-4">
             {title && <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>}

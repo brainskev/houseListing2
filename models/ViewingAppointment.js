@@ -39,6 +39,10 @@ const ViewingAppointmentSchema = new Schema(
   { timestamps: { createdAt: true, updatedAt: true } }
 );
 
+ViewingAppointmentSchema.index({ userId: 1, date: -1 });
+ViewingAppointmentSchema.index({ status: 1, date: -1 });
+ViewingAppointmentSchema.index({ propertyId: 1, date: -1 });
+
 const ViewingAppointment =
   models.ViewingAppointment || model("ViewingAppointment", ViewingAppointmentSchema);
 export default ViewingAppointment;
