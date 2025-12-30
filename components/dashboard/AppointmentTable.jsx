@@ -28,7 +28,14 @@ const AppointmentTable = ({ appointments = [], onStatusChange, disableActions = 
             {appointments.length === 0 && (
               <tr>
                 <td colSpan={disableActions ? 6 : 7} className="px-4 py-6 text-center text-blue-600">
-                  No appointments yet.
+                  No appointments yet.<br />
+                  <span className="block mt-2 text-slate-500 text-sm">To create a new viewing appointment, open a property and click <b>Book Viewing</b>.</span>
+                  <a
+                    href="/properties"
+                    className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                  >
+                    View Properties
+                  </a>
                 </td>
               </tr>
             )}
@@ -78,7 +85,16 @@ const AppointmentTable = ({ appointments = [], onStatusChange, disableActions = 
       {/* Mobile/card view */}
       <div className="md:hidden max-h-[70vh] overflow-auto space-y-3">
         {appointments.length === 0 ? (
-          <div className="rounded-lg border border-blue-100 bg-white p-4 text-sm text-blue-600">No appointments yet.</div>
+          <div className="rounded-lg border border-blue-100 bg-white p-4 text-sm text-blue-600 text-center">
+            No appointments yet.<br />
+            <span className="block mt-2 text-slate-500 text-sm">To create a new viewing appointment, open a property and click <b>Book Viewing</b>.</span>
+            <a
+              href="/properties"
+              className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            >
+              View Properties
+            </a>
+          </div>
         ) : (
           appointments.map((appointment) => (
             <div key={appointment._id} className="rounded-lg border border-blue-100 bg-white p-4">

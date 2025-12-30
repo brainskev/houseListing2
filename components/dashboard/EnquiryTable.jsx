@@ -57,7 +57,13 @@ const EnquiryTable = ({ enquiries = [], onStatusChange, disableActions = false, 
             {enquiries.length === 0 && (
               <tr>
                 <td colSpan={userMode ? userCols : adminCols} className="px-4 py-6 text-center text-slate-600">
-                  No enquiries yet.
+                  No enquiries yet.<br />
+                  <a
+                    href="/properties"
+                    className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                  >
+                    View Properties
+                  </a>
                 </td>
               </tr>
             )}
@@ -168,7 +174,15 @@ const EnquiryTable = ({ enquiries = [], onStatusChange, disableActions = false, 
       {/* Mobile/card view */}
       <div className="md:hidden max-h-[70vh] overflow-auto space-y-3">
         {enquiries.length === 0 ? (
-          <div className="rounded-lg border border-blue-100 bg-white p-4 text-sm text-slate-600">No enquiries yet.</div>
+          <div className="rounded-lg border border-blue-100 bg-white p-4 text-sm text-slate-600 text-center">
+            No enquiries yet.<br />
+            <a
+              href="/properties"
+              className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            >
+              View Properties
+            </a>
+          </div>
         ) : (
           enquiries.map((enquiry) => (
             <div key={enquiry._id} className="rounded-lg border border-blue-100 bg-white p-4">
