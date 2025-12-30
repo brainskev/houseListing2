@@ -51,10 +51,12 @@ const Navbar = () => {
     if (session.user.role === "assistant") return "/dashboard/assistant";
     return "/dashboard/user";
   };
+  const isDashboard = pathname?.startsWith("/dashboard");
   return (
-    <nav className="bg-brand-700 border-b border-brand-500">
+    <nav className="bg-brand-700 border-b border-brand-500 sticky top-0 z-50">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="relative flex h-20 items-center justify-between">
+          {!isDashboard && (
           <div className="absolute inset-y-0 left-0 flex items-center md:hidden">
             {/* Mobile menu button*/}
             <button
@@ -84,6 +86,7 @@ const Navbar = () => {
             </button>
             
           </div>
+          )}
           <div className="flex flex-1 items-center justify-center md:items-stretch md:justify-start">
             {/* Logo */}
             <Link className="flex flex-shrink-0 items-center" href="/">

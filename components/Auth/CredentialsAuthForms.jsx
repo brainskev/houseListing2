@@ -202,6 +202,7 @@ export const CredentialsLoginForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
+  const bookmarkId = searchParams.get("bookmark");
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -250,6 +251,13 @@ export const CredentialsLoginForm = () => {
 
         if (result?.ok) {
           toast.success("Welcome back!");
+          // If a bookmark action is pending, complete it before redirecting
+          if (bookmarkId) {
+            try {
+              await axios.post("/api/bookmark", { propertyId: bookmarkId });
+              toast.success("Property saved to bookmarks");
+            } catch {}
+          }
           if (callbackUrl) {
             router.push(callbackUrl);
             router.refresh();
@@ -268,7 +276,12 @@ export const CredentialsLoginForm = () => {
   };
 
   const handleGoogleLogin = async () => {
-    await signIn("google", { callbackUrl: callbackUrl || "/dashboard" });
+    let cb = callbackUrl || "/dashboard";
+    if (bookmarkId) {
+      const hasQuery = cb.includes("?");
+      cb = `${cb}${hasQuery ? "&" : "?"}bookmark=${bookmarkId}`;
+    }
+    await signIn("google", { callbackUrl: cb });
   };
 
   return (

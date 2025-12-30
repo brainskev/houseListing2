@@ -3,11 +3,13 @@ import React, { useState, useEffect } from "react";
 import { FaBookmark } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { apiDomain } from "@/utils/requests";
 
 const BookmarkButton = ({ property, className = "" }) => {
   const { data: session } = useSession();
+  const router = useRouter();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [loading, setLoading] = useState(false);
   const userId = session?.user?.id;
@@ -34,7 +36,10 @@ const BookmarkButton = ({ property, className = "" }) => {
 
   const handleClick = async () => {
     if (!userId) {
-      toast.error("Please sign in to bookmark a property");
+      const returnUrl = typeof window !== "undefined"
+        ? `${window.location.pathname}${window.location.search || ""}`
+        : "/";
+      router.push(`/login?callbackUrl=${encodeURIComponent(returnUrl)}&bookmark=${property._id}`);
       return;
     }
     try {
