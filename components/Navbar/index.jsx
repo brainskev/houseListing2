@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import UnreadMessageCount from "../UnReadMessageCount";
 import { FaKey, FaUser, FaSignOutAlt, FaBookmark, FaEnvelope, FaTh, FaNewspaper, FaInfoCircle, FaPhone } from "react-icons/fa";
+import { useGlobalContext } from "@/context/GlobalContext";
 
 const Navbar = () => {
   const { data: session } = useSession();
@@ -19,6 +20,7 @@ const Navbar = () => {
   const canManageListings = ["admin", "assistant"].includes(session?.user?.role);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
+  const { dashboardSidebarOpen, setDashboardSidebarOpen } = useGlobalContext();
   
   // Close profile dropdown on outside click or Esc
   useEffect(() => {
@@ -85,6 +87,34 @@ const Navbar = () => {
               </svg>
             </button>
             
+          </div>
+          )}
+          {isDashboard && (
+          <div className="absolute inset-y-0 left-0 flex items-center md:hidden">
+            {/* Dashboard sidebar toggle */}
+            <button
+              type="button"
+              className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-200 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+              aria-label="Toggle sidebar"
+              onClick={() => setDashboardSidebarOpen(!dashboardSidebarOpen)}
+            >
+              <span className="absolute -inset-0.5" />
+              <span className="sr-only">Toggle sidebar</span>
+              <svg
+                className="block h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                />
+              </svg>
+            </button>
           </div>
           )}
           <div className="flex flex-1 items-center justify-center md:items-stretch md:justify-start">
