@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useGlobalContext } from "@/context/GlobalContext";
-import { FiHome, FiMail, FiCalendar, FiUsers, FiFileText, FiSettings, FiMessageSquare, FiLogOut } from "react-icons/fi";
+import { FiHome, FiMail, FiCalendar, FiUsers, FiFileText, FiSettings, FiMessageSquare, FiLogOut, FiMenu } from "react-icons/fi";
 import useEnquiries from "@/hooks/useEnquiries";
 import useAppointments from "@/hooks/useAppointments";
 
@@ -12,7 +12,7 @@ const linksConfig = {
     { href: "/dashboard/admin/properties", label: "Properties", Icon: FiHome },
     { href: "/dashboard/admin/enquiries", label: "Enquiries", Icon: FiMail, showCount: true },
     { href: "/dashboard/admin/appointments", label: "Viewing Appointments", Icon: FiCalendar, showCount: true },
-    { href: "/dashboard/admin/messages", label: "Messages", Icon: FiMessageSquare },
+    { href: "/dashboard/messages", label: "Messages", Icon: FiMessageSquare },
     { href: "/dashboard/admin/users", label: "User Management", Icon: FiUsers },
     { href: "/dashboard/admin/blog", label: "Blog", Icon: FiFileText },
     { href: "/dashboard/admin/settings", label: "Settings", Icon: FiSettings },
@@ -20,8 +20,18 @@ const linksConfig = {
   assistant: [
     { href: "/dashboard/assistant", label: "Enquiries", Icon: FiMail, showCount: true },
     { href: "/dashboard/assistant/appointments", label: "Viewing Appointments", Icon: FiCalendar, showCount: true },
+    { href: "/dashboard/assistant/properties", label: "Properties", Icon: FiHome },
     { href: "/dashboard/assistant/blog", label: "Blog", Icon: FiFileText },
+    { href: "/dashboard/messages", label: "Messages", Icon: FiMessageSquare },
     { href: "/dashboard/assistant/settings", label: "Settings", Icon: FiSettings },
+  ],
+  user: [
+    { href: "/dashboard/user/enquiry", label: "Enquiries", Icon: FiMail, showCount: true },
+    { href: "/dashboard/user/appointments", label: "Viewing Appointments", Icon: FiCalendar, showCount: true },
+    { href: "/dashboard/messages", label: "Messages", Icon: FiMessageSquare },
+    { href: "/properties/saved", label: "Saved Properties", Icon: FiHome },
+    { href: "/profile", label: "Profile", Icon: FiUsers },
+    { href: "/dashboard/user/settings", label: "Settings", Icon: FiSettings },
   ],
 };
 
@@ -39,16 +49,9 @@ const DashboardLayout = ({ role = "admin", title, children }) => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="grid gap-6 lg:grid-cols-[260px,1fr]">
-          <aside
-            className={cx(
-              "bg-white shadow-sm ring-1 ring-slate-100",
-              // Drawer behavior on mobile, static on md+
-              "fixed md:static top-0 left-0 z-30 h-full md:h-auto w-64 md:w-auto transform transition-transform md:translate-x-0 max-h-screen overflow-y-auto pt-20 md:pt-0",
-              dashboardSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            )}
-          >
+      <div className="mx-auto max-w-screen-2xl px-6 py-8">
+        <div className="grid gap-6 md:grid-cols-[260px,1fr]">
+          <aside className="hidden md:block bg-white shadow-sm ring-1 ring-slate-100 rounded-lg">
             <div className="px-6 py-5 border-b border-slate-100 hidden md:block">
               <p className="text-sm text-slate-500">Dashboard</p>
               <h2 className="text-xl font-semibold text-slate-900 capitalize">{role}</h2>
@@ -107,7 +110,7 @@ const DashboardLayout = ({ role = "admin", title, children }) => {
 
           <section className="space-y-4">
             {title && <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>}
-            <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-100 p-4 lg:p-6">
+            <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-100 p-4 lg:p-6 max-h-[72vh] overflow-auto">
               {children}
             </div>
           </section>

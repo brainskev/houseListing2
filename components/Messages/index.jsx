@@ -2,11 +2,12 @@
 
 import axios from "axios";
 import React, { useState, useEffect, useMemo } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Spinner from "../Spinner";
 import MessageCard from "@/components/messages/MessageCard";
 import ConversationView from "@/components/messages/ConversationView";
+import { useGlobalContext } from "@/context/GlobalContext";
 
 const tabs = ["Inbox", "Sent"];
 
@@ -19,6 +20,9 @@ const Messages = () => {
   const [threadSeed, setThreadSeed] = useState(null);
   const { data: session } = useSession();
   const searchParams = useSearchParams();
+  const { unReadCount } = useGlobalContext();
+  const pathname = usePathname();
+  const isInDashboard = pathname?.startsWith("/dashboard");
 
   const fetchAll = async () => {
     try {
@@ -91,29 +95,75 @@ const Messages = () => {
     if (seed) setThreadSeed(seed);
   }, [searchParams, mappedEnquiries]);
 
-  return (
-    <section className="bg-slate-50">
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-100">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h1 className="text-xl font-semibold text-slate-900">Messages</h1>
-            {!threadSeed && (
-              <div className="flex rounded-xl bg-slate-100 p-1 text-sm">
-                {tabs.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setActiveTab(t)}
-                    className={`rounded-lg px-3 py-1 font-medium ${
-                      activeTab === t ? "bg-white text-slate-900 shadow-sm" : "text-slate-600"
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
+  // Render differently depending on dashboard context to avoid double wrappers
+  if (isInDashboard) {
+    return (
+      <div>
+        {!threadSeed && (
+          <div className="mb-4 flex rounded-xl bg-blue-50 p-1 text-sm">
+            {tabs.map((t) => (
+              <button
+                key={t}
+                onClick={() => setActiveTab(t)}
+                className={`rounded-lg px-3 py-1 font-medium ${
+                  activeTab === t ? "bg-white text-blue-700 shadow-sm" : "text-blue-600"
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        )}
+        {loading ? (
+          <Spinner loading={true} />
+        ) : threadSeed ? (
+          <ConversationView
+            seedMessage={threadSeed}
+            inbox={inbox}
+            sent={sent}
+            onUpdated={onUpdated}
+            onBack={() => setThreadSeed(null)}
+          />
+        ) : (
+          <div className="mt-2 max-h-[65vh] overflow-y-auto space-y-4 pr-1">
+            {list?.length === 0 ? (
+              <p className="text-sm text-slate-600">No messages</p>
+            ) : (
+              list.map((m) => (
+                <MessageCard
+                  key={m._id}
+                  m={m}
+                  context={activeTab === "Inbox" ? "inbox" : "sent"}
+                  onUpdated={onUpdated}
+                  onOpenThread={setThreadSeed}
+                />
+              ))
             )}
           </div>
+        )}
+      </div>
+    );
+  }
 
+  return (
+    <section className="bg-blue-50">
+      <div className="mx-auto max-w-screen-2xl px-6 py-8">
+        <div className="rounded-xl bg-white shadow-sm ring-1 ring-blue-100 p-4 lg:p-6">
+          {!threadSeed && (
+            <div className="mb-4 flex rounded-xl bg-blue-50 p-1 text-sm">
+              {tabs.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setActiveTab(t)}
+                  className={`rounded-lg px-3 py-1 font-medium ${
+                    activeTab === t ? "bg-white text-blue-700 shadow-sm" : "text-blue-600"
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          )}
           {loading ? (
             <Spinner loading={true} />
           ) : threadSeed ? (
@@ -125,9 +175,9 @@ const Messages = () => {
               onBack={() => setThreadSeed(null)}
             />
           ) : (
-            <div className="mt-4 max-h-[65vh] overflow-y-auto space-y-4 pr-1">
+            <div className="mt-2 max-h-[65vh] overflow-y-auto space-y-4 pr-1">
               {list?.length === 0 ? (
-                <p className="text-sm text-slate-500">No messages</p>
+                <p className="text-sm text-slate-600">No messages</p>
               ) : (
                 list.map((m) => (
                   <MessageCard

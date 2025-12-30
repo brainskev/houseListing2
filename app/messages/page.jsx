@@ -1,8 +1,5 @@
-import Messages from "@/components/Messages";
-import React from "react";
+import { redirect } from "next/navigation";
 
-const MessagesPage = () => {
-  return <Messages />;
-};
-
-export default MessagesPage;
+export default function MessagesLegacyRedirect() {
+  redirect("/dashboard/messages");
+}

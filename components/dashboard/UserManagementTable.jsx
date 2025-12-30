@@ -40,33 +40,34 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
 
   return (
     <>
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="max-h-[70vh] overflow-auto">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-blue-100">
+            <thead className="bg-blue-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">
                 Name
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">
                 Email
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">
                 Role
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">
                 Date Joined
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-blue-700 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+            </thead>
+            <tbody className="bg-white divide-y divide-blue-100">
             {sortedUsers.map((user) => (
-              <tr key={user._id} className="hover:bg-gray-50">
+                <tr key={user._id} className="hover:bg-blue-50/50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
@@ -79,20 +80,20 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
                           height={40}
                         />
                       ) : (
-                        <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold">
+                          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-semibold">
                           {user.name?.charAt(0)?.toUpperCase() || "U"}
                         </div>
                       )}
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-slate-900">
                         {user.name || user.username}
                       </div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">{user.email}</div>
+                    <div className="text-sm text-slate-900">{user.email}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {isAdmin && editingRole === user._id ? (
@@ -101,7 +102,7 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
                       onChange={(e) => handleRoleChange(user._id, e.target.value)}
                       onBlur={() => setEditingRole(null)}
                       autoFocus
-                      className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        className="text-sm border border-blue-200 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="user">User</option>
                       <option value="assistant">Assistant</option>
@@ -111,15 +112,15 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
                     <button
                       onClick={() => isAdmin && setEditingRole(user._id)}
                       disabled={!isAdmin}
-                      className={`inline-flex items-center gap-1 text-sm font-medium text-gray-900 ${isAdmin ? 'hover:text-brand-600 cursor-pointer' : 'cursor-not-allowed'}`}
+                        className={`inline-flex items-center gap-1 text-sm font-medium text-slate-900 ${isAdmin ? 'hover:text-blue-600 cursor-pointer' : 'cursor-not-allowed'}`}
                     >
                       <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                           user.role === "admin"
                             ? "bg-purple-100 text-purple-800"
                             : user.role === "assistant"
-                            ? "bg-brand-100 text-brand-800"
-                            : "bg-gray-100 text-gray-800"
+                            ? "bg-blue-100 text-blue-800"
+                            : "bg-blue-50 text-blue-800"
                         }`}
                       >
                         {user.role}
@@ -133,13 +134,13 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       user.status === "active"
                         ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
+                          : "bg-red-100 text-red-800"
                     }`}
                   >
                     {user.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700">
                   {new Date(user.createdAt).toLocaleDateString()}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
@@ -147,7 +148,7 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
                     <>
                       <button
                         onClick={() => handleStatusToggle(user._id, user.status)}
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold transition ${
+                          className={`inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold transition ${
                           user.status === "active"
                             ? "bg-red-100 text-red-700 hover:bg-red-200"
                             : "bg-green-100 text-green-700 hover:bg-green-200"
@@ -165,29 +166,30 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
                       </button>
                       <button
                         onClick={() => setDeleteModal(user)}
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold bg-red-600 text-white hover:bg-red-700 transition"
+                          className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold bg-red-600 text-white hover:bg-red-700 transition"
                       >
                         <FaTrash /> Delete
                       </button>
                     </>
-                  ) : (
-                    <span className="text-xs text-gray-500 italic">View only</span>
+                    ) : (
+                      <span className="text-xs text-slate-500 italic">View only</span>
                   )}
                 </td>
               </tr>
             ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Delete Confirmation Modal */}
       {deleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-900/30">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-blue-900 mb-2">
               Delete User
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-blue-700 mb-4">
               Are you sure you want to delete{" "}
               <span className="font-semibold">{deleteModal.name || deleteModal.email}</span>?
               This will permanently delete the user and all associated data (properties,
@@ -196,7 +198,7 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setDeleteModal(null)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition"
+                className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition"
               >
                 Cancel
               </button>

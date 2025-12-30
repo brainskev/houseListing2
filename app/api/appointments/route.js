@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import { getSessionUser } from "@/utils/getSessionUser";
 import ViewingAppointment from "@/models/ViewingAppointment";
+// Ensure Property model is registered for populate
+import "@/models/Property";
 
 export const dynamic = "force-dynamic";
 
@@ -107,7 +109,9 @@ export async function GET(request) {
     const sortField = fieldMap[sortByParam] || "createdAt";
     const sortOrder = orderParam === "asc" ? 1 : -1;
 
-    const appointments = await ViewingAppointment.find(query).sort({ [sortField]: sortOrder });
+    const appointments = await ViewingAppointment.find(query)
+      .populate({ path: "propertyId", select: "name" })
+      .sort({ [sortField]: sortOrder });
     return NextResponse.json({ appointments }, { status: 200 });
   } catch (error) {
     console.error("Get appointments error:", error);
