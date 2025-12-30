@@ -1,22 +1,30 @@
 import connectDB from "@/config/db";
-import Property from "@/models/Property";
+import User from "@/models/User";
+import { getSessionUser } from "@/utils/getSessionUser";
 
-///Get /api/properties/featured
+// GET /api/users - list users (admin or assistant only)
 export const GET = async () => {
   try {
     await connectDB();
 
-    const properties = await Property.find({
-      is_featured: true,
-    })
-      .sort({ createdAt: -1 })
-      .limit(6);
+    const sessionUser = await getSessionUser();
+    if (sessionUser instanceof Response) return sessionUser;
 
-    return new Response(JSON.stringify(properties), {
+    const role = sessionUser?.user?.role;
+    if (!role || !["admin", "assistant"].includes(role)) {
+      return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 403 });
+    }
+
+    const users = await User.find({})
+      .select("name email username role status createdAt image")
+      .sort({ createdAt: -1 });
+
+    return new Response(JSON.stringify({ users }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    return new Response("Something went wrong", { status: 500 });
+    console.error("Failed to list users:", error);
+    return new Response(JSON.stringify({ message: "Something went wrong" }), { status: 500 });
   }
 };

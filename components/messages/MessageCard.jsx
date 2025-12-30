@@ -50,22 +50,22 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
   })();
 
   return (
-    <div className="rounded-3xl border border-slate-200/70 bg-white/70 p-4 shadow-soft backdrop-blur-sm">
+    <div className="rounded-3xl border border-blue-200/70 bg-white p-4 shadow-soft">
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <p className="font-semibold text-slate-900">{property?.name || (m._type === 'enquiry' ? 'Enquiry' : 'Message')}</p>
+            <p className="font-semibold text-blue-900">{property?.name || (m._type === 'enquiry' ? 'Enquiry' : 'Message')}</p>
             {m._type === 'enquiry' && (
               <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-semibold text-brand-700">Enquiry</span>
             )}
           </div>
           {property?.location?.city && property?.location?.state && (
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-slate-700">
               {property.location.city}, {property.location.state}
             </p>
           )}
-          <p className="mt-2 text-sm text-slate-700 line-clamp-2 break-words">{previewText}</p>
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-sm text-slate-900 line-clamp-2 break-words">{previewText}</p>
+          <p className="mt-2 text-xs text-slate-600">
             {context === "inbox" ? `From ${sender?.username ?? "User"}` : `To ${recipient?.username ?? "Owner"}`} • {new Date(m.createdAt).toLocaleString()}
           </p>
         </div>
@@ -74,7 +74,7 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
           {context === "inbox" && (
             <button
               onClick={toggleRead}
-              className="text-xs text-brand-700 underline hover:text-brand-800"
+              className="text-xs text-blue-700 underline hover:text-blue-800"
             >
               Mark as {isRead ? "Unread" : "Read"}
             </button>
@@ -85,19 +85,19 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
       <div className="mt-3 flex items-center gap-3">
         <button
           onClick={() => setOpen((v) => !v)}
-          className="inline-flex items-center rounded-2xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white shadow-soft transition hover:bg-slate-800"
+          className="inline-flex items-center rounded-2xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-soft transition hover:bg-blue-700"
         >
           {open ? "Close Reply" : "Reply"}
         </button>
         <button
           onClick={() => onOpenThread?.(m)}
-          className="inline-flex items-center rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-slate-900 shadow-soft ring-1 ring-slate-200 transition hover:bg-slate-50"
+          className="inline-flex items-center rounded-2xl bg-white px-3 py-2 text-xs font-semibold text-blue-900 shadow-soft ring-1 ring-blue-200 transition hover:bg-blue-50"
         >
           Open Conversation
         </button>
         <a
           href={`/properties/${property?._id}`}
-          className="text-xs text-slate-700 underline hover:text-brand-700"
+          className="text-xs text-blue-700 underline hover:text-blue-800"
         >
           View Property
         </a>
@@ -111,7 +111,7 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
         />
       )}
       {open && m._type === 'enquiry' && !property?._id && (
-        <p className="mt-2 text-xs text-slate-500">This enquiry isn&#39;t linked to a property. Replies will appear when staff responds.</p>
+        <p className="mt-2 text-xs text-blue-600">This enquiry isn&#39;t linked to a property. Replies will appear when staff responds.</p>
       )}
     </div>
   );

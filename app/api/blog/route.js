@@ -79,13 +79,14 @@ export async function GET(request) {
             ];
         }
 
-        if (role === "admin") {
-            if (status !== "all") query.status = status;
-        } else if (role === "assistant") {
-            if (status === "draft" || status === "published") {
+        if (role === "admin" || role === "assistant") {
+            if (status === "all") {
+                query.status = { $in: ["published", "draft"] };
+            } else if (status === "draft" || status === "published") {
                 query.status = status;
             } else {
-                query.status = "published";
+                // Default to both visible statuses for staff
+                query.status = { $in: ["published", "draft"] };
             }
         } else {
             query.status = "published";
@@ -94,7 +95,7 @@ export async function GET(request) {
         const total = await BlogPost.countDocuments(query);
         const posts = await BlogPost.find(query)
             .populate({ path: "author", select: "name username image role" })
-            .sort(query.status === "published" ? { publishedAt: -1 } : { updatedAt: -1 })
+            .sort(status === "published" ? { publishedAt: -1 } : { updatedAt: -1 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 

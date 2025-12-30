@@ -14,12 +14,14 @@ export async function PUT(request, { params }) {
             return new Response("Unauthorized", { status: 401 });
         }
         const role = sessionRes.user?.role || "user";
-        if (role !== "admin") {
-            return new Response("Forbidden", { status: 403 });
-        }
 
         const body = await request.json();
         const action = body.action === "unpublish" ? "draft" : "published";
+
+        // Permission: Only admins can publish/unpublish
+        if (role !== "admin") {
+            return new Response("Forbidden", { status: 403 });
+        }
 
         const post = await BlogPost.findById(id);
         if (!post) return new Response("Not found", { status: 404 });

@@ -96,16 +96,16 @@ export default function ConversationView({ seedMessage, inbox = [], sent = [], o
 
   return (
     <div className="flex h-[70vh] flex-col">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div className="flex items-center justify-between border-b border-blue-100 pb-3">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">{counterparty?.username || counterparty?.name || "Conversation"}</h2>
+          <h2 className="text-lg font-semibold text-blue-900">{counterparty?.username || counterparty?.name || "Conversation"}</h2>
           {propertyName && (
-            <p className="text-xs text-slate-600">{propertyName}</p>
+            <p className="text-xs text-slate-700">{propertyName}</p>
           )}
         </div>
         <button
           onClick={onBack}
-          className="rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm text-slate-700 hover:bg-slate-50"
+          className="rounded-lg border border-blue-200 bg-white px-3 py-1 text-sm text-blue-700 hover:bg-blue-50"
         >
           Back
         </button>
@@ -130,11 +130,11 @@ export default function ConversationView({ seedMessage, inbox = [], sent = [], o
           );
         })}
         {thread.length === 0 && (
-          <p className="text-sm text-slate-500">No messages yet. Start the conversation below.</p>
+          <p className="text-sm text-slate-600">No messages yet. Start the conversation below.</p>
         )}
       </div>
 
-      <div className="border-t border-slate-100 pt-3">
+      <div className="border-t border-blue-100 pt-3">
         <MessageComposer
           propertyId={propertyId}
           recipientId={resolvedRecipientId}

@@ -9,6 +9,7 @@ export async function middleware(req) {
   const isAdminDashboard = pathname.startsWith("/dashboard/admin");
   const isAssistantDashboard = pathname.startsWith("/dashboard/assistant");
   const isUserDashboard = pathname.startsWith("/dashboard/user");
+  const isDashboardMessages = pathname.startsWith("/dashboard/messages");
   const isAddProperty = pathname.startsWith("/properties/add");
   const isEditProperty = pathname.match(/^\/properties\/[^/]+\/edit$/);
 
@@ -16,6 +17,7 @@ export async function middleware(req) {
     isAdminDashboard ||
     isAssistantDashboard ||
     isUserDashboard ||
+    isDashboardMessages ||
     isEditProperty ||
     protectedPaths.some((path) => pathname.startsWith(path));
 
@@ -59,6 +61,7 @@ export const config = {
     "/profile",
     "/properties/saved",
     "/messages",
+    "/dashboard/messages",
     "/dashboard/admin/:path*",
     "/dashboard/assistant/:path*",
     "/dashboard/user/:path*",

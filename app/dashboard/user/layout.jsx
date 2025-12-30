@@ -1,13 +1,12 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Spinner from "@/components/Spinner";
-import Sidebar from "@/components/Sidebar";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
 export default function UserDashboardLayout({ children }) {
   const { data: session, status } = useSession();
-  const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
@@ -30,27 +29,9 @@ export default function UserDashboardLayout({ children }) {
 
   if (!session) return null;
 
-  const current = (() => {
-    if (pathname?.includes("/appointments")) return "appointments";
-    if (pathname?.includes("/enquiry")) return "enquiries";
-    if (pathname?.includes("/profile")) return "profile";
-    if (pathname?.includes("/messages")) return "messages";
-    if (pathname?.includes("/properties/saved")) return "bookmarks";
-    return "dashboard";
-  })();
-
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="grid gap-6 lg:grid-cols-[260px,1fr]">
-          <Sidebar current={current} />
-          <section className="space-y-4">
-            <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-100 p-4 lg:p-6">
-              {children}
-            </div>
-          </section>
-        </div>
-      </div>
-    </div>
+    <DashboardLayout role="user">
+      {children}
+    </DashboardLayout>
   );
 }

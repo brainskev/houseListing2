@@ -62,7 +62,7 @@ export default function UserEnquiryPage() {
       const pid = enquiry.propertyId._id || enquiry.propertyId;
       params.set("propertyId", pid);
     }
-    router.push(`/messages?${params.toString()}`);
+    router.push(`/dashboard/messages?${params.toString()}`);
   };
 
   const handleChange = (e) => {
