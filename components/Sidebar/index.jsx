@@ -71,7 +71,7 @@ const Sidebar = ({ current, onChange }) => {
     <aside className="relative">
       {/* Mobile toggle */}
       <button
-        className="md:hidden fixed top-4 left-4 z-40 inline-flex items-center justify-center rounded-md bg-white p-2 shadow hover:bg-gray-50"
+        className="md:hidden fixed top-4 left-4 z-[60] inline-flex items-center justify-center rounded-md bg-white p-2 shadow hover:bg-gray-50"
         onClick={() => setOpen((o) => !o)}
         aria-label="Toggle sidebar"
       >
@@ -80,7 +80,7 @@ const Sidebar = ({ current, onChange }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed md:static top-0 left-0 z-30 h-full md:h-auto w-64 md:w-64 transform bg-white shadow md:shadow-none transition-transform md:translate-x-0 ${
+        className={`fixed md:static top-0 left-0 z-30 h-full md:h-auto w-64 md:w-64 transform bg-white shadow md:shadow-none transition-transform md:translate-x-0 max-h-screen overflow-y-auto pt-20 md:pt-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -88,6 +88,13 @@ const Sidebar = ({ current, onChange }) => {
           <h2 className="text-lg font-semibold">My Dashboard</h2>
         </div>
         <nav className="p-4 space-y-2">
+          <button
+            onClick={() => router.push("/")}
+            className="mb-2 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition hover:bg-gray-100"
+          >
+            <span className="text-gray-600"><FaHome /></span>
+            <span className="font-medium text-gray-800">Back to Home</span>
+          </button>
           {items.map((item) => (
             <button
               key={item.key}
