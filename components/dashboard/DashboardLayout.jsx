@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FiHome, FiMail, FiCalendar, FiUsers, FiFileText, FiSettings, FiMessageSquare } from "react-icons/fi";
+import { useGlobalContext } from "@/context/GlobalContext";
+import { FiHome, FiMail, FiCalendar, FiUsers, FiFileText, FiSettings, FiMessageSquare, FiLogOut } from "react-icons/fi";
 import useEnquiries from "@/hooks/useEnquiries";
 import useAppointments from "@/hooks/useAppointments";
 
@@ -29,6 +30,7 @@ const DashboardLayout = ({ role = "admin", title, children }) => {
   const links = linksConfig[role] || [];
   const { enquiries = [] } = useEnquiries();
   const { appointments = [] } = useAppointments();
+  const { dashboardSidebarOpen, setDashboardSidebarOpen } = useGlobalContext();
 
   const newEnquiriesCount = enquiries.filter((e) => e.status === "new").length;
   const pendingAppointmentsCount = appointments.filter((a) => a.status === "pending").length;
@@ -39,8 +41,15 @@ const DashboardLayout = ({ role = "admin", title, children }) => {
     <div className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-7xl px-4 py-8">
         <div className="grid gap-6 lg:grid-cols-[260px,1fr]">
-          <aside className="rounded-xl bg-white shadow-sm ring-1 ring-slate-100">
-            <div className="px-6 py-5 border-b border-slate-100">
+          <aside
+            className={cx(
+              "bg-white shadow-sm ring-1 ring-slate-100",
+              // Drawer behavior on mobile, static on md+
+              "fixed md:static top-0 left-0 z-30 h-full md:h-auto w-64 md:w-auto transform transition-transform md:translate-x-0 max-h-screen overflow-y-auto pt-20 md:pt-0",
+              dashboardSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            )}
+          >
+            <div className="px-6 py-5 border-b border-slate-100 hidden md:block">
               <p className="text-sm text-slate-500">Dashboard</p>
               <h2 className="text-xl font-semibold text-slate-900 capitalize">{role}</h2>
             </div>
@@ -63,6 +72,7 @@ const DashboardLayout = ({ role = "admin", title, children }) => {
                       "rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50",
                       active && "bg-slate-100 text-slate-900"
                     )}
+                    onClick={() => setDashboardSidebarOpen(false)}
                   >
                     <span className="flex items-center justify-between">
                       <span className="inline-flex items-center gap-2">
@@ -79,6 +89,20 @@ const DashboardLayout = ({ role = "admin", title, children }) => {
                 );
               })}
             </nav>
+            {/* Exit Dashboard action */}
+            <div className="p-3 border-t border-slate-100">
+              <Link
+                href="/"
+                className="flex items-center justify-between rounded-lg px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition"
+                onClick={() => setDashboardSidebarOpen(false)}
+                aria-label="Exit dashboard"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <FiLogOut className="text-slate-500" size={18} />
+                  <span>Exit Dashboard</span>
+                </span>
+              </Link>
+            </div>
           </aside>
 
           <section className="space-y-4">

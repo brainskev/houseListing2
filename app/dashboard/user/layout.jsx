@@ -43,9 +43,7 @@ export default function UserDashboardLayout({ children }) {
     <div className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-7xl px-4 py-8">
         <div className="grid gap-6 lg:grid-cols-[260px,1fr]">
-          <aside className="rounded-xl bg-white shadow-sm ring-1 ring-slate-100 p-4">
-            <Sidebar current={current} />
-          </aside>
+          <Sidebar current={current} />
           <section className="space-y-4">
             <div className="rounded-xl bg-white shadow-sm ring-1 ring-slate-100 p-4 lg:p-6">
               {children}

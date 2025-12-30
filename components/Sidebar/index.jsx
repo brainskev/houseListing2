@@ -1,10 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
-  FaBars,
-  FaTimes,
   FaHome,
   FaBookmark,
   FaEnvelope,
@@ -13,9 +11,10 @@ import {
   FaUserCog,
   FaSignOutAlt,
 } from "react-icons/fa";
+import { useGlobalContext } from "@/context/GlobalContext";
 
 const Sidebar = ({ current, onChange }) => {
-  const [open, setOpen] = useState(false);
+  const { dashboardSidebarOpen, setDashboardSidebarOpen } = useGlobalContext();
   const router = useRouter();
 
   const items = [
@@ -28,7 +27,7 @@ const Sidebar = ({ current, onChange }) => {
   ];
 
   const handleNavigate = (key) => {
-    setOpen(false);
+    setDashboardSidebarOpen(false);
     // If a consumer manages the tabs, delegate
     if (onChange) {
       if (["messages"].includes(key)) {
@@ -69,19 +68,10 @@ const Sidebar = ({ current, onChange }) => {
 
   return (
     <aside className="relative">
-      {/* Mobile toggle */}
-      <button
-        className="md:hidden fixed top-4 left-4 z-[60] inline-flex items-center justify-center rounded-md bg-white p-2 shadow hover:bg-gray-50"
-        onClick={() => setOpen((o) => !o)}
-        aria-label="Toggle sidebar"
-      >
-        {open ? <FaTimes /> : <FaBars />}
-      </button>
-
-      {/* Sidebar */}
+      {/* Sidebar drawer */}
       <div
         className={`fixed md:static top-0 left-0 z-30 h-full md:h-auto w-64 md:w-64 transform bg-white shadow md:shadow-none transition-transform md:translate-x-0 max-h-screen overflow-y-auto pt-20 md:pt-0 ${
-          open ? "translate-x-0" : "-translate-x-full"
+          dashboardSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="p-4 border-b hidden md:block">

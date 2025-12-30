@@ -10,6 +10,7 @@ export function GlobalProvider({ children }) {
   const [unReadCount, setUnReadCount] = useState(0);
   const { data: session } = useSession();
   const [bookmarkProcessed, setBookmarkProcessed] = useState(false);
+  const [dashboardSidebarOpen, setDashboardSidebarOpen] = useState(false);
 
   useEffect(() => {
     // Fallback: if a bookmark param is present after login (e.g., Google), process it once
@@ -34,7 +35,7 @@ export function GlobalProvider({ children }) {
     } catch { }
   }, [session, bookmarkProcessed]);
   return (
-    <GlobalContext.Provider value={{ unReadCount, setUnReadCount }}>
+    <GlobalContext.Provider value={{ unReadCount, setUnReadCount, dashboardSidebarOpen, setDashboardSidebarOpen }}>
       {children}
     </GlobalContext.Provider>
   );
