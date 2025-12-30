@@ -5,7 +5,7 @@ const useAppointments = () => {
   const [sortBy, setSortBy] = useState("date");
   const [order, setOrder] = useState("desc");
   const url = `/api/appointments?sortBy=${sortBy}&order=${order}`;
-  const { data, loading, error, refresh } = useCacheFetch(url, { cache: "no-store" }, 3000);
+  const { data, loading, error, refresh } = useCacheFetch(url, { cache: "no-store" }, 0);
   const appointments = data?.appointments || [];
 
   const updateStatus = useCallback(async (id, status) => {
