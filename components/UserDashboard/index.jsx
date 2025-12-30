@@ -92,17 +92,8 @@ const UserDashboard = ({ hideSidebar = false }) => {
     }
   };
 
-  const loadEnquiries = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get("/api/messages/sent");
-      setEnquiries(Array.isArray(res?.data) ? res.data : []);
-    } catch {
-      setEnquiries([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Replace with useSentMessages for instant loads
+  // ...existing code...
 
   const loadAppointments = async () => {
     setLoading(true);

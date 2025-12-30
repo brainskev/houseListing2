@@ -51,7 +51,15 @@ const DashboardLayout = ({ role = "admin", title, children }) => {
     <div className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-screen-2xl px-6 py-8">
         <div className="grid gap-6 md:grid-cols-[260px,1fr]">
-          <aside className="hidden md:block bg-white shadow-sm ring-1 ring-slate-100 rounded-lg">
+          <aside
+            className={cx(
+              "bg-white shadow-sm ring-1 ring-slate-100 rounded-lg",
+              // Drawer behavior on mobile, static on md+
+              "fixed md:static top-0 left-0 z-30 h-full md:h-auto w-64 md:w-auto transform transition-transform md:translate-x-0 max-h-screen overflow-y-auto pt-20 md:pt-0",
+              dashboardSidebarOpen ? "translate-x-0" : "-translate-x-full",
+              "md:block"
+            )}
+          >
             <div className="px-6 py-5 border-b border-slate-100 hidden md:block">
               <p className="text-sm text-slate-500">Dashboard</p>
               <h2 className="text-xl font-semibold text-slate-900 capitalize">{role}</h2>
@@ -107,6 +115,14 @@ const DashboardLayout = ({ role = "admin", title, children }) => {
               </Link>
             </div>
           </aside>
+          {/* Overlay for mobile to close drawer on outside click */}
+          {dashboardSidebarOpen && (
+            <div
+              className="fixed inset-0 z-20 bg-black/10 md:hidden"
+              onClick={() => setDashboardSidebarOpen(false)}
+              aria-hidden="true"
+            />
+          )}
 
           <section className="space-y-4">
             {title && <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>}

@@ -38,5 +38,9 @@ const MessageSchema = new Schema(
   },
   { timestamps: true }
 );
+
+MessageSchema.index({ recipient: 1, read: 1, createdAt: -1 });
+MessageSchema.index({ sender: 1, createdAt: -1 });
+MessageSchema.index({ property: 1, createdAt: -1 });
 const Message = models.Message || model("Message", MessageSchema);
 export default Message;

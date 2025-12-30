@@ -107,6 +107,14 @@ const Sidebar = ({ current, onChange }) => {
           </button>
         </nav>
       </div>
+      {/* Overlay for mobile to close drawer on outside click */}
+      {dashboardSidebarOpen && (
+        <div
+          className="fixed inset-0 z-20 bg-black/10 md:hidden"
+          onClick={() => setDashboardSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
     </aside>
   );
 };

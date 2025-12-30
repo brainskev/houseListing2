@@ -35,5 +35,9 @@ const EnquirySchema = new Schema(
   { timestamps: { createdAt: true, updatedAt: true } }
 );
 
+EnquirySchema.index({ userId: 1, createdAt: -1 });
+EnquirySchema.index({ status: 1, createdAt: -1 });
+EnquirySchema.index({ propertyId: 1, createdAt: -1 });
+
 const Enquiry = models.Enquiry || model("Enquiry", EnquirySchema);
 export default Enquiry;

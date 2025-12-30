@@ -40,8 +40,9 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
 
   return (
     <>
-      <div className="max-h-[70vh] overflow-auto">
-        <div className="overflow-x-auto">
+      {/* Desktop/table view */}
+      <div className="hidden md:block max-h-[70vh] overflow-auto">
+        <div className="overflow-x-auto rounded-lg border border-blue-100">
           <table className="min-w-full divide-y divide-blue-100">
             <thead className="bg-blue-50">
             <tr>
@@ -180,6 +181,100 @@ const UserManagementTable = ({ users, onUpdate, onDelete, userRole = "admin" }) 
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Mobile/card view */}
+      <div className="md:hidden max-h-[70vh] overflow-auto space-y-3">
+        {sortedUsers.length === 0 ? (
+          <div className="rounded-lg border border-blue-100 bg-white p-4 text-sm text-slate-600">No users found.</div>
+        ) : (
+          sortedUsers.map((user) => (
+            <div key={user._id} className="rounded-lg border border-blue-100 bg-white p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 h-10 w-10">
+                  {user.image ? (
+                    <Image className="h-10 w-10 rounded-full object-cover" src={user.image} alt={user.name || "User avatar"} width={40} height={40} />
+                  ) : (
+                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-semibold">
+                      {user.name?.charAt(0)?.toUpperCase() || "U"}
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="truncate">
+                      <div className="text-sm font-semibold text-slate-900 truncate">{user.name || user.username}</div>
+                      <div className="text-xs text-slate-700 truncate">{user.email}</div>
+                    </div>
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        user.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {user.status}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    {isAdmin && editingRole === user._id ? (
+                      <select
+                        defaultValue={user.role}
+                        onChange={(e) => handleRoleChange(user._id, e.target.value)}
+                        onBlur={() => setEditingRole(null)}
+                        autoFocus
+                        className="text-xs border border-blue-200 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="user">User</option>
+                        <option value="assistant">Assistant</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    ) : (
+                      <button
+                        onClick={() => isAdmin && setEditingRole(user._id)}
+                        disabled={!isAdmin}
+                        className={`inline-flex items-center gap-1 text-xs font-medium text-slate-900 ${isAdmin ? "hover:text-blue-600 cursor-pointer" : "cursor-not-allowed"}`}
+                      >
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            user.role === "admin"
+                              ? "bg-purple-100 text-purple-800"
+                              : user.role === "assistant"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-blue-50 text-blue-800"
+                          }`}
+                        >
+                          {user.role}
+                        </span>
+                      </button>
+                    )}
+                    <span className="text-[11px] text-slate-500 ml-auto">{new Date(user.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {isAdmin ? (
+                      <>
+                        <button
+                          onClick={() => handleStatusToggle(user._id, user.status)}
+                          className={`inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold transition ${
+                            user.status === "active" ? "bg-red-100 text-red-700 hover:bg-red-200" : "bg-green-100 text-green-700 hover:bg-green-200"
+                          }`}
+                        >
+                          {user.status === "active" ? "Block" : "Unblock"}
+                        </button>
+                        <button
+                          onClick={() => setDeleteModal(user)}
+                          className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-xs font-semibold bg-red-600 text-white hover:bg-red-700 transition"
+                        >
+                          Delete
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-xs text-slate-500 italic">View only</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
