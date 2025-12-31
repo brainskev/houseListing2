@@ -71,7 +71,22 @@ const Messages = () => {
     return merged.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, [sent, mappedEnquiries, session?.user?.role]);
 
-  const list = activeTab === "Inbox" ? inbox : sentWithEnquiries;
+  // Sort chats: new > contacted > others, each by recency
+  const statusOrder = { new: 0, contacted: 1, closed: 2 };
+  function getStatus(m) {
+    // Try to get status from enquiry or message
+    return m.status || m.body?.status || m.message?.status || "";
+  }
+  function chatSort(a, b) {
+    const sa = getStatus(a);
+    const sb = getStatus(b);
+    const oa = statusOrder[sa] ?? 99;
+    const ob = statusOrder[sb] ?? 99;
+    if (oa !== ob) return oa - ob;
+    // If same status, sort by most recent
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  }
+  const list = (activeTab === "Inbox" ? inbox : sentWithEnquiries).slice().sort(chatSort);
 
   // If navigated with an enquiryId, open that thread seeded from mapped enquiries
   useEffect(() => {

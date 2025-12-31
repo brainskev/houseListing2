@@ -18,7 +18,7 @@ export default function UserAppointmentsPage() {
           </div>
           {appointments.length === 0 && (
             <div className="mt-8 flex flex-col items-center">
-              <p className="mb-3 text-slate-600 text-sm">You haven't booked any viewing appointments yet. To get started, browse available properties and book a viewing.</p>
+              <p className="mb-3 text-slate-600 text-sm">You haven&apos;t booked any viewing appointments yet. To get started, browse available properties and book a viewing.</p>
               <a
                 href="/properties"
                 className="inline-flex items-center rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
