@@ -24,6 +24,17 @@ const EnquiryTable = ({ enquiries = [], onStatusChange, disableActions = false, 
   };
   const adminCols = disableActions ? 6 : 7;
   const userCols = 5;
+  // Sort: new > contacted > closed, each by most recent created date
+  const statusOrder = { new: 0, contacted: 1, closed: 2 };
+  function getStatus(a) { return a.status || ""; }
+  function sortEnquiries(a, b) {
+    const oa = statusOrder[getStatus(a)] ?? 99;
+    const ob = statusOrder[getStatus(b)] ?? 99;
+    if (oa !== ob) return oa - ob;
+    // If same status, sort by most recent created date
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  }
+  const sortedEnquiries = enquiries.slice().sort(sortEnquiries);
   return (
     <div className="space-y-4">
       {/* Desktop/table view */}
@@ -54,14 +65,14 @@ const EnquiryTable = ({ enquiries = [], onStatusChange, disableActions = false, 
             </tr>
             </thead>
             <tbody className="divide-y divide-blue-100 bg-white text-sm text-slate-900">
-            {enquiries.length === 0 && (
+            {sortedEnquiries.length === 0 && (
               <tr>
                 <td colSpan={userMode ? userCols : adminCols} className="px-4 py-6 text-center text-slate-600">
                   No enquiries yet.
                 </td>
               </tr>
             )}
-            {enquiries.map((enquiry) => (
+            {sortedEnquiries.map((enquiry) => (
               <tr key={enquiry._id} className="hover:bg-blue-50/50">
                 {userMode ? (
                   <>
