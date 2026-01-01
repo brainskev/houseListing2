@@ -7,11 +7,15 @@ import { toast } from "react-toastify";
 export default function MessageComposer({ propertyId, recipientId, onSent }) {
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
-  const disabled = sending || !body.trim();
+  const disabled = sending || !body.trim() || !recipientId;
   const { data: session } = useSession();
 
   const send = async () => {
-    if (!recipientId || !body.trim()) return;
+    if (!recipientId) {
+      toast?.error?.("Recipient unavailable. Please reopen the thread.");
+      return;
+    }
+    if (!body.trim()) return;
     setSending(true);
     try {
       const payload = {

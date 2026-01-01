@@ -2,11 +2,11 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import { useGlobalContext } from "@/context/GlobalContext";
+
 const Message = ({ message }) => {
   const [isRead, setIsRead] = useState(message.read);
   const [isDeleted, setIsDeleted] = useState(false);
-  const { setUnReadCount } = useGlobalContext();
+
   const handleReadStatus = async () => {
     try {
       const response = await axios.put(`/api/messages/${message?._id}`);
@@ -15,7 +15,6 @@ const Message = ({ message }) => {
         const read = messageObject?.read;
 
         setIsRead(read);
-        setUnReadCount((prevCount) => (read ? prevCount - 1 : prevCount + 1));
         if (read === true) {
           toast.success("Mark as read");
         } else {
@@ -34,7 +33,6 @@ const Message = ({ message }) => {
 
       if (response?.status === 200) {
         setIsDeleted(true);
-        setUnReadCount((prevCount) => prevCount - 1);
         toast.success(response.data);
       }
     } catch (error) {

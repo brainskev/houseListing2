@@ -394,11 +394,12 @@ const Navbar = () => {
                   </Link>
                   <Link
                     href="/messages"
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-50 hover:bg-white/15 hover:translate-x-1 transition-all duration-200"
+                    className="relative flex items-center gap-3 px-4 py-3 rounded-lg text-brand-50 hover:bg-white/15 hover:translate-x-1 transition-all duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <FaEnvelope className="text-lg" />
                     <span className="font-medium">Messages</span>
+                    {session && <UnreadMessageCount session={session} />}
                   </Link>
                   <Link
                     href="/profile"

@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import { FaDownload, FaEnvelope, FaSpinner, FaCalendar, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { toast } from "react-toastify";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
 export default function NewsletterSubscribersPage() {
   const { data: session, status } = useSession();
@@ -73,30 +74,30 @@ export default function NewsletterSubscribersPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <FaSpinner className="animate-spin text-4xl text-brand-600" />
-      </div>
+      <DashboardLayout role="admin" title="Newsletter Subscribers" session={session}>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <FaSpinner className="animate-spin text-4xl text-brand-600" />
+        </div>
+      </DashboardLayout>
     );
   }
 
   if (session?.user?.role !== "admin") {
     return (
-      <div className="text-center py-12">
-        <p className="text-red-600 font-semibold">Access Denied - Admin Only</p>
-      </div>
+      <DashboardLayout role="admin" title="Newsletter Subscribers" session={session}>
+        <div className="text-center py-12">
+          <p className="text-red-600 font-semibold">Access Denied - Admin Only</p>
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="bg-white rounded-lg shadow-md p-6">
+    <DashboardLayout role="admin" title="Newsletter Subscribers" session={session}>
+      <div className="bg-white rounded-lg shadow-sm">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <FaEnvelope className="text-brand-600" />
-              Newsletter Subscribers
-            </h1>
             <p className="text-gray-600 mt-1">
               Total Subscribers: <span className="font-semibold">{pagination.total}</span>
             </p>
@@ -229,6 +230,6 @@ export default function NewsletterSubscribersPage() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

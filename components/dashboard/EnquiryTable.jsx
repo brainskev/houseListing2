@@ -150,6 +150,8 @@ const EnquiryTable = ({ enquiries = [], onStatusChange, disableActions = false, 
                               const pid = enquiry?.propertyId?._id || enquiry?.propertyId;
                               const params = new URLSearchParams({ enquiryId: enquiry._id });
                               if (pid) params.set("propertyId", pid);
+                              if (enquiry?.userId) params.set("recipientId", enquiry.userId);
+                              if (enquiry?.name) params.set("recipientName", enquiry.name);
                               router.push(`/messages?${params.toString()}`);
                             }}
                           >
@@ -230,6 +232,8 @@ const EnquiryTable = ({ enquiries = [], onStatusChange, disableActions = false, 
                         const pid = enquiry?.propertyId?._id || enquiry?.propertyId;
                         const params = new URLSearchParams({ enquiryId: enquiry._id });
                         if (pid) params.set("propertyId", pid);
+                        if (enquiry?.userId) params.set("recipientId", enquiry.userId);
+                        if (enquiry?.name) params.set("recipientName", enquiry.name);
                         router.push(`/messages?${params.toString()}`);
                       }}
                     >

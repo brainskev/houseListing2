@@ -6,10 +6,12 @@ import { FaMapMarker, FaDollarSign } from "react-icons/fa";
 import BookmarkButton from "@/components/BookmarkButton";
 import EnquiryModal from "@/components/EnquiryModal";
 import BookingModal from "@/components/BookingModal";
+import useAppointments from "@/hooks/useAppointments";
 
 const RecommendedPropertyCard = ({ property }) => {
   const [enquiryOpen, setEnquiryOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const { refresh: refreshAppointments } = useAppointments({ enabled: false });
 
   const getPrice = () => {
     const r = property?.rates || {};
@@ -64,7 +66,12 @@ const RecommendedPropertyCard = ({ property }) => {
       </div>
 
       <EnquiryModal open={enquiryOpen} onClose={() => setEnquiryOpen(false)} property={property} />
-      <BookingModal open={bookingOpen} onClose={() => setBookingOpen(false)} property={property} />
+      <BookingModal 
+        open={bookingOpen} 
+        onClose={() => setBookingOpen(false)} 
+        property={property}
+        onAppointmentCreated={refreshAppointments}
+      />
     </div>
   );
 };

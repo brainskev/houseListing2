@@ -1,8 +1,13 @@
 import connectDB from "@/config/db";
 import Message from "@/models/Message";
 import { getSessionUser } from "@/utils/getSessionUser";
+import { Types } from "mongoose";
 
 export const dynamic = "force-dynamic";
+
+function isValidObjectId(id) {
+  return Types.ObjectId.isValid(id);
+}
 
 //PUT /api/messages/:id
 export const PUT = async (request, { params }) => {
@@ -19,6 +24,11 @@ export const PUT = async (request, { params }) => {
     //Extract user object from session user
     const { userId } = sessionUser;
     const { id } = params;
+
+    // Validate ID is a valid ObjectId
+    if (!isValidObjectId(id)) {
+      return new Response(JSON.stringify({ message: "Invalid message ID" }), { status: 400 });
+    }
 
     const message = await Message.findById(id);
     if (!message)
@@ -58,6 +68,11 @@ export const DELETE = async (request, { params }) => {
     //Extract user object from session user
     const { userId } = sessionUser;
     const { id } = params;
+
+    // Validate ID is a valid ObjectId
+    if (!isValidObjectId(id)) {
+      return new Response(JSON.stringify({ message: "Invalid message ID" }), { status: 400 });
+    }
 
     const message = await Message.findById(id);
     if (!message)

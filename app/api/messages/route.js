@@ -1,6 +1,7 @@
 import connectDB from "@/config/db";
 import Message from "@/models/Message";
 import { getSessionUser } from "@/utils/getSessionUser";
+import { Types } from "mongoose";
 
 export const dynamic = "force-dynamic";
 // --- Sanitization helpers ---
@@ -13,38 +14,53 @@ function validateEmail(email) {
   const s = (typeof email === "string" ? email : "").trim();
   return /.+@.+\..+/.test(s) && s.length <= 254;
 }
-//GET /api/messages
-export const GET=async ()=>{
-try {
-  await connectDB()
-  const sessionUser = await getSessionUser();
 
-  if (!sessionUser || !sessionUser.user) {
-    return new Response(
-      JSON.stringify({ message: "You must be loggedIn to send a message" }),
-      { status: 401 }
-    );
+function isValidObjectId(id) {
+  return Types.ObjectId.isValid(id);
+}
+//GET /api/messages
+export const GET = async (request) => {
+  try {
+    await connectDB();
+    const sessionUser = await getSessionUser();
+
+    if (!sessionUser || !sessionUser.user) {
+      return new Response(
+        JSON.stringify({ message: "You must be loggedIn to send a message" }),
+        { status: 401 }
+      );
+    }
+
+    const { searchParams } = new URL(request.url);
+    const sinceParam = searchParams.get("since");
+    const since = sinceParam && !Number.isNaN(Date.parse(sinceParam)) ? new Date(sinceParam) : null;
+
+    const { userId } = sessionUser;
+    const baseFilter = { recipient: userId };
+    if (since) {
+      baseFilter.createdAt = { $gt: since };
+    }
+
+    // Keep unread-first ordering while supporting delta fetches
+    const unreadMessages = await Message.find({ ...baseFilter, read: false })
+      .sort({ createdAt: -1 })
+      .populate("sender", "username")
+      .populate("property", "name");
+
+    const readMessages = await Message.find({ ...baseFilter, read: true })
+      .sort({ createdAt: -1 })
+      .populate("sender", "username")
+      .populate("property", "name");
+
+    const messages = [...unreadMessages, ...readMessages];
+    return new Response(JSON.stringify(messages), { status: 200 });
+  } catch (error) {
+    console.log(error);
+    return new Response(JSON.stringify({ message: "Something Went Wrong" }), {
+      status: 500,
+    });
   }
-  //Extract user object from session user
-  const { userId } = sessionUser;
-  const readMessages = await Message.find({ recipient: userId, read: true })
-    .sort({ createdAt: -1 })
-    .populate("sender", "username")
-    .populate("property", "name");
-  const unreadMessages = await Message.find({ recipient: userId, read: false })
-    .sort({ createdAt: -1 })
-    .populate("sender", "username")
-    .populate("property", "name");
-  const messages = [...unreadMessages, ...readMessages];
-return new Response(JSON.stringify(messages),{status:200})
-  
-} catch (error) {
-  console.log(error);
-  return new Response(JSON.stringify({ message: "Something Went Wrong" }), {
-    status: 500,
-  });
-}
-}
+};
 
 //POST /api/messages
 export const POST = async (request) => {
@@ -89,10 +105,21 @@ export const POST = async (request) => {
       return new Response(JSON.stringify({ message: "Invalid email" }), { status: 400 });
     }
 
+    // Validate IDs are valid ObjectIds
+    if (!isValidObjectId(user.id)) {
+      return new Response(JSON.stringify({ message: "Invalid sender ID" }), { status: 400 });
+    }
+    if (!isValidObjectId(recipient)) {
+      return new Response(JSON.stringify({ message: "Invalid recipient ID" }), { status: 400 });
+    }
+    if (property && !isValidObjectId(property)) {
+      return new Response(JSON.stringify({ message: "Invalid property ID" }), { status: 400 });
+    }
+
     const newMessage = new Message({
       sender: user.id,
       recipient,
-      property,
+      property: property || null,
       name: safeName,
       email: safeEmail,
       phone: safePhone,

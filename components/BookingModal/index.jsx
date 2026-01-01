@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { FaCalendarPlus, FaTimes } from "react-icons/fa";
 import { useSession } from "next-auth/react";
 
-const BookingModal = ({ open, onClose, property }) => {
+const BookingModal = ({ open, onClose, property, onAppointmentCreated }) => {
   const { data: session } = useSession();
   const lastUserIdRef = useRef(null);
   const [name, setName] = useState("");
@@ -46,6 +46,13 @@ const BookingModal = ({ open, onClose, property }) => {
       const res = await axios.post("/api/appointments", payload);
       if (res.status >= 200 && res.status < 300) {
         toast.success("Viewing appointment requested");
+        // Clear form and close modal
+        setName(session?.user?.name || "");
+        setPhone("");
+        setDate("");
+        setHp("");
+        // Trigger callback to refresh appointments list
+        onAppointmentCreated?.();
         onClose();
       } else {
         toast.error(res?.data?.message || "Failed to request appointment");

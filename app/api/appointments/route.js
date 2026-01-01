@@ -101,6 +101,8 @@ export async function GET(request) {
     const searchParams = request.nextUrl?.searchParams;
     const sortByParam = (searchParams?.get("sortBy") || "").toLowerCase();
     const orderParam = (searchParams?.get("order") || "desc").toLowerCase();
+    const updatedAfterParam = searchParams?.get("updatedAfter");
+    const updatedAfter = updatedAfterParam && !Number.isNaN(Date.parse(updatedAfterParam)) ? new Date(updatedAfterParam) : null;
     const fieldMap = {
       date: "date",
       user: "name",
@@ -109,7 +111,9 @@ export async function GET(request) {
     const sortField = fieldMap[sortByParam] || "createdAt";
     const sortOrder = orderParam === "asc" ? 1 : -1;
 
-    const appointments = await ViewingAppointment.find(query)
+    const timeFilter = updatedAfter ? { updatedAt: { $gt: updatedAfter } } : {};
+
+    const appointments = await ViewingAppointment.find({ ...query, ...timeFilter })
       .populate({ path: "propertyId", select: "name" })
       .sort({ [sortField]: sortOrder });
     return NextResponse.json({ appointments }, { status: 200 });

@@ -96,7 +96,7 @@ export async function POST(request) {
   }
 }
 
-export async function GET() {
+export async function GET(request) {
   try {
     await connectDB();
     const sessionUser = await getSessionUser();
@@ -110,6 +110,12 @@ export async function GET() {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
       query = { userId };
+    }
+
+    const updatedAfterParam = request.nextUrl?.searchParams?.get("updatedAfter");
+    const updatedAfter = updatedAfterParam && !Number.isNaN(Date.parse(updatedAfterParam)) ? new Date(updatedAfterParam) : null;
+    if (updatedAfter) {
+      query.updatedAt = { $gt: updatedAfter };
     }
 
     const enquiries = await Enquiry.find(query)

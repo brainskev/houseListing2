@@ -3,30 +3,40 @@ import axios from "axios";
 import React, { useEffect, useRef } from "react";
 import { useGlobalContext } from "@/context/GlobalContext";
 
-const POLL_INTERVAL = 10000; // 10 seconds
+const POLL_INTERVAL = 30000; // 30 seconds for the badge to be the source of truth
 
 const UnreadMessageCount = ({ session }) => {
   const { unReadCount, setUnReadCount } = useGlobalContext();
   const intervalRef = useRef();
+  const lastFetchRef = useRef(0);
 
   useEffect(() => {
     let isMounted = true;
     const fetchUnreadMessages = async () => {
       try {
         if (!session) return;
+        const now = Date.now();
+        // Only fetch if not recently fetched (debounce rapid calls)
+        if (now - lastFetchRef.current < 1000) return;
+        lastFetchRef.current = now;
+
         const response = await axios.get("/api/messages/unread-count");
         if (response.status >= 200 && response.status < 300) {
           const data = response?.data?.count;
-          if (isMounted) setUnReadCount(data);
+          if (isMounted && typeof data === "number") {
+            setUnReadCount(data);
+          }
         }
       } catch (error) {
-        // Optionally handle error
+        // Silently handle errors to avoid console spam
       }
     };
+    
     fetchUnreadMessages();
     if (session) {
       intervalRef.current = setInterval(fetchUnreadMessages, POLL_INTERVAL);
     }
+    
     return () => {
       isMounted = false;
       if (intervalRef.current) clearInterval(intervalRef.current);

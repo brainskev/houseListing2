@@ -4,12 +4,14 @@ import { useState, useEffect, useTransition, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
+import useAppointments from "@/hooks/useAppointments";
 
 export default function UserAppointmentPage() {
   const { data: session } = useSession();
   const lastUserIdRef = useRef(null);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { refresh: refreshAppointments } = useAppointments({ enabled: false });
   const presetPropertyId = searchParams.get("propertyId") || "";
   const presetPropertyName = searchParams.get("propertyName") || "";
   const [form, setForm] = useState({ name: "", phone: "", propertyId: presetPropertyId, date: "", hp: "" });
@@ -68,6 +70,8 @@ export default function UserAppointmentPage() {
       }
       if (!res.ok) throw new Error(data?.message || "Something went wrong");
       toast.success("Viewing booked successfully.");
+      // Refresh appointments list immediately
+      refreshAppointments();
       startTransition(() => {
         router.push("/dashboard/user/appointments");
       });

@@ -21,9 +21,11 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
     }
   };
 
-  // For replies: if it's an inbox message, reply to sender; if it's a sent enquiry, reply to recipient.
+  // For replies: favor the original sender for enquiries to avoid self-recipient when owner === current user.
   const senderId = sender?._id || sender;
-  const recipientIdInit = context === "inbox" ? senderId : (recipient?._id || recipient);
+  const recipientIdInit = m._type === "enquiry"
+    ? senderId
+    : (context === "inbox" ? senderId : (recipient?._id || recipient));
   const [recipientId, setRecipientId] = useState(recipientIdInit || null);
 
   useEffect(() => {
@@ -33,7 +35,10 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
       try {
         const res = await axios.get(`/api/properties/${propertyId}`);
         const ownerId = res?.data?.owner;
-        if (ownerId) setRecipientId(ownerId);
+        // Avoid overriding with self or the same sender to prevent self-recipient errors
+        if (ownerId && ownerId !== senderId && ownerId !== recipientIdInit) {
+          setRecipientId(ownerId);
+        }
       } catch (e) {
         console.error("Failed to resolve property owner for reply", e);
       }

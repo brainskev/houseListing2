@@ -4,7 +4,7 @@ import AppointmentTable from "@/components/dashboard/AppointmentTable";
 import useAppointments from "@/hooks/useAppointments";
 
 export default function UserAppointmentsPage() {
-  const { appointments, loading, error } = useAppointments();
+  const { appointments, loading, error } = useAppointments({ ttl: 60000 });
 
   return (
     <div>

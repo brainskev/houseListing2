@@ -10,7 +10,7 @@ export default async function DashboardMessagesPage() {
   const session = await getServerSession(authOptions);
   const role = session?.user?.role || "user";
   return (
-    <DashboardLayout role={role} title="Messages">
+    <DashboardLayout role={role} title="Messages" session={session}>
       <Messages />
     </DashboardLayout>
   );

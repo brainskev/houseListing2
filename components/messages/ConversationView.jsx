@@ -9,13 +9,19 @@ export default function ConversationView({ seedMessage, inbox = [], sent = [], o
   const { data: session } = useSession();
   const myId = session?.user?.id;
   const containerRef = useRef(null);
+  const markedAsReadRef = useRef(new Set()); // Track which messages we've already marked as read
   const { setUnReadCount } = useGlobalContext();
   const propertyId = seedMessage?.property?._id || seedMessage?.property;
-  const counterpartId = seedMessage?.sender?._id || seedMessage?.sender;
-  const [resolvedRecipientId, setResolvedRecipientId] = useState(counterpartId || null);
-  const [propertyName, setPropertyName] = useState(seedMessage?.property?.name || "");
-  const meIsRecipient = seedMessage?.recipient?._id === myId || seedMessage?.recipient === myId;
+  const senderId = seedMessage?.sender?._id || seedMessage?.sender;
+  const recipientIdSeed = seedMessage?.recipient?._id || seedMessage?.recipient;
+  const meIsRecipient = recipientIdSeed === myId;
+  const meIsSender = senderId === myId;
+  const counterpartyId = meIsSender ? recipientIdSeed : senderId;
   const counterparty = meIsRecipient ? seedMessage?.sender : seedMessage?.recipient;
+  const [resolvedRecipientId, setResolvedRecipientId] = useState(
+    counterpartyId && counterpartyId !== myId ? counterpartyId : null
+  );
+  const [propertyName, setPropertyName] = useState(seedMessage?.property?.name || "");
 
   const syntheticFromSeed = useMemo(() => {
     if (!seedMessage || seedMessage._type !== "enquiry") return [];
@@ -39,14 +45,14 @@ export default function ConversationView({ seedMessage, inbox = [], sent = [], o
         const pId = m?.property?._id || m?.property;
         const sId = m?.sender?._id || m?.sender;
         const rId = m?.recipient?._id || m?.recipient;
-        const targetId = resolvedRecipientId || counterpartId;
+        const targetId = resolvedRecipientId || counterpartyId;
         const involvesCounterpart = targetId ? (sId === targetId || rId === targetId) : true;
         const sameProperty = !propertyId || pId === propertyId;
         return involvesCounterpart && sameProperty;
-      })
+      });
     const withSeed = [...filtered, ...syntheticFromSeed];
     return withSeed.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-  }, [inbox, sent, counterpartId, resolvedRecipientId, propertyId, syntheticFromSeed]);
+  }, [inbox, sent, counterpartyId, resolvedRecipientId, propertyId, syntheticFromSeed]);
 
   useEffect(() => {
     // auto-scroll to bottom for latest messages
@@ -57,17 +63,17 @@ export default function ConversationView({ seedMessage, inbox = [], sent = [], o
 
   useEffect(() => {
     // mark unread inbound messages as read when opening/viewing the thread
+    // but only mark each message once to avoid redundant API calls
     const markSeen = async () => {
       const unreadForMe = thread.filter(
-        (m) => !m._type && ((m?.recipient?._id || m?.recipient) === myId) && !m?.read
+        (m) => !m._type && ((m?.recipient?._id || m?.recipient) === myId) && !m?.read && !markedAsReadRef.current.has(m._id)
       );
       if (unreadForMe.length === 0) return;
       try {
         await Promise.all(unreadForMe.map((m) => axios.put(`/api/messages/${m._id}`)));
-        const res = await axios.get("/api/messages/unread-count");
-        const count = res?.data?.count ?? 0;
-        setUnReadCount(count);
-        onUpdated?.();
+        // Track that we've marked these messages as read
+        unreadForMe.forEach((m) => markedAsReadRef.current.add(m._id));
+        // Don't call onUpdated() here - let the badge's next poll update the count
       } catch (e) {
         console.error("Failed to mark messages as read", e);
       }
@@ -83,7 +89,7 @@ export default function ConversationView({ seedMessage, inbox = [], sent = [], o
       try {
         const res = await axios.get(`/api/properties/${propertyId}`);
         const ownerId = res?.data?.owner;
-        if (!resolvedRecipientId && ownerId) setResolvedRecipientId(ownerId);
+        if (!resolvedRecipientId && ownerId && ownerId !== myId) setResolvedRecipientId(ownerId);
         const name = res?.data?.name;
         if (name) setPropertyName(name);
       } catch (e) {

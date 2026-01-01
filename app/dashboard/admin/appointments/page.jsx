@@ -1,14 +1,16 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import AppointmentTable from "@/components/dashboard/AppointmentTable";
 import useAppointments from "@/hooks/useAppointments";
 
 export default function AdminAppointmentsPage() {
-  const { appointments, loading, error, updateStatus, sortBy, order, setSortBy, setOrder } = useAppointments();
+  const { data: session } = useSession();
+  const { appointments, loading, error, updateStatus, sortBy, order, setSortBy, setOrder } = useAppointments({ ttl: 15000 });
 
   return (
-    <DashboardLayout role="admin" title="Viewing Appointments">
+    <DashboardLayout role="admin" title="Viewing Appointments" countsEnabled={false} session={session}>
       {loading && <p className="text-sm text-slate-500">Loading appointments...</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
       {!loading && (
