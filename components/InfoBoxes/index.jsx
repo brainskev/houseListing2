@@ -20,7 +20,7 @@ const InfoBoxes = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg">
           <InfoBox
             heading={"For Buyers"}
-            backgroundColor={"bg-gray-100"}
+            backgroundColor={"bg-white"}
             buttonInfo={{ text: "Browse Properties", link: "/properties", backgroundColor: "bg-black" }}
           >
             Find your dream rental property. Bookmark properties and contact owners.
@@ -28,7 +28,7 @@ const InfoBoxes = () => {
 
           <InfoBox
             heading={canManageListings ? "For Property Owners" : "For Owners & Agents"}
-            backgroundColor={"bg-brand-100"}
+            backgroundColor={"bg-white"}
             buttonInfo={ownerButton}
           >
             {canManageListings

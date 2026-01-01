@@ -7,12 +7,23 @@ const PropertySearchForm = () => {
   const router = useRouter();
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (location === "" && propertyType === "All") {
-      router.push("/properties");
-    } else {
-      const query = `?location=${location}&propertyType=${propertyType}`;
-      router.push(`/properties/search-results${query}`);
+    
+    const params = new URLSearchParams();
+    
+    // Trim and add location if provided
+    const cleanLocation = location?.trim();
+    if (cleanLocation) {
+      params.append("location", cleanLocation);
     }
+    
+    // Add property type if it's not 'All'
+    if (propertyType && propertyType !== "All") {
+      params.append("propertyType", propertyType);
+    }
+    
+    const query = params.toString();
+    // Always go to search results, even with empty query (shows all properties)
+    router.push(`/properties/search-results${query ? `?${query}` : ''}`);
   };
   return (
     <form

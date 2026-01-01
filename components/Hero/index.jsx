@@ -22,3 +22,5 @@ const Hero = () => {
 };
 
 export default Hero
+export { default as PremiumHero } from "./PremiumHero";
+export { default as MobileHero } from "./MobileHero";

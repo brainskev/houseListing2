@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import useCacheFetch from "./useCacheFetch";
 
 const useEnquiries = () => {
-  const { data, loading, error, refresh } = useCacheFetch("/api/enquiries", { cache: "no-store" }, 0);
+  const { data, loading, error, refresh } = useCacheFetch("/api/enquiries", { cache: "no-store" }, 3000);
   const enquiries = data?.enquiries || [];
 
   const updateStatus = useCallback(async (id, status) => {

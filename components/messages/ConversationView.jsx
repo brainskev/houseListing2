@@ -19,17 +19,18 @@ export default function ConversationView({ seedMessage, inbox = [], sent = [], o
 
   const syntheticFromSeed = useMemo(() => {
     if (!seedMessage || seedMessage._type !== "enquiry") return [];
+    // Use the actual sender and recipient from the enquiry
     return [
       {
         _id: seedMessage._id,
         body: seedMessage.body,
         createdAt: seedMessage.createdAt,
-        sender: { _id: myId },
-        recipient: resolvedRecipientId,
+        sender: seedMessage.sender,
+        recipient: seedMessage.recipient,
         property: propertyId,
       },
     ];
-  }, [seedMessage, resolvedRecipientId, propertyId, myId]);
+  }, [seedMessage, propertyId]);
 
   const thread = useMemo(() => {
     const all = [...(inbox || []), ...(sent || [])];

@@ -42,7 +42,7 @@ const HomeProperties = async () => {
             </p>
           ) : (
             <div className="rounded-3xl border border-slate-200/70 bg-white/70 backdrop-blur-sm p-4 md:p-6 shadow-soft">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {recentProperties.map((property) => (
                   <PropertyCard key={property?._id} property={property} />
                 ))}

@@ -7,6 +7,17 @@ const statusColors = {
 };
 
 const AppointmentTable = ({ appointments = [], onStatusChange, disableActions = false }) => {
+  // Sort: pending > confirmed > completed, each by most recent date
+  const statusOrder = { pending: 0, confirmed: 1, completed: 2 };
+  function getStatus(a) { return a.status || ""; }
+  function sortAppointments(a, b) {
+    const oa = statusOrder[getStatus(a)] ?? 99;
+    const ob = statusOrder[getStatus(b)] ?? 99;
+    if (oa !== ob) return oa - ob;
+    // If same status, sort by most recent date
+    return new Date(b.date) - new Date(a.date);
+  }
+  const sortedAppointments = appointments.slice().sort(sortAppointments);
   return (
     <div className="space-y-4">
       {/* Desktop/table view */}
@@ -25,14 +36,14 @@ const AppointmentTable = ({ appointments = [], onStatusChange, disableActions = 
             </tr>
             </thead>
             <tbody className="divide-y divide-blue-100 bg-white text-sm text-blue-900">
-            {appointments.length === 0 && (
+            {sortedAppointments.length === 0 && (
               <tr>
                 <td colSpan={disableActions ? 6 : 7} className="px-4 py-6 text-center text-blue-600">
                   No appointments yet.
                 </td>
               </tr>
             )}
-            {appointments.map((appointment) => (
+            {sortedAppointments.map((appointment) => (
               <tr key={appointment._id} className="hover:bg-blue-50/50">
                 <td className="px-4 py-3 font-medium text-blue-900">{appointment.name}</td>
                 <td className="px-4 py-3">{appointment.phone}</td>
@@ -77,10 +88,10 @@ const AppointmentTable = ({ appointments = [], onStatusChange, disableActions = 
 
       {/* Mobile/card view */}
       <div className="md:hidden max-h-[70vh] overflow-auto space-y-3">
-        {appointments.length === 0 ? (
+        {sortedAppointments.length === 0 ? (
           <div className="rounded-lg border border-blue-100 bg-white p-4 text-sm text-blue-600">No appointments yet.</div>
         ) : (
-          appointments.map((appointment) => (
+          sortedAppointments.map((appointment) => (
             <div key={appointment._id} className="rounded-lg border border-blue-100 bg-white p-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="space-y-1">

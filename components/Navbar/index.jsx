@@ -20,6 +20,8 @@ const Navbar = () => {
   const canManageListings = ["admin", "assistant"].includes(session?.user?.role);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
+  const mobileMenuRef = useRef(null);
+  const mobileMenuButtonRef = useRef(null);
   const { dashboardSidebarOpen, setDashboardSidebarOpen } = useGlobalContext();
   
   // Close profile dropdown on outside click or Esc
@@ -47,6 +49,31 @@ const Navbar = () => {
     };
   }, [isProfileMenuOpen]);
   
+  // Close mobile menu on outside click or Esc
+  useEffect(() => {
+    const onMouseDown = (e) => {
+      if (!isMobileMenuOpen) return;
+      const mobileMenuEl = mobileMenuRef.current;
+      const mobileMenuBtnEl = mobileMenuButtonRef.current;
+      if (!mobileMenuEl || !mobileMenuBtnEl) return;
+      if (!mobileMenuEl.contains(e.target) && !mobileMenuBtnEl.contains(e.target)) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    const onKeyDown = (e) => {
+      if (!isMobileMenuOpen) return;
+      if (e.key === "Escape") {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onMouseDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isMobileMenuOpen]);
+  
   const getDashboardPath = () => {
     if (!session?.user?.role) return "/dashboard/user";
     if (session.user.role === "admin") return "/dashboard/admin";
@@ -68,6 +95,7 @@ const Navbar = () => {
               aria-controls="mobile-menu"
               aria-expanded="false"
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+              ref={mobileMenuButtonRef}
             >
               <span className="absolute -inset-0.5" />
               <span className="sr-only">Open main menu</span>
@@ -288,7 +316,11 @@ const Navbar = () => {
       </div>
       {/* Mobile menu, show/hide based on menu state. */}
       {isMobileMenuOpen && (
-        <div id="mobile-menu" className="border-t border-brand-600 md:hidden">
+        <div 
+          id="mobile-menu" 
+          className="border-t border-brand-600 md:hidden"
+          ref={mobileMenuRef}
+        >
           <div className="space-y-1 px-2 pb-3 pt-2">
             <Link
               href="/properties"

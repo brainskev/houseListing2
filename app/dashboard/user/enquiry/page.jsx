@@ -181,7 +181,20 @@ export default function UserEnquiryPage() {
         <div className="mb-4 rounded-md border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
       )}
       {!showForm && !loading && !error && (
-        <EnquiryTable enquiries={enquiries} userMode onOpenMessage={openMessageForEnquiry} />
+        <>
+          <EnquiryTable enquiries={enquiries} userMode onOpenMessage={openMessageForEnquiry} />
+          {enquiries.length === 0 && (
+            <div className="mt-8 flex flex-col items-center">
+              {/* <p className="mb-3 text-slate-600 text-sm">You haven't made any enquiries yet. To get started, browse available properties and make your first enquiry.</p> */}
+              <a
+                href="/properties"
+                className="inline-flex items-center rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+              >
+                View Properties
+              </a>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

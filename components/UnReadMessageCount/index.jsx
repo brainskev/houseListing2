@@ -1,23 +1,37 @@
+
 import axios from "axios";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useGlobalContext } from "@/context/GlobalContext";
+
+const POLL_INTERVAL = 10000; // 10 seconds
+
 const UnreadMessageCount = ({ session }) => {
   const { unReadCount, setUnReadCount } = useGlobalContext();
+  const intervalRef = useRef();
+
   useEffect(() => {
+    let isMounted = true;
     const fetchUnreadMessages = async () => {
       try {
         if (!session) return;
         const response = await axios.get("/api/messages/unread-count");
         if (response.status >= 200 && response.status < 300) {
           const data = response?.data?.count;
-          setUnReadCount(data);
+          if (isMounted) setUnReadCount(data);
         }
       } catch (error) {
-        console.log(error);
+        // Optionally handle error
       }
     };
     fetchUnreadMessages();
-  }, [session]);
+    if (session) {
+      intervalRef.current = setInterval(fetchUnreadMessages, POLL_INTERVAL);
+    }
+    return () => {
+      isMounted = false;
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [session, setUnReadCount]);
 
   return (
     unReadCount > 0 && (
