@@ -36,19 +36,22 @@ export const GET = async (request) => {
     const since = sinceParam && !Number.isNaN(Date.parse(sinceParam)) ? new Date(sinceParam) : null;
 
     const { userId } = sessionUser;
-    const baseFilter = { recipient: userId };
-    if (since) {
-      baseFilter.createdAt = { $gt: since };
-    }
 
-    // Keep unread-first ordering while supporting delta fetches
-    const unreadMessages = await Message.find({ ...baseFilter, read: false })
+    // Always fetch all unread messages (important for read status updates)
+    const unreadMessages = await Message.find({ recipient: userId, read: false })
       .sort({ createdAt: -1 })
       .populate("sender", "username")
       .populate("property", "name");
 
-    const readMessages = await Message.find({ ...baseFilter, read: true })
-      .sort({ createdAt: -1 })
+    // Apply delta filter only to read messages
+    const readFilter = { recipient: userId, read: true };
+    if (since) {
+      // use updatedAt so status changes (read/unread) are picked up after updates
+      readFilter.updatedAt = { $gt: since };
+    }
+
+    const readMessages = await Message.find(readFilter)
+      .sort({ updatedAt: -1 })
       .populate("sender", "username")
       .populate("property", "name");
 
@@ -56,6 +59,77 @@ export const GET = async (request) => {
     return new Response(JSON.stringify(messages), { status: 200 });
   } catch (error) {
     console.log(error);
+    return new Response(JSON.stringify({ message: "Something Went Wrong" }), {
+      status: 500,
+    });
+  }
+};
+
+// PATCH /api/messages - Mark thread as read by property and sender
+export const PATCH = async (request) => {
+  try {
+    await connectDB();
+    const sessionUser = await getSessionUser();
+
+    if (!sessionUser || !sessionUser.user) {
+      return new Response(
+        JSON.stringify({ message: "You must be loggedIn" }),
+        { status: 401 }
+      );
+    }
+
+    const { userId } = sessionUser;
+    const { propertyId, senderId } = await request.json();
+
+    console.log('[API PATCH] === START ===');
+    console.log('[API PATCH] Input:', { userId, propertyId, senderId });
+
+    if (!propertyId || !senderId) {
+      console.log('[API PATCH] ERROR: Missing parameters');
+      return new Response(
+        JSON.stringify({ message: "propertyId and senderId required" }),
+        { status: 400 }
+      );
+    }
+
+    // Find all unread messages for this thread and mark as read
+    // Convert IDs to ObjectId for proper MongoDB comparison
+    const query = {
+      recipient: new Types.ObjectId(userId),
+      read: false,
+      property: new Types.ObjectId(propertyId),
+      sender: new Types.ObjectId(senderId),
+    };
+
+    console.log('[API PATCH] Query:', {
+      recipient: userId,
+      read: false,
+      property: propertyId,
+      sender: senderId,
+    });
+
+    // Check how many messages match
+    const matchCount = await Message.countDocuments(query);
+    console.log('[API PATCH] Matched count:', matchCount);
+
+    // Get the actual messages that match
+    const matchedMessages = await Message.find(query).select('_id read sender property');
+    console.log('[API PATCH] Matched messages:', matchedMessages.map(m => ({ id: m._id, read: m.read, sender: m.sender, property: m.property })));
+
+    const result = await Message.updateMany(query, { $set: { read: true } });
+
+    console.log('[API PATCH] Result:', { modifiedCount: result.modifiedCount, matchedCount: result.matchedCount });
+    console.log('[API PATCH] === END ===');
+
+    return new Response(
+      JSON.stringify({
+        message: "Thread marked as read",
+        updated: result.modifiedCount
+      }),
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log('[API PATCH] ERROR:', error);
     return new Response(JSON.stringify({ message: "Something Went Wrong" }), {
       status: 500,
     });

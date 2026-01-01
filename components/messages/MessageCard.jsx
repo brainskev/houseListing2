@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import StatusBadge from "@/components/ui/StatusBadge";
 import MessageComposer from "./MessageComposer";
 
@@ -13,12 +12,7 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
   const propertyId = property?._id || property;
 
   const toggleRead = async () => {
-    try {
-      await axios.put(`/api/messages/${m._id}`);
-      onUpdated?.();
-    } catch (e) {
-      console.error("Failed to toggle read", e);
-    }
+    // Backend removed: no-op for now
   };
 
   // For replies: favor the original sender for enquiries to avoid self-recipient when owner === current user.
@@ -29,21 +23,7 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
   const [recipientId, setRecipientId] = useState(recipientIdInit || null);
 
   useEffect(() => {
-    // When opening reply and we don't have a recipient yet but have a property, resolve owner
-    const resolveRecipient = async () => {
-      if (!open || recipientId || !propertyId) return;
-      try {
-        const res = await axios.get(`/api/properties/${propertyId}`);
-        const ownerId = res?.data?.owner;
-        // Avoid overriding with self or the same sender to prevent self-recipient errors
-        if (ownerId && ownerId !== senderId && ownerId !== recipientIdInit) {
-          setRecipientId(ownerId);
-        }
-      } catch (e) {
-        console.error("Failed to resolve property owner for reply", e);
-      }
-    };
-    resolveRecipient();
+    // Backend removed: skip resolving property owner
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, propertyId]);
 
@@ -77,12 +57,7 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
         <div className="flex flex-col items-end gap-2">
           {!m._type && <StatusBadge status={isRead ? "Contacted" : "New"} />} 
           {context === "inbox" && (
-            <button
-              onClick={toggleRead}
-              className="text-xs text-blue-700 underline hover:text-blue-800"
-            >
-              Mark as {isRead ? "Unread" : "Read"}
-            </button>
+            <span className="text-xs text-slate-400">Read toggles disabled</span>
           )}
         </div>
       </div>

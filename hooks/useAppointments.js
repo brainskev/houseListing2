@@ -18,6 +18,7 @@ const useAppointments = ({ enabled = true, poll = true, ttl = 120000 } = {}) => 
   }
   const url = enabled ? `/api/appointments?${params.toString()}` : null;
   const effectiveTtl = poll ? ttl : null;
+  // Use no-store to force fresh fetches and skip in-memory caching (dev HMR-safe)
   const { data, loading, error, refresh: hookRefresh } = useCacheFetch(url, { cache: "no-store" }, enabled ? effectiveTtl : null);
 
   useEffect(() => {

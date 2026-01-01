@@ -10,8 +10,16 @@ import { useRef, useState, useEffect, useCallback } from "react";
  */
 const cache = {};
 const timers = {};
-const visibilityStates = {}; // Track visibility state per URL
-const inFlight = {}; // Share in-flight requests per URL to dedupe fetches
+const inFlight = {};
+
+export function resetCache() {
+    Object.keys(cache).forEach((k) => delete cache[k]);
+    Object.keys(timers).forEach((k) => {
+        clearTimeout(timers[k]);
+        delete timers[k];
+    });
+    Object.keys(inFlight).forEach((k) => delete inFlight[k]);
+}
 
 export default function useCacheFetch(url, options = {}, ttl = 10000) {
     const isEnabled = Boolean(url);
@@ -24,19 +32,14 @@ export default function useCacheFetch(url, options = {}, ttl = 10000) {
     const lastFetchTimeRef = useRef(0);
     const isPageVisibleRef = useRef(true);
 
-    // Debug logging to trace polling sources
-    useEffect(() => {
-        if (url && ttl && ttl > 0) {
-            console.log('[useCacheFetch] Polling enabled:', { url, ttl, effectiveTtl });
-        }
-    }, [url, ttl, effectiveTtl]);
-
     const fetchData = useCallback(async (force = false) => {
         // Skip if URL is invalid
         if (!url) return;
 
-        // Use cache if valid and not forced
-        if (!force && cache[url] && Date.now() - cache[url].ts < effectiveTtl) {
+        const noStore = options?.cache === "no-store";
+
+        // Use cache if valid and not forced (unless no-store is requested)
+        if (!noStore && !force && cache[url] && Date.now() - cache[url].ts < effectiveTtl) {
             if (mounted.current) {
                 setData(cache[url].data);
                 setLoading(false);
@@ -75,7 +78,9 @@ export default function useCacheFetch(url, options = {}, ttl = 10000) {
             const res = await fetch(url, options);
             if (!res.ok) throw new Error((await res.json())?.message || "Failed to fetch");
             const json = await res.json();
-            cache[url] = { data: json, ts: Date.now() };
+            if (!noStore) {
+                cache[url] = { data: json, ts: Date.now() };
+            }
             return json;
         })();
 

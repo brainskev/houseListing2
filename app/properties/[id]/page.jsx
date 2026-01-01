@@ -109,7 +109,7 @@ const PropertyPage = () => {
               <div className="space-y-4">
                 <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 space-y-3">
                   <h3 className="text-lg font-semibold text-gray-900">Interested?</h3>
-                  <p className="text-sm text-gray-600">Book a tour or send an enquiry. We’ll tie your request to this property.</p>
+                  <p className="text-sm text-gray-600">Book a tour or reach out below. We’ll tie your request to this property.</p>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <Link
                       href={
@@ -124,20 +124,6 @@ const PropertyPage = () => {
                       className="inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
                     >
                       Book a Viewing
-                    </Link>
-                    <Link
-                      href={
-                        session
-                          ? `/dashboard/user/enquiry?propertyId=${property?._id}&propertyName=${encodeURIComponent(
-                              property?.name || ""
-                            )}`
-                          : `/login?callbackUrl=/dashboard/user/enquiry?propertyId=${property?._id}&propertyName=${encodeURIComponent(
-                              property?.name || ""
-                            )}`
-                      }
-                      className="inline-flex items-center justify-center rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm hover:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
-                    >
-                      Make an Enquiry
                     </Link>
                   </div>
                   {!session && (

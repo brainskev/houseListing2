@@ -4,9 +4,11 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { FaCalendarPlus, FaTimes } from "react-icons/fa";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const BookingModal = ({ open, onClose, property, onAppointmentCreated }) => {
   const { data: session } = useSession();
+  const router = useRouter();
   const lastUserIdRef = useRef(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -54,6 +56,12 @@ const BookingModal = ({ open, onClose, property, onAppointmentCreated }) => {
         // Trigger callback to refresh appointments list
         onAppointmentCreated?.();
         onClose();
+        // Redirect to the appointments dashboard appropriate to the user's role
+        const role = session?.user?.role;
+        const target = role === "admin" || role === "assistant"
+          ? "/dashboard/admin/appointments"
+          : "/dashboard/user/appointments";
+        router.push(target);
       } else {
         toast.error(res?.data?.message || "Failed to request appointment");
       }

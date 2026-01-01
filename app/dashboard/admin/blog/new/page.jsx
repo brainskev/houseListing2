@@ -1,13 +1,13 @@
-\"use client\";
+"use client";
 
-import { useSession } from \"next-auth/react\";
-import BlogEditor from \"@/components/blog/BlogEditor\";
-import DashboardLayout from \"@/components/dashboard/DashboardLayout\";
+import { useSession } from "next-auth/react";
+import BlogEditor from "@/components/blog/BlogEditor";
+import DashboardLayout from "@/components/dashboard/DashboardLayout";
 
 export default function NewAdminBlogPostPage() {
   const { data: session } = useSession();
   return (
-    <DashboardLayout role=\"admin\" title=\"New Blog Post\" session={session}>
+    <DashboardLayout role="admin" title="New Blog Post" session={session}>
       <BlogEditor isAdmin={true} />
     </DashboardLayout>
   );

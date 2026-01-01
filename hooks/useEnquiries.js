@@ -1,60 +1,91 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import useCacheFetch from "./useCacheFetch";
+"use client";
+import { useEffect, useMemo, useState } from "react";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { getSocket } from "@/lib/socket/client";
 
-const useEnquiries = ({ enabled = true, ttl = 300000 } = {}) => {
+// Enquiries list hook: relies on server-provided unread maps and real-time socket events.
+const useEnquiries = ({ enabled = true } = {}) => {
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
   const [enquiries, setEnquiries] = useState([]);
-  const lastUpdatedRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const qs = lastUpdatedRef.current ? `?updatedAfter=${encodeURIComponent(lastUpdatedRef.current)}` : "";
-  const url = enabled ? `/api/enquiries${qs}` : null;
-  // 5-minute cadence by default; pauses when tab is inactive via useCacheFetch
-  // Explicitly pass null for ttl when disabled to prevent any polling
-  const { data, loading, error, refresh } = useCacheFetch(
-    url,
-    { cache: "no-store" },
-    enabled ? ttl : null
-  );
+  const sorted = useMemo(() => {
+    return [...enquiries].sort((a, b) => new Date(b.lastMessageAt || b.createdAt) - new Date(a.lastMessageAt || a.createdAt));
+  }, [enquiries]);
+
+  const refresh = async () => {
+    if (!enabled || !userId) return;
+    setLoading(true);
+    try {
+      const res = await axios.get("/api/enquiries");
+      setEnquiries(res.data?.enquiries || []);
+      setError(null);
+    } catch (err) {
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!data?.enquiries) return;
-    setEnquiries((prev) => {
-      const map = new Map();
-      const merged = [...prev, ...data.enquiries];
-      for (const e of merged) {
-        if (!e?._id) continue;
-        map.set(e._id, e);
-      }
-      const deduped = Array.from(map.values()).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      const newest = deduped.length ? deduped[0].updatedAt || deduped[0].createdAt : lastUpdatedRef.current;
-      if (newest) lastUpdatedRef.current = newest;
-      return deduped;
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, userId]);
+
+  useEffect(() => {
+    if (!enabled || !userId) return;
+    const socket = getSocket(userId);
+    if (!socket) return;
+
+    // Join rooms for all loaded enquiries so we receive new/read events without polling.
+    enquiries.forEach((e) => {
+      if (e?._id) socket.emit("chat:join", { enquiryId: e._id });
     });
-  }, [data]);
 
-  const updateStatus = useCallback(async (id, status) => {
-    try {
-      const res = await fetch(`/api/enquiries/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+    const handleNew = (payload) => {
+      if (!payload?.enquiryId) return;
+      setEnquiries((prev) => {
+        const next = [...prev];
+        const idx = next.findIndex((e) => e._id === payload.enquiryId);
+        if (idx >= 0) {
+          next[idx] = {
+            ...next[idx],
+            unreadCountByUser: payload.unreadCountByUser || next[idx].unreadCountByUser,
+            lastMessageAt: payload.message?.createdAt || next[idx].lastMessageAt,
+            lastMessageText: payload.message?.text || next[idx].lastMessageText,
+          };
+        }
+        return next;
       });
-      if (!res.ok) {
-        throw new Error((await res.json())?.message || "Failed to update status");
-      }
-      refresh();
-      return true;
-    } catch (err) {
-      return false;
-    }
-  }, [refresh]);
+    };
 
-  return {
-    enquiries,
-    loading: enabled ? loading : false,
-    error: enabled ? error : null,
-    refresh,
-    updateStatus,
-  };
+    const handleRead = (payload) => {
+      if (!payload?.enquiryId) return;
+      setEnquiries((prev) => {
+        const next = [...prev];
+        const idx = next.findIndex((e) => e._id === payload.enquiryId);
+        if (idx >= 0) {
+          next[idx] = {
+            ...next[idx],
+            unreadCountByUser: payload.unreadCountByUser || next[idx].unreadCountByUser,
+          };
+        }
+        return next;
+      });
+    };
+
+    socket.on("message:new", handleNew);
+    socket.on("chat:read", handleRead);
+    return () => {
+      socket.off("message:new", handleNew);
+      socket.off("chat:read", handleRead);
+    };
+  }, [enabled, userId, enquiries]);
+
+  return { enquiries: sorted, loading, error, refresh };
 };
 
 export default useEnquiries;

@@ -12,17 +12,27 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { useGlobalContext } from "@/context/GlobalContext";
+import useEnquiries from "@/hooks/useEnquiries";
+import { useSession } from "next-auth/react";
 
 const Sidebar = ({ current, onChange }) => {
   const { dashboardSidebarOpen, setDashboardSidebarOpen } = useGlobalContext();
   const router = useRouter();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+  const { enquiries } = useEnquiries({ enabled: !!userId, poll: false });
+
+  const totalUnread = enquiries.reduce((acc, e) => {
+    const counts = e?.unreadCountByUser || {};
+    const val = userId ? (typeof counts.get === "function" ? counts.get(userId) : counts[userId]) : 0;
+    return acc + (Number(val) || 0);
+  }, 0);
 
   const items = [
     { key: "dashboard", label: "Dashboard", icon: <FaHome /> },
     { key: "bookmarks", label: "My Bookmarks", icon: <FaBookmark /> },
-    { key: "enquiries", label: "My Enquiries", icon: <FaEnvelope /> },
     { key: "appointments", label: "Viewing Appointments", icon: <FaCalendar /> },
-    { key: "messages", label: "Messages", icon: <FaComments /> },
+    { key: "messages", label: "Messages", icon: <FaComments />, unread: totalUnread },
     { key: "profile", label: "Profile / Settings", icon: <FaUserCog /> },
   ];
 
@@ -48,9 +58,6 @@ const Sidebar = ({ current, onChange }) => {
         break;
       case "bookmarks":
         router.push("/properties/saved");
-        break;
-      case "enquiries":
-        router.push("/dashboard/user/enquiry");
         break;
       case "appointments":
         router.push("/dashboard/user/appointments");
@@ -93,7 +100,14 @@ const Sidebar = ({ current, onChange }) => {
                 current === item.key ? "bg-gray-100" : ""
               }`}
             >
-              <span className="text-gray-600">{item.icon}</span>
+              <span className="relative text-gray-600">
+                {item.icon}
+                {item.unread > 0 && (
+                  <span className="absolute -top-1 -right-2 inline-flex min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                    {item.unread > 99 ? "99+" : item.unread}
+                  </span>
+                )}
+              </span>
               <span className="font-medium text-gray-800">{item.label}</span>
             </button>
           ))}

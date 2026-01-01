@@ -3,6 +3,9 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { resetCache } from "@/hooks/useCacheFetch";
+import { disconnectSocket } from "@/lib/socket/client";
+import { getSocket } from "@/lib/socket/client";
 // Create a context
 const GlobalContext = createContext();
 //create a provider
@@ -36,6 +39,17 @@ export function GlobalProvider({ children }) {
       }
     } catch { }
   }, [session, bookmarkProcessed]);
+
+  // Clear caches/sockets on auth change to avoid stale data across users
+  useEffect(() => {
+    resetCache();
+    disconnectSocket();
+    if (session?.user?.id) {
+      // Pre-warm socket server and establish connection after auth
+      fetch("/api/socket").catch(() => {});
+      getSocket(session.user.id);
+    }
+  }, [session?.user?.id]);
   return (
     <GlobalContext.Provider value={{ unReadCount, setUnReadCount, dashboardSidebarOpen, setDashboardSidebarOpen, threadOpen, setThreadOpen, activeThread, setActiveThread }}>
       {children}

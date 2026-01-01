@@ -43,9 +43,10 @@ export const PUT = async (request, { params }) => {
       });
     }
 
-    // update message status to read/unread depending on current status
+    // update message status to read (toggle functionality kept for toggle use case elsewhere)
     message.read = !message.read;
-    message.save();
+    await message.save();
+
     return new Response(JSON.stringify(message), { status: 200 });
   } catch (error) {
     console.log(error);
