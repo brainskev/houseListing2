@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useGlobalContext } from "@/context/GlobalContext";
 import { FiHome, FiMail, FiCalendar, FiUsers, FiFileText, FiSettings, FiMessageSquare, FiLogOut, FiMenu } from "react-icons/fi";
+import { HiNewspaper } from "react-icons/hi";
 import useEnquiries from "@/hooks/useEnquiries";
 import useAppointments from "@/hooks/useAppointments";
 
@@ -15,6 +16,7 @@ const linksConfig = {
     { href: "/dashboard/messages", label: "Messages", Icon: FiMessageSquare },
     { href: "/dashboard/admin/users", label: "User Management", Icon: FiUsers },
     { href: "/dashboard/admin/blog", label: "Blog", Icon: FiFileText },
+    { href: "/dashboard/admin/newsletter", label: "Newsletter", Icon: HiNewspaper },
     { href: "/dashboard/admin/settings", label: "Settings", Icon: FiSettings },
   ],
   assistant: [

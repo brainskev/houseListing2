@@ -112,7 +112,7 @@ export default function PremiumHero({
   };
 
   return (
-    <section className="relative flex min-h-[65vh] sm:min-h-[50vh] md:min-h-[80vh] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-brand-700 via-brand-700 to-brand-700 py-12 md:py-16">
+    <section className="relative flex min-h-[65vh] sm:min-h-[50vh] md:min-h-[80vh] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-brand-700 via-brand-700 to-brand-700 pb-12 md:pb-16">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]" />
 
       <div className="absolute inset-0 overflow-hidden">
