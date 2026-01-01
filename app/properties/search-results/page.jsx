@@ -14,13 +14,21 @@ const SearchResultsPage = () => {
   const [loading, setLoading] = useState(false);
   const location = searchParams.get("location");
   const propertyType = searchParams.get("propertyType");
+  const minPrice = searchParams.get("minPrice");
+  const maxPrice = searchParams.get("maxPrice");
 
   useEffect(() => {
     const fetchSearchResults = async () => {
       try {
         setLoading(true);
+        const params = new URLSearchParams();
+        if (location) params.append("location", location);
+        if (propertyType) params.append("propertyType", propertyType);
+        if (minPrice) params.append("minPrice", minPrice);
+        if (maxPrice) params.append("maxPrice", maxPrice);
+
         const response = await axios.get(
-          `/api/properties/search?location=${location}&propertyType=${propertyType}`
+          `/api/properties/search?${params.toString()}`
         );
         console.log("response", response);
         if (response.status >= 200 && response.status < 300) {
@@ -35,7 +43,7 @@ const SearchResultsPage = () => {
       }
     };
     fetchSearchResults();
-  }, [location, propertyType]);
+  }, [location, propertyType, minPrice, maxPrice]);
 
   return (
     <>

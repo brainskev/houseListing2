@@ -48,8 +48,8 @@ const Messages = () => {
           _type: "enquiry",
           body: e.message,
           createdAt: e.createdAt,
-          sender: e.userId,
-          recipient: session.user.id,
+          sender: { _id: e.userId, username: e.name },
+          recipient: { _id: session.user.id, username: session.user.name },
           property,
         };
       }
@@ -92,7 +92,8 @@ const Messages = () => {
   useEffect(() => {
     const enqId = searchParams?.get("enquiryId");
     if (!enqId) return;
-    const seed = mappedEnquiries.find((e) => e._id === `enq_${enqId}`);
+    // Match both e._id and enq_${e._id}
+    const seed = mappedEnquiries.find((e) => e._id === `enq_${enqId}` || e._id === enqId);
     if (seed) setThreadSeed(seed);
   }, [searchParams, mappedEnquiries]);
 
