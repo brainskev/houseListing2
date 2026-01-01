@@ -4,7 +4,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 
-export default function MessageComposer({ propertyId, recipientId, onSent }) {
+export default function MessageComposer({ propertyId, recipientId, seedMessage, onSent }) {
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const disabled = sending || !body.trim() || !recipientId;
@@ -28,6 +28,20 @@ export default function MessageComposer({ propertyId, recipientId, onSent }) {
       };
       await axios.post("/api/messages", payload);
       setBody("");
+      
+      // Update seed message status to "contacted" after successful reply
+      if (seedMessage) {
+        try {
+          if (seedMessage._type === "enquiry") {
+            await axios.put(`/api/enquiries/${seedMessage._id}`, { status: "contacted" });
+          } else if (seedMessage._id) {
+            await axios.put(`/api/messages/${seedMessage._id}`, { status: "contacted" });
+          }
+        } catch (e) {
+          console.error("Failed to update status to contacted", e);
+        }
+      }
+      
       onSent?.();
     } catch (e) {
       const msg = e?.response?.data?.message || "Failed to send reply";

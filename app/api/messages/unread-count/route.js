@@ -5,7 +5,7 @@ import { getSessionUser } from "@/utils/getSessionUser";
 export const dynamic = "force-dynamic";
 
 //GET /api/messages/unread-count
-export const GET = async () => {
+export const GET = async (request) => {
   try {
     await connectDB();
     const sessionUser = await getSessionUser();
@@ -18,10 +18,26 @@ export const GET = async () => {
     }
     //Extract user object from session user
     const { userId } = sessionUser;
-    const unreadMessagesCount = await Message.countDocuments({
+
+    // Build query to exclude active thread if parameters are provided
+    const { searchParams } = new URL(request.url);
+    const excludeProperty = searchParams.get("excludeProperty");
+    const excludeCounterpart = searchParams.get("excludeCounterpart");
+
+    const query = {
       recipient: userId,
       read: false,
-    });
+    };
+
+    // If both property and counterpart are specified, exclude that specific thread
+    if (excludeProperty && excludeCounterpart) {
+      query.$or = [
+        { property: { $ne: excludeProperty } },
+        { sender: { $ne: excludeCounterpart } },
+      ];
+    }
+
+    const unreadMessagesCount = await Message.countDocuments(query);
 
     return new Response(JSON.stringify({ count: unreadMessagesCount }), {
       status: 200,

@@ -55,6 +55,27 @@ export default function ConversationView({ seedMessage, inbox = [], sent = [], o
   }, [inbox, sent, counterpartyId, resolvedRecipientId, propertyId, syntheticFromSeed]);
 
   useEffect(() => {
+    // When opening conversation, update the seed message status from "new" to "seen"
+    const updateSeedStatus = async () => {
+      if (!seedMessage) return;
+      
+      try {
+        // If it's an enquiry, update enquiry status
+        if (seedMessage._type === "enquiry") {
+          await axios.put(`/api/enquiries/${seedMessage._id}`, { status: "seen" });
+        } else if (seedMessage._id) {
+          // If it's a regular message, update message status to "seen" if it's "new"
+          await axios.put(`/api/messages/${seedMessage._id}`, { status: "seen" });
+        }
+      } catch (e) {
+        console.error("Failed to update conversation status to seen", e);
+      }
+    };
+    
+    updateSeedStatus();
+  }, [seedMessage]);
+
+  useEffect(() => {
     // auto-scroll to bottom for latest messages
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
@@ -145,6 +166,7 @@ export default function ConversationView({ seedMessage, inbox = [], sent = [], o
         <MessageComposer
           propertyId={propertyId}
           recipientId={resolvedRecipientId}
+          seedMessage={seedMessage}
           onSent={onUpdated}
         />
       </div>

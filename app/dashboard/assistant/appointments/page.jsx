@@ -11,9 +11,8 @@ export default function AssistantAppointmentsPage() {
 
   return (
     <DashboardLayout role="assistant" title="Viewing Appointments" countsEnabled={false} session={session}>
-      {loading && <p className="text-sm text-slate-500">Loading appointments...</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
-      {!loading && (
+      {appointments.length > 0 ? (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -39,6 +38,10 @@ export default function AssistantAppointmentsPage() {
           </div>
           <AppointmentTable appointments={appointments} onStatusChange={updateStatus} />
         </div>
+      ) : loading ? (
+        <p className="text-sm text-slate-500">Loading appointments...</p>
+      ) : (
+        <p className="text-sm text-slate-500">No appointments found</p>
       )}
     </DashboardLayout>
   );

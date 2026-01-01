@@ -18,15 +18,15 @@ const Messages = () => {
   const [activeTab, setActiveTab] = useState("Inbox");
   const [threadSeed, setThreadSeed] = useState(null);
   
-  // Poll at 5s only when a thread is open; otherwise fetch once with no polling
-  const pollTtl = threadSeed ? 5000 : null;
+  // Poll at 5s when thread is open (for active chat), 15s when closed (to sync with counter)
+  const pollTtl = threadSeed ? 5000 : 15000;
   const { messages: inbox, loading: inboxLoading, refresh: refreshInbox } = useMessages({ enabled: true, ttl: pollTtl });
   const { messages: sent, loading: sentLoading, refresh: refreshSent } = useSentMessages({ enabled: true, ttl: pollTtl });
   const { enquiries, loading: enquiriesLoading, refresh: refreshEnquiries } = useEnquiries();
   
   const { data: session } = useSession();
   const searchParams = useSearchParams();
-  const { unReadCount } = useGlobalContext();
+  const { unReadCount, setThreadOpen, setUnReadCount, setActiveThread } = useGlobalContext();
   const pathname = usePathname();
   const isInDashboard = pathname?.startsWith("/dashboard");
   const myId = session?.user?.id;
@@ -37,6 +37,29 @@ const Messages = () => {
     refreshSent();
     refreshEnquiries();
   };
+
+  // Update global context when thread opens/closes
+  useEffect(() => {
+    setThreadOpen(!!threadSeed);
+    if (threadSeed) {
+      // Store active thread details
+      const propertyId = threadSeed?.property?._id || threadSeed?.property || null;
+      const senderId = threadSeed?.sender?._id || threadSeed?.sender || null;
+      const recipientId = threadSeed?.recipient?._id || threadSeed?.recipient || null;
+      const counterpartId = senderId === myId ? recipientId : senderId;
+      setActiveThread({ propertyId, counterpartId });
+    } else {
+      setActiveThread(null);
+    }
+  }, [threadSeed, setThreadOpen, setActiveThread, myId]);
+
+  // Clear active thread when component unmounts
+  useEffect(() => {
+    return () => {
+      setThreadOpen(false);
+      setActiveThread(null);
+    };
+  }, [setThreadOpen, setActiveThread]);
 
   const markThreadRead = useCallback(async (seed) => {
     if (!seed || !myId) return;
@@ -51,9 +74,10 @@ const Messages = () => {
       return rId === myId && !m?.read && matchesCounterpart && matchesProperty;
     });
     if (!unreadForMe.length) return;
+    
     try {
       await Promise.all(unreadForMe.map((m) => axios.put(`/api/messages/${m._id}`)));
-      // Refresh inbox to reflect read state; unread count will sync via badge's next poll
+      // Refresh inbox to reflect read state
       refreshInbox();
       refreshSent();
       refreshEnquiries();
@@ -96,38 +120,29 @@ const Messages = () => {
     return merged.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, [sent, mappedEnquiries, session?.user?.role]);
 
-  // Sort chats: new > contacted > others, each by recency
-  const statusOrder = { new: 0, contacted: 1, closed: 2 };
-  function getStatus(m) {
-    // Try to get status from enquiry or message
-    return m.status || m.body?.status || m.message?.status || "";
-  }
-  function chatSort(a, b) {
-    const sa = getStatus(a);
-    const sb = getStatus(b);
-    const oa = statusOrder[sa] ?? 99;
-    const ob = statusOrder[sb] ?? 99;
-    if (oa !== ob) return oa - ob;
-    // If same status, sort by most recent
-    return new Date(b.createdAt) - new Date(a.createdAt);
-  }
-  const list = (activeTab === "Inbox" ? inbox : sentWithEnquiries).slice().sort(chatSort);
+  // Sort chats by most recent first (newest on top)
+  const list = (activeTab === "Inbox" ? inbox : sentWithEnquiries)
+    .slice()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-  // Deduplicate chats by property + counterparty to avoid duplicate rows for the same thread
+  // Deduplicate chats by property + counterparty, keeping only the most recent message from each thread
   const dedupedList = useMemo(() => {
-    const seen = new Set();
-    const result = [];
+    const threadMap = new Map(); // key: "propId-counterpartyId", value: most recent message
+    
     for (const m of list) {
       const propId = m?.property?._id || m?.property || "none";
       const senderId = m?.sender?._id || m?.sender;
       const recipientId = m?.recipient?._id || m?.recipient;
       const counterpartyId = senderId === myId ? recipientId : senderId;
       const key = `${propId}-${counterpartyId || "unknown"}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      result.push(m);
+      
+      // Keep the message if we haven't seen this thread, or if this message is newer
+      if (!threadMap.has(key) || new Date(m.createdAt) > new Date(threadMap.get(key).createdAt)) {
+        threadMap.set(key, m);
+      }
     }
-    return result;
+    
+    return Array.from(threadMap.values());
   }, [list, myId]);
 
   // If navigated with an enquiryId, open that thread seeded from mapped enquiries
@@ -168,8 +183,10 @@ const Messages = () => {
   }, [searchParams, mappedEnquiries, session?.user, markThreadRead]);
 
   const handleOpenThread = async (m) => {
-    await markThreadRead(m);
+    // Set thread first so activeThread is established
     setThreadSeed(m);
+    // Then mark messages as read (counter will update via polling with exclusion)
+    await markThreadRead(m);
   };
 
   // Render differently depending on dashboard context to avoid double wrappers
