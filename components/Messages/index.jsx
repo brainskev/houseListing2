@@ -10,7 +10,7 @@ const Messages = () => {
   const [activeEnquiryId, setActiveEnquiryId] = useState(null);
   const { data: session, status } = useSession();
   const isAuthed = status === "authenticated";
-  const { enquiries, loading } = useEnquiries({ enabled: isAuthed });
+  const { enquiries, loading } = useEnquiries({ enabled: isAuthed, pollMs: 15000 });
   const pathname = usePathname();
   const myId = session?.user?.id;
   const isInDashboard = pathname?.startsWith("/dashboard");

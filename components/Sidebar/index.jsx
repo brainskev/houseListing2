@@ -20,7 +20,7 @@ const Sidebar = ({ current, onChange }) => {
   const router = useRouter();
   const { data: session } = useSession();
   const userId = session?.user?.id;
-  const { enquiries } = useEnquiries({ enabled: !!userId, poll: false });
+  const { enquiries } = useEnquiries({ enabled: !!userId, pollMs: 20000 });
 
   const totalUnread = enquiries.reduce((acc, e) => {
     const counts = e?.unreadCountByUser || {};

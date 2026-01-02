@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { getSocket } from "@/lib/socket/client";
 
 // Enquiries list hook: relies on server-provided unread maps and real-time socket events.
-const useEnquiries = ({ enabled = true } = {}) => {
+const useEnquiries = ({ enabled = true, pollMs = 15000 } = {}) => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
   const [enquiries, setEnquiries] = useState([]);
@@ -35,15 +35,29 @@ const useEnquiries = ({ enabled = true } = {}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, userId]);
 
+  // Background polling as a safety net for new conversations where no room is joined yet.
+  useEffect(() => {
+    if (!enabled || !userId || !pollMs || pollMs <= 0) return undefined;
+    const id = setInterval(() => {
+      refresh();
+    }, pollMs);
+    return () => clearInterval(id);
+  }, [enabled, userId, pollMs, refresh]);
+
   useEffect(() => {
     if (!enabled || !userId) return;
     const socket = getSocket(userId);
     if (!socket) return;
 
-    // Join rooms for all loaded enquiries so we receive new/read events without polling.
-    enquiries.forEach((e) => {
-      if (e?._id) socket.emit("chat:join", { enquiryId: e._id });
-    });
+    const joinAll = () => {
+      enquiries.forEach((e) => {
+        if (e?._id) socket.emit("chat:join", { enquiryId: e._id });
+      });
+    };
+
+    // Join now and on reconnect so rooms stay subscribed.
+    joinAll();
+    socket.on("connect", joinAll);
 
     const handleNew = (payload) => {
       if (!payload?.enquiryId) return;
@@ -80,6 +94,7 @@ const useEnquiries = ({ enabled = true } = {}) => {
     socket.on("message:new", handleNew);
     socket.on("chat:read", handleRead);
     return () => {
+      socket.off("connect", joinAll);
       socket.off("message:new", handleNew);
       socket.off("chat:read", handleRead);
     };

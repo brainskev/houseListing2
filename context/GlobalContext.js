@@ -46,7 +46,7 @@ export function GlobalProvider({ children }) {
     disconnectSocket();
     if (session?.user?.id) {
       // Pre-warm socket server and establish connection after auth
-      fetch("/api/socket").catch(() => {});
+      fetch("/api/socket").catch(() => { });
       getSocket(session.user.id);
     }
   }, [session?.user?.id]);

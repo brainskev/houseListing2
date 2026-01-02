@@ -7,7 +7,7 @@ import useEnquiries from "@/hooks/useEnquiries";
 const UnreadMessageCount = () => {
   const { data: session } = useSession();
   const userId = session?.user?.id;
-  const { enquiries } = useEnquiries({ enabled: !!userId });
+  const { enquiries } = useEnquiries({ enabled: !!userId, pollMs: 30000 });
 
   const totalUnread = useMemo(() => {
     if (!userId) return 0;

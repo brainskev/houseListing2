@@ -5,7 +5,8 @@ import { useSession } from "next-auth/react";
 import { getSocket } from "@/lib/socket/client";
 
 // Manages a single enquiry conversation: fetches messages, joins the room, and applies server-driven unread maps.
-export default function useEnquiryThread(enquiryId) {
+// Default poll is 5s as a safety net; sockets remain the primary delivery path.
+export default function useEnquiryThread(enquiryId, { pollMs = 5000 } = {}) {
     const { data: session } = useSession();
     const userId = session?.user?.id;
     const [enquiry, setEnquiry] = useState(null);
@@ -35,15 +36,29 @@ export default function useEnquiryThread(enquiryId) {
         fetchThread();
     }, [fetchThread]);
 
+    // Optional light background refresh while the thread is open (disabled by default to observe live delivery).
+    useEffect(() => {
+        if (!enquiryId || !userId || !pollMs || pollMs <= 0) return undefined;
+        const id = setInterval(() => {
+            fetchThread();
+        }, pollMs);
+        return () => clearInterval(id);
+    }, [enquiryId, userId, pollMs, fetchThread]);
+
     // Join room once per enquiry to receive real-time updates.
     useEffect(() => {
         if (!enquiryId || !userId) return;
         const socket = getSocket(userId);
         if (!socket) return;
-        if (!joinedRef.current) {
+
+        const joinRoom = () => {
             socket.emit("chat:join", { enquiryId });
             joinedRef.current = true;
-        }
+        };
+
+        // Join immediately and on reconnect
+        joinRoom();
+        socket.on("connect", joinRoom);
 
         const handleNew = (payload) => {
             if (payload?.enquiryId !== enquiryId) return;
@@ -63,6 +78,7 @@ export default function useEnquiryThread(enquiryId) {
         socket.on("message:new", handleNew);
         socket.on("chat:read", handleRead);
         return () => {
+            socket.off("connect", joinRoom);
             socket.off("message:new", handleNew);
             socket.off("chat:read", handleRead);
         };
