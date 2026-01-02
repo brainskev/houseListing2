@@ -1,198 +1,64 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import React, { useState } from "react";
+import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Spinner from "../Spinner";
-import MessageCard from "@/components/messages/MessageCard";
-import ConversationView from "@/components/messages/ConversationView";
-import { useGlobalContext } from "@/context/GlobalContext";
-import useMessages from "@/hooks/useMessages";
-import useSentMessages from "@/hooks/useSentMessages";
 import useEnquiries from "@/hooks/useEnquiries";
-
-const tabs = ["Inbox", "Sent"];
+import ConversationView from "@/components/messages/ConversationView";
 
 const Messages = () => {
-  const { messages: inbox, loading: inboxLoading, refresh: refreshInbox } = useMessages();
-  const { messages: sent, loading: sentLoading, refresh: refreshSent } = useSentMessages();
-  const { enquiries, loading: enquiriesLoading, refresh: refreshEnquiries } = useEnquiries();
-  const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("Inbox");
-  const [threadSeed, setThreadSeed] = useState(null);
-  const { data: session } = useSession();
-  const searchParams = useSearchParams();
-  const { unReadCount } = useGlobalContext();
+  const [activeEnquiryId, setActiveEnquiryId] = useState(null);
+  const { data: session, status } = useSession();
+  const isAuthed = status === "authenticated";
+  const { enquiries, loading } = useEnquiries({ enabled: isAuthed, pollMs: 15000 });
   const pathname = usePathname();
+  const myId = session?.user?.id;
   const isInDashboard = pathname?.startsWith("/dashboard");
 
-  // Compose loading state for all
-  useEffect(() => {
-    setLoading(inboxLoading || sentLoading || enquiriesLoading);
-  }, [inboxLoading, sentLoading, enquiriesLoading]);
+  const renderList = () => (
+    <div className="space-y-3">
+      {enquiries.length === 0 && !loading && <p className="text-sm text-slate-600">No chats yet.</p>}
+      {enquiries.map((e) => {
+        const unread = e?.unreadCountByUser || {};
+        const myUnread = myId ? (typeof unread.get === "function" ? unread.get(myId) : unread[myId]) : 0;
+        return (
+          <button
+            key={e._id}
+            onClick={() => setActiveEnquiryId(e._id)}
+            className="flex w-full items-center justify-between rounded-xl border border-blue-100 bg-white px-4 py-3 text-left shadow-soft hover:border-blue-200"
+          >
+            <div>
+              <p className="text-sm font-semibold text-blue-900">{e.propertyId?.name || "Property Chat"}</p>
+              <p className="text-xs text-slate-600">{e.contactName || "You"}</p>
+              {e.lastMessageText && <p className="mt-1 line-clamp-1 text-xs text-slate-700">{e.lastMessageText}</p>}
+            </div>
+            <div className="flex flex-col items-end gap-1">
+              <span className="text-[11px] text-slate-500">{new Date(e.lastMessageAt || e.createdAt).toLocaleString()}</span>
+              {myUnread ? (
+                <span className="rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700">{myUnread}</span>
+              ) : null}
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
 
-  const onUpdated = () => {
-    refreshInbox();
-    refreshSent();
-    refreshEnquiries();
-  };
+  const content = activeEnquiryId ? (
+    <ConversationView enquiryId={activeEnquiryId} onBack={() => setActiveEnquiryId(null)} />
+  ) : (
+    renderList()
+  );
 
-  const mappedEnquiries = useMemo(() => {
-    if (!enquiries?.length || !session?.user?.id) return [];
-    const isStaff = ["admin", "assistant"].includes(session?.user?.role);
-    return enquiries.map((e) => {
-      const property = e.propertyId || null;
-      if (isStaff) {
-        return {
-          _id: `enq_${e._id}`,
-          _type: "enquiry",
-          body: e.message,
-          createdAt: e.createdAt,
-          sender: { _id: e.userId, username: e.name },
-          recipient: { _id: session.user.id, username: session.user.name },
-          property,
-        };
-      }
-      return {
-        _id: `enq_${e._id}`,
-        _type: "enquiry",
-        body: e.message,
-        createdAt: e.createdAt,
-        sender: { _id: session.user.id, username: session.user.name },
-        recipient: null,
-        property,
-      };
-    });
-  }, [enquiries, session?.user?.id, session?.user?.name, session?.user?.role]);
-
-  const sentWithEnquiries = useMemo(() => {
-    const isStaff = ["admin", "assistant"].includes(session?.user?.role);
-    const merged = isStaff ? [...(sent || [])] : [...(sent || []), ...mappedEnquiries];
-    return merged.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  }, [sent, mappedEnquiries, session?.user?.role]);
-
-  // Sort chats: new > contacted > others, each by recency
-  const statusOrder = { new: 0, contacted: 1, closed: 2 };
-  function getStatus(m) {
-    // Try to get status from enquiry or message
-    return m.status || m.body?.status || m.message?.status || "";
-  }
-  function chatSort(a, b) {
-    const sa = getStatus(a);
-    const sb = getStatus(b);
-    const oa = statusOrder[sa] ?? 99;
-    const ob = statusOrder[sb] ?? 99;
-    if (oa !== ob) return oa - ob;
-    // If same status, sort by most recent
-    return new Date(b.createdAt) - new Date(a.createdAt);
-  }
-  const list = (activeTab === "Inbox" ? inbox : sentWithEnquiries).slice().sort(chatSort);
-
-  // If navigated with an enquiryId, open that thread seeded from mapped enquiries
-  useEffect(() => {
-    const enqId = searchParams?.get("enquiryId");
-    if (!enqId) return;
-    // Match both e._id and enq_${e._id}
-    const seed = mappedEnquiries.find((e) => e._id === `enq_${enqId}` || e._id === enqId);
-    if (seed) setThreadSeed(seed);
-  }, [searchParams, mappedEnquiries]);
-
-  // Render differently depending on dashboard context to avoid double wrappers
   if (isInDashboard) {
-    return (
-      <div>
-        {!threadSeed && (
-          <div className="mb-4 flex rounded-xl bg-blue-50 p-1 text-sm">
-            {tabs.map((t) => (
-              <button
-                key={t}
-                onClick={() => setActiveTab(t)}
-                className={`rounded-lg px-3 py-1 font-medium ${
-                  activeTab === t ? "bg-white text-blue-700 shadow-sm" : "text-blue-600"
-                }`}
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-        )}
-        {loading ? (
-          <Spinner loading={true} />
-        ) : threadSeed ? (
-          <ConversationView
-            seedMessage={threadSeed}
-            inbox={inbox}
-            sent={sent}
-            onUpdated={onUpdated}
-            onBack={() => setThreadSeed(null)}
-          />
-        ) : (
-          <div className="mt-2 max-h-[65vh] overflow-y-auto space-y-4 pr-1">
-            {list?.length === 0 ? (
-              <p className="text-sm text-slate-600">No messages</p>
-            ) : (
-              list.map((m) => (
-                <MessageCard
-                  key={m._id}
-                  m={m}
-                  context={activeTab === "Inbox" ? "inbox" : "sent"}
-                  onUpdated={onUpdated}
-                  onOpenThread={setThreadSeed}
-                />
-              ))
-            )}
-          </div>
-        )}
-      </div>
-    );
+    return <div>{content}</div>;
   }
 
   return (
     <section className="bg-blue-50">
       <div className="mx-auto max-w-screen-2xl px-6 py-8">
         <div className="rounded-xl bg-white shadow-sm ring-1 ring-blue-100 p-4 lg:p-6">
-          {!threadSeed && (
-            <div className="mb-4 flex rounded-xl bg-blue-50 p-1 text-sm">
-              {tabs.map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setActiveTab(t)}
-                  className={`rounded-lg px-3 py-1 font-medium ${
-                    activeTab === t ? "bg-white text-blue-700 shadow-sm" : "text-blue-600"
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          )}
-          {loading ? (
-            <Spinner loading={true} />
-          ) : threadSeed ? (
-            <ConversationView
-              seedMessage={threadSeed}
-              inbox={inbox}
-              sent={sent}
-              onUpdated={onUpdated}
-              onBack={() => setThreadSeed(null)}
-            />
-          ) : (
-            <div className="mt-2 max-h-[65vh] overflow-y-auto space-y-4 pr-1">
-              {list?.length === 0 ? (
-                <p className="text-sm text-slate-600">No messages</p>
-              ) : (
-                list.map((m) => (
-                  <MessageCard
-                    key={m._id}
-                    m={m}
-                    context={activeTab === "Inbox" ? "inbox" : "sent"}
-                    onUpdated={onUpdated}
-                    onOpenThread={setThreadSeed}
-                  />
-                ))
-              )}
-            </div>
-          )}
+          {content}
         </div>
       </div>
     </section>

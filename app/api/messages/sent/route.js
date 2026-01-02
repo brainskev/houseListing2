@@ -5,7 +5,7 @@ import { getSessionUser } from "@/utils/getSessionUser";
 export const dynamic = "force-dynamic";
 
 // GET /api/messages/sent - messages (enquiries) sent by current user
-export const GET = async () => {
+export const GET = async (request) => {
   try {
     await connectDB();
     const sessionUser = await getSessionUser();
@@ -16,8 +16,16 @@ export const GET = async () => {
       );
     }
     const { userId } = sessionUser;
+    const { searchParams } = new URL(request.url);
+    const sinceParam = searchParams.get("since");
+    const since = sinceParam && !Number.isNaN(Date.parse(sinceParam)) ? new Date(sinceParam) : null;
 
-    const messages = await Message.find({ sender: userId })
+    const filter = { sender: userId };
+    if (since) {
+      filter.createdAt = { $gt: since };
+    }
+
+    const messages = await Message.find(filter)
       .sort({ createdAt: -1 })
       .populate("recipient", "username")
       .populate("property", "name location images rates type");

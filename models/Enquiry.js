@@ -2,42 +2,41 @@ import { Schema, model, models } from "mongoose";
 
 const EnquirySchema = new Schema(
   {
-    userId: {
+    propertyId: {
+      type: Schema.Types.ObjectId,
+      ref: "Property",
+      required: true,
+    },
+    createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    name: {
-      type: String,
-      required: true,
-      trim: true,
+    participants: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    unreadCountByUser: {
+      type: Map,
+      of: Number,
+      default: {},
     },
-    propertyId: {
-      type: Schema.Types.ObjectId,
-      ref: "Property",
+    lastMessageAt: {
+      type: Date,
+      default: Date.now,
     },
-    phone: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    message: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    status: {
-      type: String,
-      enum: ["new", "contacted", "closed"],
-      default: "new",
-    },
+    contactName: String,
+    contactEmail: String,
+    contactPhone: String,
   },
-  { timestamps: { createdAt: true, updatedAt: true } }
+  { timestamps: true }
 );
 
-EnquirySchema.index({ userId: 1, createdAt: -1 });
-EnquirySchema.index({ status: 1, createdAt: -1 });
-EnquirySchema.index({ propertyId: 1, createdAt: -1 });
+EnquirySchema.index({ propertyId: 1, createdBy: 1 }, { unique: true });
+EnquirySchema.index({ lastMessageAt: -1 });
+EnquirySchema.index({ participants: 1 });
 
 const Enquiry = models.Enquiry || model("Enquiry", EnquirySchema);
 export default Enquiry;

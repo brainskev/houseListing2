@@ -318,101 +318,131 @@ const Navbar = () => {
       {isMobileMenuOpen && (
         <div 
           id="mobile-menu" 
-          className="border-t border-brand-600 md:hidden"
+          className="md:hidden bg-gradient-to-b from-brand-700 to-brand-800 border-t border-brand-500/50 animate-in fade-in slide-in-from-top-2 duration-200"
           ref={mobileMenuRef}
         >
-          <div className="space-y-1 px-2 pb-3 pt-2">
-            <Link
-              href="/properties"
-              className={`flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium transition ${
-                pathname === "/properties" ? "bg-white/20 text-white" : "text-brand-50 hover:bg-white/10"
-              }`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Browse
-            </Link>
-            <Link
-              href="/blog"
-              className={`flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium transition ${
-                pathname?.startsWith("/blog") ? "bg-white/20 text-white" : "text-brand-50 hover:bg-white/10"
-              }`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <FaNewspaper /> Blog
-            </Link>
-            <Link
-              href="/about"
-              className={`flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium transition ${
-                pathname === "/about" ? "bg-white/20 text-white" : "text-brand-50 hover:bg-white/10"
-              }`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <FaInfoCircle /> About Us
-            </Link>
-            <Link
-              href="/contact"
-              className={`flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium transition ${
-                pathname === "/contact" ? "bg-white/20 text-white" : "text-brand-50 hover:bg-white/10"
-              }`}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <FaPhone /> Contact
-            </Link>
+          <div className="px-4 py-4">
+            {/* Main Navigation Section */}
+            <div className="space-y-2 pb-4">
+              <div className="px-2 py-1.5 text-xs font-semibold text-brand-200 uppercase tracking-wider opacity-75">
+                Explore
+              </div>
+              <Link
+                href="/properties"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  pathname === "/properties" 
+                    ? "bg-white/25 text-white shadow-md" 
+                    : "text-brand-50 hover:bg-white/15 hover:translate-x-1"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <span className="text-lg">🏘️</span>
+                <span className="font-medium">Browse Properties</span>
+              </Link>
+              <Link
+                href="/blog"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  pathname?.startsWith("/blog") 
+                    ? "bg-white/25 text-white shadow-md" 
+                    : "text-brand-50 hover:bg-white/15 hover:translate-x-1"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <FaNewspaper className="text-lg" />
+                <span className="font-medium">Blog</span>
+              </Link>
+              <Link
+                href="/about"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  pathname === "/about" 
+                    ? "bg-white/25 text-white shadow-md" 
+                    : "text-brand-50 hover:bg-white/15 hover:translate-x-1"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <FaInfoCircle className="text-lg" />
+                <span className="font-medium">About Us</span>
+              </Link>
+              <Link
+                href="/contact"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  pathname === "/contact" 
+                    ? "bg-white/25 text-white shadow-md" 
+                    : "text-brand-50 hover:bg-white/15 hover:translate-x-1"
+                }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <FaPhone className="text-lg" />
+                <span className="font-medium">Contact</span>
+              </Link>
+            </div>
 
             {session && (
               <>
-                <Link
-                  href={getDashboardPath()}
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-brand-50 hover:bg-white/10 transition"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <FaTh /> Dashboard
-                </Link>
-                <Link
-                  href="/messages"
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-brand-50 hover:bg-white/10 transition"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <FaEnvelope /> Messages
-                </Link>
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-brand-50 hover:bg-white/10 transition"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <FaUser /> Profile
-                </Link>
-                <Link
-                  href="/properties/saved"
-                  className="flex items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-brand-50 hover:bg-white/10 transition"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <FaBookmark /> Saved
-                </Link>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    signOut();
-                  }}
-                  className="flex items-center gap-2 w-full rounded-md px-3 py-2 text-base font-medium text-red-200 hover:bg-red-900/20 transition"
-                >
-                  <FaSignOutAlt /> Sign Out
-                </button>
+                {/* Account Section */}
+                <div className="border-t border-brand-500/40 space-y-2 py-4">
+                  <div className="px-2 py-1.5 text-xs font-semibold text-brand-200 uppercase tracking-wider opacity-75">
+                    Account
+                  </div>
+                  <Link
+                    href={getDashboardPath()}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-50 hover:bg-white/15 hover:translate-x-1 transition-all duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <FaTh className="text-lg" />
+                    <span className="font-medium">Dashboard</span>
+                  </Link>
+                  <Link
+                    href="/messages"
+                    className="relative flex items-center gap-3 px-4 py-3 rounded-lg text-brand-50 hover:bg-white/15 hover:translate-x-1 transition-all duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <FaEnvelope className="text-lg" />
+                    <span className="font-medium">Messages</span>
+                    {session && <UnreadMessageCount session={session} />}
+                  </Link>
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-50 hover:bg-white/15 hover:translate-x-1 transition-all duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <FaUser className="text-lg" />
+                    <span className="font-medium">Profile</span>
+                  </Link>
+                  <Link
+                    href="/properties/saved"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-brand-50 hover:bg-white/15 hover:translate-x-1 transition-all duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <FaBookmark className="text-lg" />
+                    <span className="font-medium">Saved Properties</span>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      signOut();
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-200 hover:bg-red-950/40 hover:translate-x-1 transition-all duration-200 font-medium text-left"
+                  >
+                    <FaSignOutAlt className="text-lg" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
               </>
             )}
 
             {!session && (
-              <div className="flex flex-col gap-2 pt-2 border-t border-brand-600">
+              <div className="border-t border-brand-500/40 space-y-3 pt-4">
                 <Link
                   href="/login"
-                  className="flex items-center justify-center gap-2 rounded-md px-3 py-2 text-base font-medium border border-white/60 text-white hover:bg-white hover:text-brand-700 transition"
+                  className="flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold border-2 border-white/40 text-white hover:bg-white/10 hover:border-white/60 transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <FaKey /> Login
                 </Link>
                 <Link
                   href="/signup"
-                  className="flex items-center justify-center gap-2 rounded-md px-3 py-2 text-base font-semibold text-brand-700 bg-white hover:bg-gray-100 transition"
+                  className="flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold text-brand-700 bg-white hover:bg-gray-50 shadow-md hover:shadow-lg transition-all duration-200"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Sign Up

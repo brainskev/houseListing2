@@ -1,17 +1,38 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import UserManagementTable from "@/components/dashboard/UserManagementTable";
 import { toast } from "react-toastify";
-import useCacheFetch from "@/hooks/useCacheFetch";
 
 export default function AdminUsersPage() {
   const { data: session } = useSession();
   const userRole = session?.user?.role;
-  const { data, loading, error, refresh } = useCacheFetch("/api/users", { cache: "no-store" }, 3000);
-  const users = data?.users || [];
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/users", { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error((await res.json())?.message || "Failed to fetch users");
+      }
+      const data = await res.json();
+      setUsers(data?.users || []);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleUpdate = async (userId, updateData) => {
     try {
@@ -24,7 +45,7 @@ export default function AdminUsersPage() {
         throw new Error((await res.json())?.message || "Failed to update user");
       }
       toast.success("User updated successfully");
-      refresh();
+      fetchUsers();
     } catch (err) {
       toast.error(err.message);
     }
@@ -39,14 +60,14 @@ export default function AdminUsersPage() {
         throw new Error((await res.json())?.message || "Failed to delete user");
       }
       toast.success("User deleted successfully");
-      refresh();
+      fetchUsers();
     } catch (err) {
       toast.error(err.message);
     }
   };
 
   return (
-    <DashboardLayout role="admin" title="User Management">
+    <DashboardLayout role="admin" title="User Management" countsEnabled={false} session={session}>
       {loading && <p className="text-sm text-slate-500">Loading users...</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
       {!loading && !error && users.length === 0 && (

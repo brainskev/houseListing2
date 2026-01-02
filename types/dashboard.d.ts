@@ -1,15 +1,3 @@
-export interface Enquiry {
-  _id: string;
-  userId: string;
-  name: string;
-  propertyId?: string;
-  phone: string;
-  message: string;
-  status: "new" | "contacted" | "closed";
-  createdAt: string;
-  updatedAt?: string;
-}
-
 export interface ViewingAppointment {
   _id: string;
   userId: string;

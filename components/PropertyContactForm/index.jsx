@@ -39,18 +39,17 @@ const PropertyContactForm = ({ property }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = {
-      name,
-      email,
-      phone,
+      propertyId: property._id,
       message,
-      recipient: property.owner,
-      property: property._id,
+      contactName: name,
+      contactEmail: email,
+      contactPhone: phone,
       hp,
     };
     try {
-      const response = await axios.post("/api/messages", data);
+      const response = await axios.post("/api/enquiries", data);
       if (response.status >= 200 && response.status < 300) {
-        toast.success(response?.data?.message);
+        toast.success("Your chat has been opened. We will reply here.");
         setIsSubmitted(true);
       } else if (response.status === 400 || response.status === 401) {
         toast.error(response?.data?.message);
@@ -59,7 +58,7 @@ const PropertyContactForm = ({ property }) => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error?.response?.data?.message);
+      toast.error(error?.response?.data?.message || "Failed to open chat");
     }
   };
 

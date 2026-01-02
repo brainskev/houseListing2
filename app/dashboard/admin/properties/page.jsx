@@ -58,7 +58,7 @@ export default function AdminPropertiesPage() {
   };
 
   return (
-    <DashboardLayout role="admin" title="Property Management">
+    <DashboardLayout role="admin" title="Property Management" session={session}>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-600">

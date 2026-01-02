@@ -22,7 +22,7 @@ export default async function AdminBlogPage() {
   const { posts } = data;
 
   return (
-    <DashboardLayout role="admin" title="Blog">
+    <DashboardLayout role="admin" title="Blog" session={session}>
       <BlogManager initialPosts={posts} isAdmin={true} currentUserId={session?.user?.id} />
     </DashboardLayout>
   );

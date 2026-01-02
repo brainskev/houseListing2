@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import StatusBadge from "@/components/ui/StatusBadge";
 import MessageComposer from "./MessageComposer";
 
@@ -13,32 +12,18 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
   const propertyId = property?._id || property;
 
   const toggleRead = async () => {
-    try {
-      await axios.put(`/api/messages/${m._id}`);
-      onUpdated?.();
-    } catch (e) {
-      console.error("Failed to toggle read", e);
-    }
+    // Backend removed: no-op for now
   };
 
-  // For replies: if it's an inbox message, reply to sender; if it's a sent enquiry, reply to recipient.
+  // For replies: favor the original sender for enquiries to avoid self-recipient when owner === current user.
   const senderId = sender?._id || sender;
-  const recipientIdInit = context === "inbox" ? senderId : (recipient?._id || recipient);
+  const recipientIdInit = m._type === "enquiry"
+    ? senderId
+    : (context === "inbox" ? senderId : (recipient?._id || recipient));
   const [recipientId, setRecipientId] = useState(recipientIdInit || null);
 
   useEffect(() => {
-    // When opening reply and we don't have a recipient yet but have a property, resolve owner
-    const resolveRecipient = async () => {
-      if (!open || recipientId || !propertyId) return;
-      try {
-        const res = await axios.get(`/api/properties/${propertyId}`);
-        const ownerId = res?.data?.owner;
-        if (ownerId) setRecipientId(ownerId);
-      } catch (e) {
-        console.error("Failed to resolve property owner for reply", e);
-      }
-    };
-    resolveRecipient();
+    // Backend removed: skip resolving property owner
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, propertyId]);
 
@@ -72,12 +57,7 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
         <div className="flex flex-col items-end gap-2">
           {!m._type && <StatusBadge status={isRead ? "Contacted" : "New"} />} 
           {context === "inbox" && (
-            <button
-              onClick={toggleRead}
-              className="text-xs text-blue-700 underline hover:text-blue-800"
-            >
-              Mark as {isRead ? "Unread" : "Read"}
-            </button>
+            <span className="text-xs text-slate-400">Read toggles disabled</span>
           )}
         </div>
       </div>

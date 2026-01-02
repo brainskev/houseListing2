@@ -1,8 +1,13 @@
 import connectDB from "@/config/db";
 import Message from "@/models/Message";
 import { getSessionUser } from "@/utils/getSessionUser";
+import { Types } from "mongoose";
 
 export const dynamic = "force-dynamic";
+
+function isValidObjectId(id) {
+  return Types.ObjectId.isValid(id);
+}
 
 //PUT /api/messages/:id
 export const PUT = async (request, { params }) => {
@@ -20,6 +25,11 @@ export const PUT = async (request, { params }) => {
     const { userId } = sessionUser;
     const { id } = params;
 
+    // Validate ID is a valid ObjectId
+    if (!isValidObjectId(id)) {
+      return new Response(JSON.stringify({ message: "Invalid message ID" }), { status: 400 });
+    }
+
     const message = await Message.findById(id);
     if (!message)
       return new Response(JSON.stringify({ message: "Message not found" }), {
@@ -33,9 +43,10 @@ export const PUT = async (request, { params }) => {
       });
     }
 
-    // update message status to read/unread depending on current status
+    // update message status to read (toggle functionality kept for toggle use case elsewhere)
     message.read = !message.read;
-    message.save();
+    await message.save();
+
     return new Response(JSON.stringify(message), { status: 200 });
   } catch (error) {
     console.log(error);
@@ -58,6 +69,11 @@ export const DELETE = async (request, { params }) => {
     //Extract user object from session user
     const { userId } = sessionUser;
     const { id } = params;
+
+    // Validate ID is a valid ObjectId
+    if (!isValidObjectId(id)) {
+      return new Response(JSON.stringify({ message: "Invalid message ID" }), { status: 400 });
+    }
 
     const message = await Message.findById(id);
     if (!message)

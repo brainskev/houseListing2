@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import connectDB from "@/config/db";
 import { getSessionUser } from "@/utils/getSessionUser";
 import User from "@/models/User";
-import Enquiry from "@/models/Enquiry";
 import ViewingAppointment from "@/models/ViewingAppointment";
 import Property from "@/models/Property";
 
@@ -85,7 +84,6 @@ export async function DELETE(request, { params }) {
 
     // Clean up associated data
     await Promise.all([
-      Enquiry.deleteMany({ userId: id }),
       ViewingAppointment.deleteMany({ userId: id }),
       Property.deleteMany({ owner: id }),
     ]);
