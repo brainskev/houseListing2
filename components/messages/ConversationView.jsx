@@ -48,19 +48,25 @@ export default function ConversationView({ enquiryId, onBack }) {
 
       <div ref={containerRef} className="mt-4 flex-1 space-y-3 overflow-y-auto">
         {ordered.map((m) => {
-          const senderId = m?.senderId || m?.sender?._id;
+          const senderId = m?.senderId?._id || m?.senderId || m?.sender?._id;
           const isMine = myId && senderId ? senderId === myId : false;
+          const senderName = m?.senderId?.username || m?.senderId?.name || m?.sender?.username || m?.sender?.name || "Unknown";
           return (
             <div key={m._id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm shadow-soft ${
-                  isMine ? "bg-brand-600 text-white" : "bg-brand-50 text-brand-900 ring-1 ring-brand-100"
-                }`}
-              >
-                <p>{m.text}</p>
-                <p className={`mt-1 text-[11px] ${isMine ? "text-white/80" : "text-brand-700"}`}>
-                  {new Date(m.createdAt).toLocaleString()}
-                </p>
+              <div className="flex max-w-[75%] flex-col gap-1">
+                {!isMine && (
+                  <span className="px-2 text-xs font-medium text-slate-600">{senderName}</span>
+                )}
+                <div
+                  className={`rounded-2xl px-4 py-2 text-sm shadow-soft ${
+                    isMine ? "bg-brand-600 text-white" : "bg-brand-50 text-brand-900 ring-1 ring-brand-100"
+                  }`}
+                >
+                  <p>{m.text}</p>
+                  <p className={`mt-1 text-[11px] ${isMine ? "text-white/80" : "text-brand-700"}`}>
+                    {new Date(m.createdAt).toLocaleString()}
+                  </p>
+                </div>
               </div>
             </div>
           );

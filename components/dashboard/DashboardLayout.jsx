@@ -39,7 +39,7 @@ const DashboardLayout = ({ role = "admin", title, children, countsEnabled = true
   const { data: sessionData } = useSession();
   const links = linksConfig[role] || [];
   const { appointments = [] } = useAppointments({ enabled: countsEnabled, ttl: 15000 });
-  const { dashboardSidebarOpen, setDashboardSidebarOpen, unReadCount } = useGlobalContext();
+  const { dashboardSidebarOpen, setDashboardSidebarOpen, unreadMessagesCount = 0 } = useGlobalContext();
 
   const pendingAppointmentsCount = countsEnabled ? appointments.filter((a) => a.status === "pending").length : 0;
 
@@ -70,7 +70,7 @@ const DashboardLayout = ({ role = "admin", title, children, countsEnabled = true
                   ? link.label.includes("Appointments")
                     ? pendingAppointmentsCount
                     : link.label.includes("Messages")
-                    ? 0 // Unread count handled by UnreadMessageCount component
+                    ? unreadMessagesCount
                     : 0
                   : 0;
                 return (
@@ -88,9 +88,9 @@ const DashboardLayout = ({ role = "admin", title, children, countsEnabled = true
                         {Icon && <Icon className="text-slate-500" size={18} />}
                         <span>{link.label}</span>
                       </span>
-                      {link.label.includes("Messages") && unReadCount > 0 ? (
+                      {link.label.includes("Messages") && unreadMessagesCount > 0 ? (
                         <span className="inline-flex items-center rounded-full bg-brand-100 px-2 py-0.5 text-xs font-semibold text-brand-700">
-                          {unReadCount}
+                          {unreadMessagesCount}
                         </span>
                       ) : count > 0 ? (
                         <span className="inline-flex items-center rounded-full bg-brand-100 px-2 py-0.5 text-xs font-semibold text-brand-700">

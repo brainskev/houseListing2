@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { resetCache } from "@/hooks/useCacheFetch";
 import { disconnectSocket } from "@/lib/socket/client";
 import { getSocket } from "@/lib/socket/client";
+import useUnreadCount from "@/hooks/useUnreadCount";
 // Create a context
 const GlobalContext = createContext();
 //create a provider
@@ -16,6 +17,7 @@ export function GlobalProvider({ children }) {
   const [dashboardSidebarOpen, setDashboardSidebarOpen] = useState(false);
   const [threadOpen, setThreadOpen] = useState(false);
   const [activeThread, setActiveThread] = useState(null);
+  const { count: unreadMessagesCount } = useUnreadCount({ enabled: !!session?.user?.id, pollMs: 30000 });
 
   useEffect(() => {
     // Fallback: if a bookmark param is present after login (e.g., Google), process it once
@@ -51,7 +53,7 @@ export function GlobalProvider({ children }) {
     }
   }, [session?.user?.id]);
   return (
-    <GlobalContext.Provider value={{ unReadCount, setUnReadCount, dashboardSidebarOpen, setDashboardSidebarOpen, threadOpen, setThreadOpen, activeThread, setActiveThread }}>
+    <GlobalContext.Provider value={{ unReadCount, setUnReadCount, dashboardSidebarOpen, setDashboardSidebarOpen, threadOpen, setThreadOpen, activeThread, setActiveThread, unreadMessagesCount }}>
       {children}
     </GlobalContext.Provider>
   );
