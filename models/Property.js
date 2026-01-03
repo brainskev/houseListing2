@@ -74,6 +74,10 @@ const PropertySchema = new Schema({
     type: Boolean,
     default: false,
   },
+  show_in_hero: {
+    type: Boolean,
+    default: false,
+  },
 });
 const Property = models.Property || model("Property", PropertySchema);
 export default Property;

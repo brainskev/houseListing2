@@ -3,6 +3,7 @@ import Hero, { PremiumHero, MobileHero } from '@/components/Hero'
 import InfoBoxes from '@/components/InfoBoxes'
 import HomeProperties from "@/components/HomeProperties";
 import FeaturedProperties from "@/components/FeaturedProperties";
+import TestimonialsSection from "@/components/TestimonialsSection";
 
 const HomePage = async () => {
   return (
@@ -30,6 +31,8 @@ const HomePage = async () => {
           <div className="pb-8 md:pb-12">
             <HomeProperties />
           </div>
+
+          <TestimonialsSection />
         </div>
       </div>
     </div>

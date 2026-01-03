@@ -49,8 +49,8 @@ export default function MessageCard({ m, context = "sent", onUpdated, onOpenThre
               {property.location.city}, {property.location.state}
             </p>
           )}
-          <p className="mt-2 text-sm text-slate-900 line-clamp-2 break-words">{previewText}</p>
-          <p className="mt-2 text-xs text-slate-600">
+          <p className="mt-2 text-base md:text-sm text-slate-900 line-clamp-2 break-words">{previewText}</p>
+          <p className="mt-2 text-sm md:text-xs text-slate-600">
             {context === "inbox" ? `From ${sender?.username ?? "User"}` : `To ${recipient?.username ?? "Owner"}`} • {new Date(m.createdAt).toLocaleString()}
           </p>
         </div>
