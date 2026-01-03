@@ -51,6 +51,10 @@ const PropertyContactForm = ({ property }) => {
       if (response.status >= 200 && response.status < 300) {
         toast.success("Your chat has been opened. We will reply here.");
         setIsSubmitted(true);
+        // Scroll to top on mobile after sending
+        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       } else if (response.status === 400 || response.status === 401) {
         toast.error(response?.data?.message);
       } else {

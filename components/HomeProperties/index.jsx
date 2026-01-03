@@ -52,7 +52,7 @@ const HomeProperties = async () => {
         </div>
       </section>
 
-      <section className="m-auto max-w-lg my-10 px-0">
+      <section className="m-auto max-w-lg mt-8 mb-6 px-0 md:my-10">
         <Link
           href="/properties"
           className="group inline-flex w-full items-center justify-center rounded-2xl bg-slate-900 px-6 py-4 text-center text-sm md:text-base font-semibold text-white shadow-soft transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"

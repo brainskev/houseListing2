@@ -36,7 +36,7 @@ const PropertyEditForm = () => {
       email: "",
       phone: "",
     },
-    
+    show_in_hero: false,
   });
   const [step, setStep] = useState(1);
   const [existingImages, setExistingImages] = useState(null);
@@ -206,6 +206,8 @@ const PropertyEditForm = () => {
       formData.set("seller_info.name", fields.seller_info.name || "");
       formData.set("seller_info.email", fields.seller_info.email || "");
       formData.set("seller_info.phone", fields.seller_info.phone || "");
+      // Show in hero
+      formData.set("show_in_hero", String(fields.show_in_hero || false));
       // Preserve ordered existing images
       for (const url of (existingImages || [])) {
         formData.append("existing_images", url);
@@ -673,6 +675,22 @@ const PropertyEditForm = () => {
             value={fields.seller_info.phone}
             onChange={handleChange}
           />
+        </div>
+
+        <div className="mb-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              name="show_in_hero"
+              checked={fields.show_in_hero}
+              onChange={(e) => setFields({ ...fields, show_in_hero: e.target.checked })}
+              className="w-5 h-5 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
+            />
+            <div>
+              <span className="text-gray-800 font-bold">Display in Premium Hero Section</span>
+              <p className="text-xs text-gray-600 mt-1">Show this property in the hero banner on the homepage (requires at least 2 images)</p>
+            </div>
+          </label>
         </div>
 
         <div className="mt-6">

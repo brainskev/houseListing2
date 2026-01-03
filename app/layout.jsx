@@ -1,5 +1,7 @@
 import React from 'react'
 import "@/assets/styles/globals.css";
+import "@/assets/styles/swiper-custom.css";
+import "@/assets/styles/leaflet-custom.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AuthProvider from "@/components/AuthProvider";

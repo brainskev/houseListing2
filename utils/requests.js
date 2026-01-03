@@ -4,16 +4,26 @@ const isServer = typeof window === "undefined";
 const getBaseUrl = () => process.env.NEXT_PUBLIC_DOMAIN || process.env.NEXTAUTH_URL || "http://localhost:3000";
 
 ///Function to get all properties
-async function fetchProperties({ showFeatured = false } = {}) {
+async function fetchProperties({ showFeatured = false, bustCache, pageSize } = {}) {
   try {
+    // Build query params
+    const params = new URLSearchParams();
+    if (bustCache) params.set('t', bustCache);
+    if (pageSize) params.set('pageSize', pageSize);
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+
     // Prefer same-origin fetch on the server to preserve cookies/session
     if (isServer || !apiDomain) {
       const base = getBaseUrl();
-      const res = await fetch(`${base}/api/properties${showFeatured ? "/featured" : ""}`, { cache: "no-store" });
+      const url = `${base}/api/properties${showFeatured ? "/featured" : ""}${queryString}`;
+      const res = await fetch(url, { cache: "no-store" });
       if (!res.ok) return [];
       return await res.json();
     }
-    const res = await axios.get(`${apiDomain}/properties${showFeatured ? "/featured" : ""}`, { cache: "no-store" });
+    const url = `${apiDomain}/properties${showFeatured ? "/featured" : ""}${queryString}`;
+    const res = await axios.get(url, {
+      headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+    });
     return res?.data;
   } catch (error) {
     console.log(error);

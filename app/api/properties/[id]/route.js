@@ -113,6 +113,7 @@ export const PUT = async (request, { params }) => {
         email: formData.get('seller_info.email'),
         phone: formData.get('seller_info.phone'),
       },
+      show_in_hero: formData.get('show_in_hero') === 'true',
       owner: userId,
     };
 
@@ -138,6 +139,47 @@ export const PUT = async (request, { params }) => {
       status: 200,
     });
   } catch (error) {
+    return new Response('Failed to update property', { status: 500 });
+  }
+};
+
+// PATCH /api/properties/:id - Quick update for specific fields
+export const PATCH = async (request, { params }) => {
+  try {
+    await connectDB();
+
+    const sessionUser = await getSessionUser();
+    if (!sessionUser || !sessionUser.userId) {
+      return new Response('User ID is required', { status: 401 });
+    }
+
+    const { id } = params;
+    const { userId } = sessionUser;
+    const body = await request.json();
+
+    console.log(`PATCH /api/properties/${id}`, body);
+
+    const existingProperty = await Property.findById(id);
+    if (!existingProperty) {
+      return new Response('Property does not exist', { status: 404 });
+    }
+
+    // Verify ownership or admin role
+    const userRole = sessionUser.user?.role;
+    if (existingProperty.owner.toString() !== userId && userRole !== 'admin') {
+      return new Response('Unauthorized', { status: 401 });
+    }
+
+    // Only allow updating show_in_hero field via PATCH
+    if (body.hasOwnProperty('show_in_hero')) {
+      existingProperty.show_in_hero = body.show_in_hero;
+      await existingProperty.save();
+      console.log(`Property ${id} updated: show_in_hero=${body.show_in_hero}`);
+    }
+
+    return new Response(JSON.stringify(existingProperty), { status: 200 });
+  } catch (error) {
+    console.error('PATCH error:', error);
     return new Response('Failed to update property', { status: 500 });
   }
 };

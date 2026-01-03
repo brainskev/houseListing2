@@ -1,11 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
-import "mapbox-gl/dist/mapbox-gl.css";
-import Map, { Marker } from "react-map-gl";
-import { setDefaults, fromAddress } from "react-geocode";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 import Spinner from "../Spinner";
-import Image from "next/image";
-import pin from "@/assets/images/pin.svg";
+
+// Fix Leaflet default marker icon issue in Next.js
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+});
 
 const PropertyMap = ({ property }) => {
   const [lat, setLat] = useState(null);
@@ -13,83 +19,107 @@ const PropertyMap = ({ property }) => {
   const [loading, setLoading] = useState(true);
   const [geoCodeError, setGeoCodeError] = useState(false);
 
-  const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
-  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
-
-  const [viewport, setViewport] = useState({
-    latitude: 0,
-    longitude: 0,
-    zoom: 12,
-    width: "100%",
-    height: "500px",
-  });
-
-  // Configure geocode defaults if key exists
-  if (googleApiKey) {
-    setDefaults({
-      key: googleApiKey,
-      language: "en",
-      region: "us",
-    });
-  }
   useEffect(() => {
     const fetchCoords = async () => {
-      if (!googleApiKey || !mapboxToken) {
-        setGeoCodeError(true);
-        setLoading(false);
-        return;
-      }
       try {
-        const response = await fromAddress(
-          `${property?.location?.street} ${property?.location?.city} ${property?.location?.state} ${property?.location?.zipcode}`
-        );
-        if (response?.results?.length === 0) {
+        const address = `${property?.location?.street || ""} ${property?.location?.city || ""} ${property?.location?.state || ""} ${property?.location?.zipcode || ""}`.trim();
+        
+        if (!address) {
+          console.log("No address available");
           setGeoCodeError(true);
           setLoading(false);
           return;
         }
-        const { lat, lng } = response?.results[0]?.geometry?.location;
-        setLng(lng);
-        setLat(lat);
-        setViewport({ ...viewport, latitude: lat, longitude: lng });
+
+        console.log("Geocoding address:", address);
+        
+        // Use Nominatim (OpenStreetMap) for free geocoding with proper headers
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`,
+          {
+            headers: {
+              'User-Agent': 'PropertyPulse/1.0'
+            }
+          }
+        );
+        
+        if (!response.ok) {
+          console.error("Geocoding API error:", response.status);
+          setGeoCodeError(true);
+          setLoading(false);
+          return;
+        }
+
+        const data = await response.json();
+        console.log("Geocoding response:", data);
+        
+        if (data.length === 0) {
+          console.log("No geocoding results found for:", address);
+          setGeoCodeError(true);
+          setLoading(false);
+          return;
+        }
+        
+        const latitude = parseFloat(data[0].lat);
+        const longitude = parseFloat(data[0].lon);
+        
+        console.log("Coordinates found:", { latitude, longitude });
+        
+        setLat(latitude);
+        setLng(longitude);
         setLoading(false);
       } catch (error) {
-        console.log(error);
+        console.error("Geocoding error:", error);
         setGeoCodeError(true);
         setLoading(false);
       }
     };
-    fetchCoords();
-  }, [googleApiKey, mapboxToken, property]);
+    
+    if (property?.location) {
+      fetchCoords();
+    } else {
+      console.log("No property location data");
+      setGeoCodeError(true);
+      setLoading(false);
+    }
+  }, [property]);
+
   if (loading) return <Spinner loading={loading} />;
 
-  //Handle the case where no location data found
-  if (geoCodeError) {
+  // Handle the case where no location data found
+  if (geoCodeError || !lat || !lng) {
     return (
       <div className="text-sm text-gray-600 bg-gray-50 border border-dashed border-gray-200 p-4 rounded-lg">
-        Map unavailable. Add location details and set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY and NEXT_PUBLIC_MAPBOX_TOKEN to enable the map.
+        Map unavailable. Unable to geocode the property location.
       </div>
     );
   }
 
   return (
-    !loading && (
-      <Map
-        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-        mapLib={import("mapbox-gl")}
-        initialViewState={{
-          longitude: lng,
-          latitude: lat,
-          zoom: 15,
-        }}
-        style={{ width: "100%", height: "500px" }}
-        mapStyle="mapbox://styles/mapbox/streets-v9"
+    <div className="h-[300px] w-full rounded-lg overflow-hidden border border-gray-200">
+      <MapContainer
+        center={[lat, lng]}
+        zoom={14}
+        scrollWheelZoom={false}
+        style={{ height: "100%", width: "100%" }}
       >
-        <Marker longitude={lng} latitude={lat} anchor="bottom">
-          <Image src={pin} alt="location" width={40} height={40} />
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={[lat, lng]}>
+          <Popup>
+            <div className="text-sm">
+              <strong>{property?.name}</strong>
+              <br />
+              {property?.location?.street}
+              <br />
+              {property?.location?.city}, {property?.location?.state}
+            </div>
+          </Popup>
         </Marker>
-      </Map>
-    )
+      </MapContainer>
+    </div>
   );
 };
 

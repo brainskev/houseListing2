@@ -1,0 +1,30 @@
+/* Custom Swiper Styles for Testimonials */
+
+.swiper-pagination-bullet {
+  background: #cbd5e1;
+  opacity: 1;
+  width: 8px;
+  height: 8px;
+  transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+  width: 24px;
+  border-radius: 4px;
+}
+
+.swiper-button-disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Ensure equal height for all slides */
+.swiper-slide {
+  height: auto;
+  display: flex;
+}
+
+.swiper-slide > div {
+  width: 100%;
+}
