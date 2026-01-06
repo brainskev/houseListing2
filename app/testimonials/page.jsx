@@ -15,7 +15,7 @@ export default function TestimonialPage() {
             Share Your Experience
           </h1>
           <p className="text-lg text-slate-600">
-            We'd love to hear about your experience with us. Your feedback helps us improve and helps others make informed decisions.
+            We&apos;d love to hear about your experience with us. Your feedback helps us improve and helps others make informed decisions.
           </p>
         </div>
 
@@ -36,7 +36,7 @@ export default function TestimonialPage() {
             </li>
             <li className="flex items-start">
               <span className="mr-2">✓</span>
-              <span>You'll help future clients make informed decisions</span>
+              <span>You&apos;ll help future clients make informed decisions</span>
             </li>
           </ul>
         </div>
