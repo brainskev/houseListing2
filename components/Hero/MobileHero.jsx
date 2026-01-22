@@ -62,13 +62,14 @@ export default function MobileHero() {
       {/* Hero Background */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=1000&auto=format&fit=crop"
+          src="/images/home-hero.jpg"
           alt="Luxury home"
           fill
           className="object-cover"
           priority
           quality={85}
         />
+
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-brand-900/60 to-black/30" />
       </div>
 
