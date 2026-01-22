@@ -9,7 +9,7 @@ const InfoBox = ({heading,backgroundColor,buttonInfo,children}) => {
     </p>
     <a
       href={`${buttonInfo.link}`}
-      className={`inline-block ${buttonInfo.backgroundColor} text-white rounded-lg px-4 py-2 opacity-80`}
+      className={`inline-block ${buttonInfo.backgroundColor} text-white rounded-lg px-4 py-2 hover:opacity-90 transition-opacity`}
     >
      {buttonInfo.text}
     </a>

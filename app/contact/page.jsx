@@ -10,10 +10,10 @@ export default function ContactPage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-r from-indigo-700 to-brand-700 text-white">
+      <section className="bg-gradient-to-r from-brand-700 to-brand-600 text-white">
         <div className="container mx-auto px-6 py-16">
           <h1 className="text-4xl font-bold tracking-tight">Contact Us</h1>
-          <p className="mt-3 text-indigo-100 text-lg">We’re here to help with enquiries, support, and partnerships.</p>
+          <p className="mt-3 text-brand-100 text-lg">We're here to help with enquiries, support, and partnerships.</p>
         </div>
       </section>
 

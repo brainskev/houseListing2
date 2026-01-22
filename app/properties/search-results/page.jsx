@@ -7,11 +7,15 @@ import Link from "next/link";
 import { FaArrowAltCircleLeft } from "react-icons/fa";
 import PropertyCard from "@/components/PropertyCard";
 import PropertySearchForm from "@/components/PropertySearchForm";
+import Pagination from "@/components/Pagination";
 
 const SearchResultsPage = () => {
   const searchParams = useSearchParams();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(6);
+  const [totalItems, setTotalItems] = useState(0);
   const location = searchParams.get("location");
   const propertyType = searchParams.get("propertyType");
   const minPrice = searchParams.get("minPrice");
@@ -26,24 +30,34 @@ const SearchResultsPage = () => {
         if (propertyType) params.append("propertyType", propertyType);
         if (minPrice) params.append("minPrice", minPrice);
         if (maxPrice) params.append("maxPrice", maxPrice);
+        params.append("page", page);
+        params.append("pageSize", pageSize);
 
         const response = await axios.get(
           `/api/properties/search?${params.toString()}`
         );
         console.log("response", response);
         if (response.status >= 200 && response.status < 300) {
-          setProperties(response.data);
+          setProperties(response.data?.properties || response.data);
+          setTotalItems(response.data?.total || 0);
         } else {
           setProperties([]);
+          setTotalItems(0);
         }
       } catch (error) {
         console.log(error);
+        setProperties([]);
+        setTotalItems(0);
       } finally {
         setLoading(false);
       }
     };
     fetchSearchResults();
-  }, [location, propertyType, minPrice, maxPrice]);
+  }, [location, propertyType, minPrice, maxPrice, page, pageSize]);
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
 
   return (
     <>
@@ -73,6 +87,12 @@ const SearchResultsPage = () => {
                 ))}
               </div>
             )}
+            <Pagination
+              page={page}
+              pageSize={pageSize}
+              totalItems={totalItems}
+              onPageChange={handlePageChange}
+            />
           </div>
         </section>
       )}

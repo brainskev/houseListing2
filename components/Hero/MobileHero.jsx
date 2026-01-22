@@ -58,7 +58,7 @@ export default function MobileHero() {
   };
 
   return (
-    <div className="w-full min-h-screen relative overflow-hidden lg:hidden">
+    <div className="w-full min-h-screen relative overflow-hidden">
       {/* Hero Background */}
       <div className="absolute inset-0 z-0">
         <Image

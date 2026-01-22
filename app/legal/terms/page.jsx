@@ -7,10 +7,10 @@ export default function TermsPage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-r from-indigo-700 to-brand-700 text-white">
+      <section className="bg-gradient-to-r from-brand-700 to-brand-600 text-white">
         <div className="container mx-auto px-6 py-16">
           <h1 className="text-4xl font-bold tracking-tight">Terms of Service</h1>
-          <p className="mt-3 text-slate-200">Please read these terms carefully before using Brickly.</p>
+          <p className="mt-3 text-brand-100">Please read these terms carefully before using Brickly.</p>
         </div>
       </section>
 
