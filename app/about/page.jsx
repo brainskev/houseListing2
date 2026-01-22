@@ -10,7 +10,7 @@ export default function AboutPage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-brand-700 via-indigo-700 to-purple-700 text-white">
+      <section className="bg-gradient-to-br from-brand-700 via-brand-600 to-brand-700 text-white">
         <div className="container mx-auto px-6 py-16">
           <div className="max-w-3xl">
             <h1 className="text-4xl font-bold tracking-tight">About Brickly</h1>

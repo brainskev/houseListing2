@@ -9,10 +9,10 @@ const InfoBoxes = () => {
   const canManageListings = ["admin", "assistant"].includes(session?.user?.role);
 
   const ownerButton = canManageListings
-    ? { text: "Add Property", link: "/properties/add", backgroundColor: "bg-brand-500" }
+    ? { text: "Add Property", link: "/properties/add", backgroundColor: "bg-brand-600" }
     : session
-    ? { text: "Send Enquiry", link: "/dashboard/user/enquiry", backgroundColor: "bg-brand-500" }
-    : { text: "Add Property", link: "/properties/add", backgroundColor: "bg-brand-500" };
+    ? { text: "Send Enquiry", link: "/dashboard/user/enquiry", backgroundColor: "bg-brand-600" }
+    : { text: "Add Property", link: "/properties/add", backgroundColor: "bg-brand-600" };
 
   return (
     <section>
@@ -21,7 +21,7 @@ const InfoBoxes = () => {
           <InfoBox
             heading={"For Buyers"}
             backgroundColor={"bg-white"}
-            buttonInfo={{ text: "Browse Properties", link: "/properties", backgroundColor: "bg-black" }}
+            buttonInfo={{ text: "Browse Properties", link: "/properties", backgroundColor: "bg-brand-600" }}
           >
             Find your dream rental property. Bookmark properties and contact owners.
           </InfoBox>

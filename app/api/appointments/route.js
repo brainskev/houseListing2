@@ -11,7 +11,7 @@ const allowedStatuses = ["pending", "confirmed", "completed"];
 
 // --- Simple per-IP rate limiter (3 requests per 60s window) ---
 const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 3;
+const RATE_LIMIT_MAX = 0.1;
 const ipRequestLog = new Map();
 
 function getClientIp(request) {
@@ -30,7 +30,7 @@ function isRateLimited(ip) {
   recent.push(now);
   ipRequestLog.set(ip, recent);
   return false;
-}
+}/*  */
 
 function sanitizeText(value, maxLen) {
   const s = (typeof value === "string" ? value : "").trim();

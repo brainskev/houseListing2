@@ -7,10 +7,10 @@ export default function PrivacyPage() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-r from-indigo-700 to-brand-700 text-white">
+      <section className="bg-gradient-to-r from-brand-700 to-brand-600 text-white">
         <div className="container mx-auto px-6 py-16">
           <h1 className="text-4xl font-bold tracking-tight">Privacy Policy</h1>
-          <p className="mt-3 text-slate-200">How we collect, use, and protect your information.</p>
+          <p className="mt-3 text-brand-100">How we collect, use, and protect your information.</p>
         </div>
       </section>
 
