@@ -8,7 +8,7 @@ export const GET = async () => {
 
     const properties = await Property.find({
       is_featured: true,
-    });
+    }).sort({ createdAt: -1 });
 
     return new Response(JSON.stringify(properties), {
       status: 200,

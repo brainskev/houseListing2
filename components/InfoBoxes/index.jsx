@@ -9,10 +9,10 @@ const InfoBoxes = () => {
   const canManageListings = ["admin", "assistant"].includes(session?.user?.role);
 
   const ownerButton = canManageListings
-    ? { text: "Add Property", link: "/properties/add", backgroundColor: "bg-brand-600" }
+    ? { text: "List Property", link: "/properties/add", backgroundColor: "bg-brand-600" }
     : session
     ? { text: "Send Enquiry", link: "/dashboard/user/enquiry", backgroundColor: "bg-brand-600" }
-    : { text: "Add Property", link: "/properties/add", backgroundColor: "bg-brand-600" };
+    : { text: "List Property", link: "/properties/add", backgroundColor: "bg-brand-600" };
 
   return (
     <section>
