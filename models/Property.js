@@ -78,6 +78,8 @@ const PropertySchema = new Schema({
     type: Boolean,
     default: false,
   },
+}, {
+  timestamps: true,
 });
 const Property = models.Property || model("Property", PropertySchema);
 export default Property;

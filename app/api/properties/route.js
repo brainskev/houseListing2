@@ -12,6 +12,7 @@ export const GET = async (request) => {
     const skip = (page - 1) * pageSize;
     const total = await Property.countDocuments({});
     const properties = await Property.find({})
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(pageSize)
       .populate({ path: 'owner', select: 'name email' });
