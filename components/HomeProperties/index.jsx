@@ -17,8 +17,8 @@ const HomeProperties = async () => {
 
   const recentProperties = [...allProperties]
     .sort((a, b) => {
-      const aDate = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
-      const bDate = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
+      const aDate = a?.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+      const bDate = b?.updatedAt ? new Date(b.updatedAt).getTime() : 0;
       return bDate - aDate; // newest first
     })
     .slice(0, 6)
